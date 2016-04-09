@@ -9,7 +9,7 @@ uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 
 //out vec4 worldPosition; //This is being passed to the fragment shader to calculate the normals
-out vec3 normalFromVS;
+//out vec3 normalFromVS;
 flat out ivec2 materialFromVS;
 
 void main()
@@ -20,7 +20,7 @@ void main()
 	
 	// This example is demonstrating the marching cubes mesh, which does have per-vertex normals. We can 
 	// just pass them through, though real code might want to deal with transforming normals appropriatly.
-        normalFromVS = normal.xyz;
+        //normalFromVS = normal.xyz;
 
 	// Nothing special here, we just pass the material through to the fragment shader.
 	materialFromVS = material;

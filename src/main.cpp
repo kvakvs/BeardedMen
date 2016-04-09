@@ -35,7 +35,7 @@ SOFTWARE.
 
 namespace pv = PolyVox;
 
-using VoxelType = pv::MaterialDensityPair44;
+using VoxelType = pv::MaterialDensityPair88;
 using PagedVolume = pv::PagedVolume<VoxelType>;
 
 /**
@@ -107,7 +107,8 @@ public:
                 voxel.setDensity(VoxelType::getMinDensity());
             } else {
                 // solid
-                voxel.setMaterial(2);
+                uint8_t m = (x + y + z) % 5 + 1;
+                voxel.setMaterial(m);
                 voxel.setDensity(VoxelType::getMaxDensity());
             }
         } else {

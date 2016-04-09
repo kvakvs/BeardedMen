@@ -1,7 +1,7 @@
 #version 150
 
 //in vec4 worldPosition; //Passed in from the vertex shader
-in vec3 normalFromVS;
+//in vec3 normalFromVS;
 flat in ivec2 materialFromVS;
 
 out vec4 outputColor;
@@ -11,7 +11,7 @@ void main()
 	// The first byte of our voxel data is the material.
 	// We use this to decide how to color the fragment.
         vec4 surfaceColor;
-	switch(materialFromVS.x)
+        switch(materialFromVS.x)
 	{
 	case 1:
                 surfaceColor = vec4(1.0, 0.3, 0.3, 1.0);
