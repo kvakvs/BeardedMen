@@ -27,84 +27,47 @@ SOFTWARE.
 
 namespace nrdf {
 
-void BaseWidget::setShader(QSharedPointer<QGLShaderProgram> shader) {
-    shader_ = shader;
+void BaseWidget::initialize() {
+    // Now do any initialization for the specific example.
+    initializeExample();
 }
 
-void BaseWidget::initialize() {
-    shader_ = QSharedPointer<QGLShaderProgram>(new QGLShaderProgram);
+void BaseWidget::renderOneFrame()
+{
+}
 
-    // This is basically a simple fallback vertex shader which does the most
-    // basic rendering possible.
-    // PolyVox examples are able to provide their own shaders to demonstrate
-    // certain effects if desired.
-    if (!shader_->addShaderFromSourceFile(QGLShader::Vertex,
-                                          ":/shader/colored_blocks.vert")) {
-        std::cerr << shader_->log().toStdString() << std::endl;
+BaseWidget::ShaderPtr BaseWidget::load_shader(const char *name)
+{
+    auto shad = QSharedPointer<QGLShaderProgram>(new QGLShaderProgram);
+    std::string v_name = std::string(":/shader/") + name + ".vert";
+    std::string f_name = std::string(":/shader/") + name + ".frag";
+
+    if (!shad->addShaderFromSourceFile(QGLShader::Vertex,
+                                       v_name.c_str())) {
+        std::cerr << shad->log().toStdString() << std::endl;
         exit(EXIT_FAILURE);
     }
-
-    // This is basically a simple fallback fragment shader which does the most
-    // basic rendering possible.
-    // PolyVox examples are able to provide their own shaders to demonstrate
-    // certain effects if desired.
-    if (!shader_->addShaderFromSourceFile(QGLShader::Fragment,
-                                          ":/shader/colored_blocks.frag")) {
-        std::cerr << shader_->log().toStdString() << std::endl;
+    if (!shad->addShaderFromSourceFile(QGLShader::Fragment,
+                                       f_name.c_str())) {
+        std::cerr << shad->log().toStdString() << std::endl;
         exit(EXIT_FAILURE);
     }
 
     // Bind the position semantic - this is defined in the vertex shader above.
-    shader_->bindAttributeLocation("position", 0);
+    shad->bindAttributeLocation("position", 0);
 
     // Bind the other semantics. Note that these don't actually exist in our
     // example shader above! However, other
     // example shaders may choose to provide them and having the binding code
     // here does not seem to cause any problems.
-    shader_->bindAttributeLocation("normal", 1);
-    shader_->bindAttributeLocation("material", 2);
+    shad->bindAttributeLocation("normal", 1);
+    shad->bindAttributeLocation("material", 2);
 
-    if (!shader_->link()) {
-        std::cerr << shader_->log().toStdString() << std::endl;
+    if (!shad->link()) {
+        std::cerr << shad->log().toStdString() << std::endl;
         exit(EXIT_FAILURE);
     }
-
-    // Now do any initialization for the specific example.
-    initializeExample();
+    return shad;
 }
-
-void BaseWidget::renderOneFrame() {
-    // Our example framework only uses a single shader for the scene (for all
-    // meshes).
-    shader_->bind();
-
-    // These two matrices are constant for all meshes.
-    shader_->setUniformValue("viewMatrix", viewMatrix());
-    shader_->setUniformValue("projectionMatrix", projectionMatrix());
-
-    // Iterate over each mesh which the user added to our list, and render it.
-    for (OpenGLMeshData meshData : mesh_data_) {
-        // Set up the model matrrix based on provided translation and scale.
-        QMatrix4x4 modelMatrix;
-        modelMatrix.translate(meshData.translation);
-        modelMatrix.scale(meshData.scale);
-        shader_->setUniformValue("modelMatrix", modelMatrix);
-
-        // Bind the vertex array for the current mesh
-        this->glBindVertexArray(meshData.vertexArrayObject);
-        // Draw the mesh
-        this->glDrawElements(GL_TRIANGLES, meshData.noOfIndices,
-                             meshData.indexType, 0);
-        // Unbind the vertex array.
-        this->glBindVertexArray(0);
-    }
-
-    // We're done with the shader for this frame.
-    shader_->release();
-
-    draw_axes();
-}
-
-void BaseWidget::draw_axes() {}
 
 } // ns nrdf

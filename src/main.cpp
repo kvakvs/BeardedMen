@@ -141,10 +141,22 @@ class PagingWidget : public BaseWidget {
 
    protected:
     std::unique_ptr<MyPager> pager_;
+
+    // DORF!
     std::unique_ptr<nrdf::QBFile> model1_;
+    OpenGLMeshData model1_mesh_;
+
+    // Ground shader and mesh
+    ShaderPtr terrain_shader_;
+    OpenGLMeshData terrain_mesh_;
+
+    ShaderPtr model_shader_;
 
     void initializeExample() override
     {
+        terrain_shader_ = load_shader("colored_blocks");
+        model_shader_   = load_shader("rgb_blocks");
+
         pager_ = std::make_unique<MyPager>();
         PagedVolume volData(pager_.get(), 64 * 1024 * 1024, 64);
 
@@ -182,17 +194,19 @@ class PagingWidget : public BaseWidget {
 
         // Pass the surface to the OpenGL window
         //
-        addMesh(decodedMesh);
+        terrain_mesh_ = addMesh(decodedMesh);
 //        addMesh(decodedMesh,
-//                Vec3i(0.f, 0.f, 0.f),
+//                Vec3f(0.f, 0.f, 0.f),
 //                QVector3D(1.f, -1.f, 1.f));
 
         //
         // Load models
         //
         model1_ = std::make_unique<nrdf::QBFile>("assets/model/dorf.qb");
-        auto m1mesh = model1_->get_mesh_for_volume(0);
-        addMesh(m1mesh, Vec3i(0, 0, 0));
+        auto m1mesh  = model1_->get_mesh_for_volume(0);
+        model1_mesh_ = addMesh(m1mesh,
+                               Vec3f(0.f, 1.0f, 0.f),
+                               Vec3f(1.f/4.f, 1.f/4.f, 1.f/4.f));
 
         setCameraTransform(
             QVector3D(0.0f, 10.0f, 0.0f), PI / 4.0, 0);
@@ -213,6 +227,39 @@ class PagingWidget : public BaseWidget {
             }
         }
     };
+
+    virtual void renderOneFrame() override
+    {
+        render_model(terrain_mesh_, terrain_shader_);
+        render_model(model1_mesh_, model_shader_);
+    }
+
+    void render_model(OpenGLMeshData &mesh, ShaderPtr shad)
+    {
+        shad->bind();
+
+        // These two matrices are constant for all meshes.
+        shad->setUniformValue("viewMatrix", viewMatrix());
+        shad->setUniformValue("projectionMatrix", projectionMatrix());
+
+        // Set up the model matrrix based on provided translation and scale.
+        QMatrix4x4 model_mx;
+        model_mx.translate(mesh.translation);
+        model_mx.scale(mesh.scale);
+        shad->setUniformValue("modelMatrix", model_mx);
+
+        // Bind the vertex array for the current mesh
+        this->glBindVertexArray(mesh.vertexArrayObject);
+        // Draw the mesh
+        this->glDrawElements(GL_TRIANGLES, mesh.noOfIndices,
+                             mesh.indexType, 0);
+        // Unbind the vertex array.
+        this->glBindVertexArray(0);
+
+        // We're done with the shader for this frame.
+        shad->release();
+    }
+
 };
 
 } // ns nrdf

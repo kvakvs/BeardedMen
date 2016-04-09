@@ -31,16 +31,15 @@ class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
    public:
     BaseWidget(QWidget* parent) : OpenGLWidget(parent) {}
 
-    // For our purposes we use a single shader for the whole volume, and
-    // this example framework is only meant to show a single volume at a time
-    void setShader(QSharedPointer<QGLShaderProgram> shader);
+    using ShaderPtr = QSharedPointer<QGLShaderProgram>;
 
     // Convert a PolyVox mesh to OpenGL index/vertex buffers. Inlined because
     // it's templatised.
     template <typename MeshType>
-    void addMesh(const MeshType& surfaceMesh,
-                 const Vec3i& trans = Vec3i(0,0,0),
-                 const QVector3D &scale = QVector3D(1.0f, 1.0f, 1.0f)) {
+    OpenGLMeshData addMesh(const MeshType& surfaceMesh,
+                           const Vec3f& trans = Vec3f(0,0,0),
+                           const Vec3f &scale = Vec3f(1.0f, 1.0f, 1.0f))
+    {
         // This struct holds the OpenGL properties (buffer handles, etc) which
         // will be used to render our mesh. We copy the data from the PolyVox
         // mesh into this structure.
@@ -109,7 +108,8 @@ class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
         meshData.noOfIndices = surfaceMesh.getNoOfIndices();
         meshData.translation = QVector3D(trans.getX(), trans.getY(),
                                          trans.getZ());
-        meshData.scale = scale;
+        meshData.scale = QVector3D(scale.getX(), scale.getY(),
+                                   scale.getZ());
 
         // Set 16 or 32-bit index buffer size.
         meshData.indexType = sizeof(typename MeshType::IndexType) == 2
@@ -117,14 +117,12 @@ class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
                                  : GL_UNSIGNED_INT;
 
         // Now add the mesh to the list of meshes to render.
-        addMeshData(meshData);
+        return meshData;
     }
 
-    void addMeshData(OpenGLMeshData meshData) {
-        mesh_data_.push_back(meshData);
-    }
+    ShaderPtr load_shader(const char *name);
 
-   protected:
+protected:
     const float PI = M_PI;
 
     virtual void initializeExample() {}
@@ -133,10 +131,8 @@ class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
 
    private:
     // Index/vertex buffer data
-    std::vector<OpenGLMeshData> mesh_data_;
-    QSharedPointer<QGLShaderProgram> shader_;
-
-    void draw_axes();
+    //std::vector<OpenGLMeshData> mesh_data_;
+    //QSharedPointer<QGLShaderProgram> shader_;
 };
 
 } // ns nrdf

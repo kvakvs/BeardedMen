@@ -39,20 +39,11 @@ void QBFile::read(FILE* f)
         fread(&t, sizeof(int), 1, f);   vol->pos_.setY(t);
         fread(&t, sizeof(int), 1, f);   vol->pos_.setZ(t);
 
-        vol->m_boneIndex = -1;
-        //pNewMatrix->m_pMesh     = NULL;
-
-        vol->m_scale   = 1.0f;
-        vol->m_offsetX = 0.0f;
-        vol->m_offsetY = 0.0f;
-        vol->m_offsetZ = 0.0f;
-
-        vol->m_removed = false;
+        vol->bone_idx_ = -1;
+        vol->scale_   = 1.0f;
+        vol->removed_ = false;
 
         vol->create_voxels();
-//        vol->m_pColour = std::make_unique<uint32_t[]>(
-//            vol->size_.getX() * vol->size_.getY() * vol->size_.getZ()
-//        );
 
         if (compressed_ == 0) {
             read_compressed(f, vol);
@@ -75,8 +66,8 @@ void QBFile::read_compressed(FILE *f, QBVolume *vol)
                 // TODO: Oh yeah, fread every pixel, sloooow
                 // Make at least per-plane or whole data read then parse
                 fread(&tmp, sizeof(uint32_t), 1, f);
-                v.setMaterial(tmp >> 8);
-                v.setDensity(tmp & 0xFF);
+                v.setMaterial(tmp & 0xFFFFFF);
+                v.setDensity(tmp >> 24);
                 vol->voxels_->setVoxel(x, y, z, v);
             }
         }
@@ -110,8 +101,8 @@ void QBFile::read_uncompressed(FILE *f, QBVolume* vol)
                     uint32_t x = index % vol->size_.getX();
                     uint32_t y = index / vol->size_.getX();
 
-                    v.setMaterial(data >> 8);
-                    v.setDensity(data & 0xFF);
+                    v.setMaterial(data & 0xFFFFFF);
+                    v.setDensity(data >> 24);
                     vol->voxels_->setVoxel(x, y, z, v);
                     index++;
                 }
@@ -119,8 +110,8 @@ void QBFile::read_uncompressed(FILE *f, QBVolume* vol)
                 uint32_t x = index % vol->size_.getX();
                 uint32_t y = index / vol->size_.getX();
 
-                v.setMaterial(data >> 8);
-                v.setDensity(data & 0xFF);
+                v.setMaterial(data & 0xFFFFFF);
+                v.setDensity(data >> 24);
                 vol->voxels_->setVoxel(x, y, z, v);
                 index++;
             }

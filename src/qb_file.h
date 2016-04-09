@@ -28,16 +28,14 @@ public:
     //std::unique_ptr<uint32_t[]> m_pColour;
     std::unique_ptr<VoxVolume> voxels_;
 
-    int m_boneIndex;
+    int bone_idx_;
 
-    QMatrix4x4 m_modelMatrix;
+    QMatrix4x4 matrix_;
 
-    float m_scale;
-    float m_offsetX;
-    float m_offsetY;
-    float m_offsetZ;
+    float scale_;
+    Vec3f offset_;
 
-    bool m_removed;
+    bool removed_;
 
     // Call this when size_ is known and it's time to allocate voxels_
     // Result: creates voxels_
