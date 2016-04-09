@@ -24,6 +24,8 @@ SOFTWARE.
 
 #include "base_app.h"
 #include "perlin.h"
+#include "qb_file.h"
+#include "vector.h"
 
 #include "PolyVox/CubicSurfaceExtractor.h"
 #include "PolyVox/MarchingCubesSurfaceExtractor.h"
@@ -34,6 +36,8 @@ SOFTWARE.
 #include <QApplication>
 
 namespace pv = PolyVox;
+
+namespace nrdf {
 
 //using VoxelType = pv::MaterialDensityPair88;
 using VoxelType = pv::MaterialDensityPair<uint8_t, 8, 8>;
@@ -84,19 +88,6 @@ class MyPager : public PagedVolume::Pager {
                 }
             }
         }
-
-//        VoxelType corner_vox;
-//        corner_vox.setMaterial(1);
-//        corner_vox.setDensity(VoxelType::getMaxDensity());
-//        pChunk->setVoxel(0, 0, 0, corner_vox);  // x axis, dark green
-//        pChunk->setVoxel(1, 0, 0, corner_vox);
-//        pChunk->setVoxel(2, 0, 0, corner_vox);
-//        corner_vox.setMaterial(2);
-//        pChunk->setVoxel(0, 1, 0, corner_vox);  // y axis, light green
-//        pChunk->setVoxel(0, 2, 0, corner_vox);
-//        corner_vox.setMaterial(3);
-//        pChunk->setVoxel(0, 0, 1, corner_vox);  // z axis, yellow green
-//        pChunk->setVoxel(0, 0, 2, corner_vox);
     }
 
     static VoxelType get_solid_block_voxel(float perlinVal,
@@ -149,17 +140,21 @@ class PagingWidget : public BaseWidget {
     PagingWidget(QWidget* parent) : BaseWidget(parent) {}
 
    protected:
-    void initializeExample() override {
-        MyPager* pager = new MyPager();
-        PagedVolume volData(pager, 8 * 1024 * 1024, 64);
+    std::unique_ptr<MyPager> pager_;
+    std::unique_ptr<nrdf::QBFile> model1_;
+
+    void initializeExample() override
+    {
+        pager_ = std::make_unique<MyPager>();
+        PagedVolume volData(pager_.get(), 64 * 1024 * 1024, 64);
 
         // Just some tests of memory usage, etc.
         std::cout << "Memory usage: "
                   << (volData.calculateSizeInBytes() / 1024.0 / 1024.0) << "MB"
                   << std::endl;
 
-        pv::Region reg(pv::Vector3DInt32(0, 0, 0),
-                       pv::Vector3DInt32(world_sz_x, world_sz_y, world_sz_z));
+        pv::Region reg(Vec3i(0, 0, 0),
+                       Vec3i(world_sz_x, world_sz_y, world_sz_z));
         std::cout << "Prefetching region: " << reg.getLowerCorner() << " -> "
                   << reg.getUpperCorner() << std::endl;
         volData.prefetch(reg);
@@ -170,8 +165,8 @@ class PagingWidget : public BaseWidget {
         //
         // Extract the surface
         //
-        pv::Region reg2(pv::Vector3DInt32(0, 0, 0),
-                        pv::Vector3DInt32(view_sz_x, view_sz_y, view_sz_z));
+        pv::Region reg2(Vec3i(0, 0, 0),
+                        Vec3i(view_sz_x, view_sz_y, view_sz_z));
 
         VoxelType empty_vox;
         empty_vox.setMaterial(0);
@@ -189,8 +184,15 @@ class PagingWidget : public BaseWidget {
         //
         addMesh(decodedMesh);
 //        addMesh(decodedMesh,
-//                pv::Vector3DInt32(0.f, 0.f, 0.f),
+//                Vec3i(0.f, 0.f, 0.f),
 //                QVector3D(1.f, -1.f, 1.f));
+
+        //
+        // Load models
+        //
+        model1_ = std::make_unique<nrdf::QBFile>("assets/model/dorf.qb");
+        auto m1mesh = model1_->get_mesh_for_volume(0);
+        addMesh(m1mesh, Vec3i(0, 0, 0));
 
         setCameraTransform(
             QVector3D(0.0f, 10.0f, 0.0f), PI / 4.0, 0);
@@ -213,6 +215,8 @@ class PagingWidget : public BaseWidget {
     };
 };
 
+} // ns nrdf
+
 int main(int argc, char* argv[]) {
     // Create and show the Qt OpenGL window
     QApplication app(argc, argv);
@@ -223,7 +227,7 @@ int main(int argc, char* argv[]) {
     gl_fmt.setSampleBuffers(true);
     QGLFormat::setDefaultFormat(gl_fmt);
 
-    PagingWidget openGLWidget(0);
+    nrdf::PagingWidget openGLWidget(0);
     openGLWidget.show();
 
     // Run the message pump.

@@ -25,6 +25,8 @@ SOFTWARE.
 #include "base_app.h"
 #include <QOpenGLFunctions_3_2_Core>
 
+namespace nrdf {
+
 void BaseWidget::setShader(QSharedPointer<QGLShaderProgram> shader) {
     shader_ = shader;
 }
@@ -104,3 +106,5 @@ void BaseWidget::renderOneFrame() {
 }
 
 void BaseWidget::draw_axes() {}
+
+} // ns nrdf

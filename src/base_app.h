@@ -1,7 +1,8 @@
 #pragma once
 
-#include "OpenGLWidget.h"
+#include "vector.h"
 
+#include "OpenGLWidget.h"
 #include "PolyVox/Mesh.h"
 
 #include <QGLShaderProgram>
@@ -12,6 +13,7 @@
 #include <cmath>
 
 namespace pv = PolyVox;
+namespace nrdf {
 
 // This structure holds all the data required
 // to render one of our meshes through OpenGL.
@@ -37,7 +39,7 @@ class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
     // it's templatised.
     template <typename MeshType>
     void addMesh(const MeshType& surfaceMesh,
-                 const pv::Vector3DInt32& trans = pv::Vector3DInt32(0,0,0),
+                 const Vec3i& trans = Vec3i(0,0,0),
                  const QVector3D &scale = QVector3D(1.0f, 1.0f, 1.0f)) {
         // This struct holds the OpenGL properties (buffer handles, etc) which
         // will be used to render our mesh. We copy the data from the PolyVox
@@ -136,3 +138,5 @@ class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
 
     void draw_axes();
 };
+
+} // ns nrdf
