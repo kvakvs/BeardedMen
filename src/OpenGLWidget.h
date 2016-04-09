@@ -22,74 +22,78 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#ifndef __OpenGLWidget_H_A72D4D2F8E__ // Random junk as 'OpenGLWidget seems like it could be a common name.
+#ifndef __OpenGLWidget_H_A72D4D2F8E__  // Random junk as 'OpenGLWidget seems
+                                       // like it could be a common name.
 #define __OpenGLWidget_H_A72D4D2F8E__
 
 #include <QElapsedTimer>
 #include <QGLWidget>
 #include <QMatrix4x4>
 
-// This is a very basic class for getting an OpenGL example up and running with Qt5. It simply displays
-// an OpenGL widget and implements an FPS-style camera as well as other very basic functionality. User
-// code can derive from this and override the provided virtual functions to implement functionality.
-// The class is templatized so users can specify the OpenGL version via the appropriate QOpenGLFunctions.
+// This is a very basic class for getting an OpenGL example up and running with
+// Qt5. It simply displays
+// an OpenGL widget and implements an FPS-style camera as well as other very
+// basic functionality. User
+// code can derive from this and override the provided virtual functions to
+// implement functionality.
+// The class is templatized so users can specify the OpenGL version via the
+// appropriate QOpenGLFunctions.
 template <typename QOpenGLFunctionsType>
-class OpenGLWidget : public QGLWidget, protected QOpenGLFunctionsType
-{
-protected:
-	// Protected constructor because this widget should not be created directly - it should only be subclassed.
-	OpenGLWidget(QWidget *parent);
+class OpenGLWidget : public QGLWidget, protected QOpenGLFunctionsType {
+   protected:
+    // Protected constructor because this widget should not be created directly
+    // - it should only be subclassed.
+    OpenGLWidget(QWidget* parent);
 
-	// Derived classes should override these to provide functionality.
-	virtual void initialize() {}
-	virtual void renderOneFrame() {}
+    // Derived classes should override these to provide functionality.
+    virtual void initialize() {}
+    virtual void renderOneFrame() {}
 
-	// Getters for properties defined by this widget.
-	const QMatrix4x4& viewMatrix();
-	const QMatrix4x4& projectionMatrix();
+    // Getters for properties defined by this widget.
+    const QMatrix4x4& viewMatrix();
+    const QMatrix4x4& projectionMatrix();
 
-	// Setters for properties defined by this widget.
-	void setCameraTransform(QVector3D position, float pitch, float yaw);
+    // Setters for properties defined by this widget.
+    void setCameraTransform(QVector3D position, float pitch, float yaw);
 
-private:
+   private:
+    // Qt OpenGL functions
+    void initializeGL();
+    void resizeGL(int w, int h);
+    void paintGL();
 
-	// Qt OpenGL functions
-	void initializeGL();
-	void resizeGL(int w, int h);
-	void paintGL();
+    // Mouse handling
+    void mouseMoveEvent(QMouseEvent* event);
+    void mousePressEvent(QMouseEvent* event);
 
-	// Mouse handling
-	void mouseMoveEvent(QMouseEvent* event);
-	void mousePressEvent(QMouseEvent* event);
+    // Keyboard handling
+    void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event);
 
-	// Keyboard handling
-	void keyPressEvent(QKeyEvent* event);
-	void keyReleaseEvent(QKeyEvent* event);
+    // Matrices
+    QMatrix4x4 mViewMatrix;
+    QMatrix4x4 mProjectionMatrix;
 
-	// Matrices
-	QMatrix4x4 mViewMatrix;
-	QMatrix4x4 mProjectionMatrix;
+    // Mouse data
+    QPoint m_LastFrameMousePos;
+    QPoint m_CurrentMousePos;
 
-	// Mouse data
-	QPoint m_LastFrameMousePos;
-	QPoint m_CurrentMousePos;
+    // Keyboard data
+    QList<int> mPressedKeys;
 
-	// Keyboard data
-	QList<int> mPressedKeys;
+    // For input handling and movement
+    float mCameraMoveSpeed = 50.0f;
+    float mCameraRotateSpeed = 0.005f;
 
-	// For input handling and movement
-	float mCameraMoveSpeed = 50.0f;
-	float mCameraRotateSpeed = 0.005f;
+    // Camera properties
+    QVector3D mCameraPosition = QVector3D(0, 0, -100);
+    float mCameraYaw = 0.0f;
+    float mCameraPitch = 0.0f;
+    float mCameraFOV = 60.0f;
 
-	// Camera properties
-	QVector3D mCameraPosition = QVector3D(0, 0, -100);
-	float mCameraYaw = 0.0f;
-	float mCameraPitch = 0.0f;
-	float mCameraFOV = 60.0f;
-
-	QElapsedTimer mElapsedTimer;
+    QElapsedTimer mElapsedTimer;
 };
 
 #include "OpenGLWidget.inl"
 
-#endif //__OpenGLWidget_H_A72D4D2F8E__
+#endif  //__OpenGLWidget_H_A72D4D2F8E__

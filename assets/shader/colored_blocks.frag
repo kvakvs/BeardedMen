@@ -14,22 +14,22 @@ void main()
         switch(materialFromVS.x)
 	{
 	case 1:
-                surfaceColor = vec4(1.0, 0.3, 0.3, 1.0);
+                surfaceColor = vec4(0x4F/255.0, 0x7B/255.0, 0x41/255.0, 1.0); // Swamp/wet grassland
 		break;
 	case 2:
-                surfaceColor = vec4(0.3, 1.0, 0.3, 1.0);
+                surfaceColor = vec4(0x9D/255.0, 0xA6/255.0, 0x7B/255.0, 1.0); // Dry grassland
 		break;
 	case 3:
-                surfaceColor = vec4(0.3, 0.3, 1.0, 1.0);
+                surfaceColor = vec4(0xC2/255.0, 0xBE/255.0, 0x96/255.0, 1.0); // Steppes
 		break;
 	case 4:
-                surfaceColor = vec4(1.0, 1.0, 0.3, 1.0);
+                surfaceColor = vec4(0xCB/255.0, 0x9D/255.0, 0x6B/255.0, 1.0); // Sand land
 		break;
 	case 5:
-                surfaceColor = vec4(1.0, 0.3, 1.0, 1.0);
+                surfaceColor = vec4(0x93/255.0, 0x76/255.0, 0x4F/255.0, 1.0); // Mountain/brown
 		break;
-	default:
-                surfaceColor = vec4(1.0, 1.0, 1.0, 1.0);
+        default: // air? mostly air = 0 - pink!
+                surfaceColor = vec4(1.0, 0.0, 1.0, 1.0);
 		break;
 	}
 

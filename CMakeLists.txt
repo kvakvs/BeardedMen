@@ -6,6 +6,13 @@ find_package(Qt5Widgets)
 find_package(Qt5OpenGL)
 set(CMAKE_AUTOMOC ON)
 
+#add_subdirectory("vl")
+
+if(APPLE)
+#    find_library(GLUT_LIBRARY GLUT)
+#    MARK_AS_ADVANCED (GLUT_LIBRARY)
+endif(APPLE)
+
 set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
 
 #Projects source files
@@ -110,7 +117,10 @@ IF(MSVC)
 	    playable_alpha4 PROPERTIES
 	    COMPILE_FLAGS "/W4 /wd4127")
 ENDIF(MSVC)
-TARGET_LINK_LIBRARIES(playable_alpha4 Qt5::OpenGL)
+TARGET_LINK_LIBRARIES(playable_alpha4
+    Qt5::OpenGL
+    # ${GLUT_LIBRARY}
+)
 #SET_PROPERTY(TARGET playable_alpha4 PROPERTY FOLDER "Examples")
 
 #Install - Only install the example in Windows
