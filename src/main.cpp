@@ -38,55 +38,36 @@ namespace pv = PolyVox;
 /**
  * Generates data using Perlin noise.
  */
-class App : public pv::PagedVolume<pv::MaterialDensityPair44>::Pager
+class MyPager : public pv::PagedVolume<pv::MaterialDensityPair44>::Pager
 {
 public:
 	/// Constructor
-    App(): pv::PagedVolume<pv::MaterialDensityPair44>::Pager()
+    MyPager(): pv::PagedVolume<pv::MaterialDensityPair44>::Pager()
 	{
 	}
 
 	/// Destructor
-    virtual ~App() {}
+    virtual ~MyPager() {}
 
     virtual void pageIn(const pv::Region& region,
                         pv::PagedVolume<pv::MaterialDensityPair44>::Chunk* pChunk)
 	{
-		Perlin perlin(2, 2, 1, 234);
+        Perlin perlin(2, 2, 1, 1234);
+        float noise_val = 0.f;
 
-		for (int x = region.getLowerX(); x <= region.getUpperX(); x++)
+        for (int x = region.getLowerX(); x <= region.getUpperX(); x++)
 		{
 			for (int y = region.getLowerY(); y <= region.getUpperY(); y++)
 			{
-                float perlinVal = perlin.get(x / static_cast<float>(255 - 1), y / static_cast<float>(255 - 1));
-				perlinVal += 1.0f;
-				perlinVal *= 0.5f;
-				perlinVal *= 255;
-				for (int z = region.getLowerZ(); z <= region.getUpperZ(); z++)
+                for (int z = region.getLowerZ(); z <= region.getUpperZ(); z++)
 				{
-                    pv::MaterialDensityPair44 voxel;
-					if (z < perlinVal)
-					{
-						const int xpos = 50;
-						const int zpos = 100;
-						if ((x - xpos)*(x - xpos) + (z - zpos)*(z - zpos) < 200)
-						{
-							// tunnel
-							voxel.setMaterial(0);
-                            voxel.setDensity(pv::MaterialDensityPair44::getMinDensity());
-						}
-						else
-						{
-							// solid
-							voxel.setMaterial(245);
-                            voxel.setDensity(pv::MaterialDensityPair44::getMaxDensity());
-						}
-					}
-					else
-					{
-						voxel.setMaterial(0);
-                        voxel.setDensity(pv::MaterialDensityPair44::getMinDensity());
-					}
+//                    float noise_val = perlin.get_3d(x / 255.f,
+//                                                    y / 255.f,
+//                                                    z / 63.f);
+//                    noise_val = (noise_val + 1.0f) * 0.5f;
+
+                    //auto voxel = get_perlin_voxel(perlinVal, x, y, z);
+                    auto voxel = get_solid_block_voxel(noise_val, x, y, z);
 
 					// Voxel position within a chunk always start from zero. So if a chunk represents region (4, 8, 12) to (11, 19, 15)
 					// then the valid chunk voxels are from (0, 0, 0) to (7, 11, 3). Hence we subtract the lower corner position of the
@@ -100,6 +81,39 @@ public:
 		}
 	}
 
+    static pv::MaterialDensityPair44 get_solid_block_voxel(float perlinVal, int x, int y, int z) {
+        pv::MaterialDensityPair44 voxel;
+        int m = (x + y) % 6;
+        voxel.setMaterial(m);
+        if (m == 0) {
+            voxel.setDensity(pv::MaterialDensityPair44::getMinDensity());
+        } else {
+            voxel.setDensity(pv::MaterialDensityPair44::getMaxDensity());
+        }
+        return voxel;
+    }
+
+    static pv::MaterialDensityPair44 get_perlin_voxel(float perlinVal, int x, int y, int z) {
+        pv::MaterialDensityPair44 voxel;
+        if (z < perlinVal) {
+            const int xpos = 50;
+            const int zpos = 100;
+            if ((x - xpos)*(x - xpos) + (z - zpos)*(z - zpos) < 200) {
+                // tunnel
+                voxel.setMaterial(1);
+                voxel.setDensity(pv::MaterialDensityPair44::getMinDensity());
+            } else {
+                // solid
+                voxel.setMaterial(2);
+                voxel.setDensity(pv::MaterialDensityPair44::getMaxDensity());
+            }
+        } else {
+            voxel.setMaterial(0);
+            voxel.setDensity(pv::MaterialDensityPair44::getMinDensity());
+        }
+        return voxel;
+    }
+
     virtual void pageOut(const pv::Region& region,
                          pv::PagedVolume<pv::MaterialDensityPair44>::Chunk* /*pChunk*/)
 	{
@@ -109,17 +123,25 @@ public:
 	}
 };
 
-class PagingExample : public BaseApp
+class PagingWidget : public BaseWidget
 {
 public:
-    PagingExample(QWidget *parent): BaseApp(parent)
+    PagingWidget(QWidget *parent): BaseWidget(parent)
 	{
 	}
+
+    const int world_sz_x = 512;
+    const int world_sz_y = 512;
+    const int world_sz_z = 16;
+
+    const int view_sz_x = 240;
+    const int view_sz_y = 120;
+    const int view_sz_z = 1;
 
 protected:
 	void initializeExample() override
 	{
-        App* pager = new App();
+        MyPager* pager = new MyPager();
         pv::PagedVolume<pv::MaterialDensityPair44> volData(pager, 8 * 1024 * 1024, 64);
 
 		// Just some tests of memory usage, etc. 
@@ -127,32 +149,29 @@ protected:
                   << (volData.calculateSizeInBytes() / 1024.0 / 1024.0)
                   << "MB" << std::endl;
 
-        pv::Region reg(pv::Vector3DInt32(-255, 0, 0), pv::Vector3DInt32(255, 255, 255));
+        pv::Region reg(pv::Vector3DInt32(0, 0, 0),
+                       pv::Vector3DInt32(world_sz_x, world_sz_y, world_sz_z));
         std::cout << "Prefetching region: " << reg.getLowerCorner()
                   << " -> " << reg.getUpperCorner() << std::endl;
         volData.prefetch(reg);
 
-        std::cout << "Memory usage: "
-                  << (volData.calculateSizeInBytes() / 1024.0 / 1024.0)
-                  << "MB" << std::endl;
 		std::cout << "Flushing entire volume" << std::endl;
 		volData.flushAll();
 
-        std::cout << "Memory usage: "
-                  << (volData.calculateSizeInBytes() / 1024.0 / 1024.0)
-                  << "MB" << std::endl;
-
 		// Extract the surface
-        pv::Region reg2(pv::Vector3DInt32(0, 0, 0), pv::Vector3DInt32(254, 254, 254));
-		auto mesh = extractCubicMesh(&volData, reg2);
-		std::cout << "#vertices: " << mesh.getNoOfVertices() << std::endl;
+        pv::Region reg2(pv::Vector3DInt32(1, 1, 1),
+                        pv::Vector3DInt32(view_sz_x, view_sz_y, view_sz_z));
+        auto mesh = pv::extractCubicMesh(&volData, reg2);
+        std::cout << "#vertices: "
+                  << mesh.getNoOfVertices() << std::endl;
 
-		auto decodedMesh = decodeMesh(mesh);
+        auto decodedMesh = pv::decodeMesh(mesh);
 
 		// Pass the surface to the OpenGL window
 		addMesh(decodedMesh);
 
-        setCameraTransform(QVector3D(300.0f, 300.0f, 300.0f), 0.0f, PI + (PI / 4.0f));
+        setCameraTransform(QVector3D(view_sz_x / 2.0f, view_sz_y / 2.0f, 100.0f),
+                           0.0f, PI);
 	}
 };
 
@@ -167,7 +186,7 @@ int main(int argc, char *argv[])
     gl_fmt.setSampleBuffers(true);
     QGLFormat::setDefaultFormat(gl_fmt);
 
-	PagingExample openGLWidget(0);
+    PagingWidget openGLWidget(0);
 	openGLWidget.show();
 
 	// Run the message pump.

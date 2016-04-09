@@ -2,5 +2,7 @@
 <qresource>
 	<file>shader/example.vert</file>
 	<file>shader/example.frag</file>
+	<file>shader/colored_blocks.vert</file>
+	<file>shader/colored_blocks.frag</file>
 </qresource>
 </RCC>

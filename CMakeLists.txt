@@ -10,17 +10,78 @@ set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
 
 #Projects source files
 SET(SRC_FILES
-	src/main.cpp
-	src/perlin.cpp
-	src/base_app.cpp
+    src/main.cpp
+    src/perlin.cpp
+    src/base_app.cpp
+
+
+    polyvox/include/PolyVox/AStarPathfinder.h
+    polyvox/include/PolyVox/AStarPathfinder.inl
+    polyvox/include/PolyVox/AmbientOcclusionCalculator.h
+    polyvox/include/PolyVox/AmbientOcclusionCalculator.inl
+    polyvox/include/PolyVox/Array.h
+    polyvox/include/PolyVox/BaseVolume.h
+    polyvox/include/PolyVox/BaseVolume.inl
+    polyvox/include/PolyVox/BaseVolumeSampler.inl
+    polyvox/include/PolyVox/Config.h
+    polyvox/include/PolyVox/CubicSurfaceExtractor.h
+    polyvox/include/PolyVox/CubicSurfaceExtractor.inl
+    polyvox/include/PolyVox/DefaultIsQuadNeeded.h
+    polyvox/include/PolyVox/DefaultMarchingCubesController.h
+    polyvox/include/PolyVox/Density.h
+    polyvox/include/PolyVox/Exceptions.h
+    polyvox/include/PolyVox/FilePager.h
+    polyvox/include/PolyVox/Logging.h
+    polyvox/include/PolyVox/LowPassFilter.h
+    polyvox/include/PolyVox/LowPassFilter.inl
+    polyvox/include/PolyVox/MarchingCubesSurfaceExtractor.h
+    polyvox/include/PolyVox/MarchingCubesSurfaceExtractor.inl
+    polyvox/include/PolyVox/Material.h
+    polyvox/include/PolyVox/MaterialDensityPair.h
+    polyvox/include/PolyVox/Mesh.h
+    polyvox/include/PolyVox/Mesh.inl
+    polyvox/include/PolyVox/PagedVolume.h
+    polyvox/include/PolyVox/PagedVolume.inl
+    polyvox/include/PolyVox/PagedVolumeChunk.inl
+    polyvox/include/PolyVox/PagedVolumeSampler.inl
+    polyvox/include/PolyVox/Picking.h
+    polyvox/include/PolyVox/Picking.inl
+    polyvox/include/PolyVox/RawVolume.h
+    polyvox/include/PolyVox/RawVolume.inl
+    polyvox/include/PolyVox/RawVolumeSampler.inl
+    polyvox/include/PolyVox/Raycast.h
+    polyvox/include/PolyVox/Raycast.inl
+    polyvox/include/PolyVox/Region.h
+    polyvox/include/PolyVox/Region.inl
+    polyvox/include/PolyVox/Vector.h
+    polyvox/include/PolyVox/Vector.inl
+    polyvox/include/PolyVox/Vertex.h
+    polyvox/include/PolyVox/VolumeResampler.h
+    polyvox/include/PolyVox/VolumeResampler.inl
+
+    polyvox/include/PolyVox/Impl/AStarPathfinderImpl.h
+    polyvox/include/PolyVox/Impl/Assertions.h
+    polyvox/include/PolyVox/Impl/ErrorHandling.h
+    polyvox/include/PolyVox/Impl/ExceptionsImpl.h
+    polyvox/include/PolyVox/Impl/Interpolation.h
+    polyvox/include/PolyVox/Impl/IteratorController.h
+    polyvox/include/PolyVox/Impl/IteratorController.inl
+    polyvox/include/PolyVox/Impl/LoggingImpl.h
+    polyvox/include/PolyVox/Impl/MarchingCubesTables.h
+    polyvox/include/PolyVox/Impl/Morton.h
+    polyvox/include/PolyVox/Impl/PlatformDefinitions.h
+    polyvox/include/PolyVox/Impl/RandomUnitVectors.h
+    polyvox/include/PolyVox/Impl/RandomVectors.h
+    polyvox/include/PolyVox/Impl/Timer.h
+    polyvox/include/PolyVox/Impl/Utility.h
 )
 
 #Projects headers files	
 SET(INC_FILES	
-	src/OpenGLWidget.h
-	src/OpenGLWidget.inl
-	src/perlin.h
-	src/base_app.h
+    src/OpenGLWidget.h
+    src/OpenGLWidget.inl
+    src/perlin.h
+    src/base_app.h
 )
 
 #"Sources" and "Headers" are the group names in Visual Studio.

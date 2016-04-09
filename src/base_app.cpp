@@ -24,18 +24,19 @@ SOFTWARE.
 
 #include "base_app.h"
 
-void BaseApp::setShader(QSharedPointer<QGLShaderProgram> shader)
+void BaseWidget::setShader(QSharedPointer<QGLShaderProgram> shader)
 {
     shader_ = shader;
 }
 
-void BaseApp::initialize()
+void BaseWidget::initialize()
 {
     shader_ = QSharedPointer<QGLShaderProgram>(new QGLShaderProgram);
 
     // This is basically a simple fallback vertex shader which does the most basic rendering possible.
     // PolyVox examples are able to provide their own shaders to demonstrate certain effects if desired.
-    if (!shader_->addShaderFromSourceFile(QGLShader::Vertex, ":/shader/example.vert"))
+    if (!shader_->addShaderFromSourceFile(QGLShader::Vertex,
+                                          ":/shader/colored_blocks.vert"))
     {
         std::cerr << shader_->log().toStdString() << std::endl;
         exit(EXIT_FAILURE);
@@ -43,7 +44,8 @@ void BaseApp::initialize()
 
     // This is basically a simple fallback fragment shader which does the most basic rendering possible.
     // PolyVox examples are able to provide their own shaders to demonstrate certain effects if desired.
-    if (!shader_->addShaderFromSourceFile(QGLShader::Fragment, ":/shader/example.frag"))
+    if (!shader_->addShaderFromSourceFile(QGLShader::Fragment,
+                                          ":/shader/colored_blocks.frag"))
     {
         std::cerr << shader_->log().toStdString() << std::endl;
         exit(EXIT_FAILURE);
@@ -67,7 +69,7 @@ void BaseApp::initialize()
     initializeExample();
 }
 
-void BaseApp::renderOneFrame()
+void BaseWidget::renderOneFrame()
 {
     // Our example framework only uses a single shader for the scene (for all meshes).
     shader_->bind();

@@ -26,10 +26,10 @@ struct OpenGLMeshData
 	float scale;
 };
 
-class BaseApp : public OpenGLWidget<QOpenGLFunctions_3_2_Core>
+class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core>
 {
 public:
-    BaseApp(QWidget *parent)
+    BaseWidget(QWidget *parent)
 		:OpenGLWidget(parent)
     {
 	}
