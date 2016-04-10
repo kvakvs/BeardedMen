@@ -31,6 +31,7 @@ class GameWidget : public BaseWidget {
     MeshMap raw_meshes_;
 
     Model dorf_;
+    Vec3i dorf_pos_;
     Model cursor_;
     Vec3i cursor_pos_ = Vec3i(2,0,0);
 
@@ -62,6 +63,12 @@ private:
     void change_keyboard_fsm(KeyFSM id);
     void fsm_keypress_exploremap(QKeyEvent *event);
     void fsm_keypress_orders(QKeyEvent *event);
+    // Given integer cell position make world pos
+    static Vec3f pos_for_cell(const Vec3i &i) {
+        return Vec3f((float)i.getX() - 0.5f,
+                     -(float)i.getY() + 0.5f,
+                     (float)i.getZ() - 0.5f);
+    }
 };
 
 }  // namespace bm

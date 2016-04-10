@@ -8,9 +8,10 @@ and defend and hunt, all that sort of thing.
 * OpenGL 3.2 + Qt
 * World grid rendering
 * QB (Qubicle format) RGB-colored voxel models
-* Keyboard control, cursor (qb model), bearded man (qb model)
+* Keyboard controls the cursor (qb model), showing a bearded man (qb model)
+* Main window and tool dock added, praise Qt!
 
-<img src="http://i.imgur.com/JKPA7aN.png" height="300" />
+<img src="http://i.imgur.com/VEBVZPX.png" height="300" />
 
 TODO: everything else
 

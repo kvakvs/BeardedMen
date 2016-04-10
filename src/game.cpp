@@ -18,7 +18,8 @@ void GameWidget::initialize_game() {
     //
     dorf_ = load_model("dorf", "assets/model/dorf.qb", rgb_vox_shader_);
     cursor_ = load_model("cursor", "assets/model/cursor.qb", rgb_vox_shader_);
-    cursor_pos_ = Vec3i(VIEWSZ_X / 2, 1, VIEWSZ_Z / 2);
+    cursor_pos_ = Vec3i(VIEWSZ_X / 2, 2, VIEWSZ_Z / 2);
+    dorf_pos_ = cursor_pos_;
 
     follow_cursor();
     update_terrain_model();
@@ -87,14 +88,12 @@ Model GameWidget::load_model(const char *register_as,
 
 void GameWidget::render_frame() {
     terrain_.render(this, Vec3f(0.f, 0.f, 0.f), 0.f);
-    dorf_.render(this, Vec3f(-0.5f, 0.5f, -0.5f), 0.f);
+    dorf_.render(this, pos_for_cell(dorf_pos_), 0.f);
 
-    cursor_.render(this,
-                   Vec3f((float)cursor_pos_.getX() - 0.5f,
-                         -(float)cursor_pos_.getY() + 0.5f,
-                         (float)cursor_pos_.getZ() - 0.5f),
-                   0.f);
+    cursor_.render(this, pos_for_cell(cursor_pos_), 0.f);
 }
+
+
 
 void GameWidget::follow_cursor()
 {
