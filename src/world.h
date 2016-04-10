@@ -15,9 +15,11 @@ const int world_sz_x = 256;
 const int world_sz_y = 256;
 const int world_sz_z = 32;
 
-const int view_sz_x = 64;
-const int view_sz_y = 2;
-const int view_sz_z = 64;
+// Visible slab of volume, height=2 so that we see the ground and the walls
+// We actually fetch 1 more row then zero it to get good mesh generation
+const int VIEWSZ_X = 64;
+const int VIEWSZ_Y = 2;
+const int VIEWSZ_Z = 64;
 
 /**
  * Is a voxel volume
@@ -49,7 +51,7 @@ class WorldPager : public PagedVolume::Pager {
 
     static VoxelType get_perlin_voxel(float perlinVal, int x, int y, int z) {
         VoxelType voxel;
-        if (y > perlinVal * view_sz_y) {
+        if (y > perlinVal * VIEWSZ_Y) {
             const int xpos = 50;
             const int zpos = 100;
             if ((x - xpos) * (x - xpos) + (z - zpos) * (z - zpos) < 200) {

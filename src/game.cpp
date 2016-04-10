@@ -5,39 +5,60 @@
 
 namespace bm {
 
-void GameWidget::initializeExample() {
+void GameWidget::initialize_game() {
     terrain_shader_ = load_shader("colored_blocks");
     rgb_vox_shader_   = load_shader("rgb_blocks");
 
+    //
+    // World setup and update terrain
+    //
     vol_ = std::make_unique<WorldPager>();
+
+    //
+    // Load models
+    //
+    dorf_ = load_model("dorf", "assets/model/dorf.qb", rgb_vox_shader_);
+    cursor_ = load_model("cursor", "assets/model/cursor.qb", rgb_vox_shader_);
+    cursor_pos_ = Vec3i(VIEWSZ_X / 2, 1, VIEWSZ_Z / 2);
+
+    follow_cursor();
+//    qtimer_.start();
+
+    update_terrain_model();
+}
+
+void GameWidget::update_terrain_model() {
     SlabVolume vol_slice(vol_.get(), 64 * 1024 * 1024, 64);
-//    SlabVolume vol_slice(pv::Region(Vec3i(0, 0, 0),
-//                                    Vec3i(view_sz_x, view_sz_y, view_sz_z)));
 
-    // Just some tests of memory usage, etc.
-    std::cout << "Memory usage: "
-              << (vol_slice.calculateSizeInBytes() / 1024.0 / 1024.0) << "MB"
-              << std::endl;
-
-    pv::Region reg(Vec3i(0, 0, 0),
-                   Vec3i(world_sz_x, world_sz_y, world_sz_z));
-    std::cout << "Prefetching region: " << reg.getLowerCorner() << " -> "
-              << reg.getUpperCorner() << std::endl;
+    // Prefetch slab sized viewszx x viewszz and of height viewszy+2
+    // Zero top cells, so that mesh looks good
+    Vec3i half_view(VIEWSZ_X / 2, 0, VIEWSZ_Z / 2);
+    pv::Region reg(cursor_pos_ - half_view,
+                   Vec3i(VIEWSZ_X, VIEWSZ_Y+1, VIEWSZ_Z));
     vol_slice.prefetch(reg);
+    //    vol_slice.flushAll();
 
-    std::cout << "Flushing entire volume" << std::endl;
-    vol_slice.flushAll();
+    // Zero upper layer
+    VoxelType empty(0, VoxelType::getMinDensity());
+    for (int x = reg.getWidthInCells(); x >= 0; --x) {
+        for (int z = reg.getDepthInCells(); z >= 0; --z) {
+            vol_slice.setVoxel(x, 0, z, empty);
+        }
+    }
+    vol_slice.setVoxel(0, 0, 0, VoxelType(1, VoxelType::getMaxDensity()));
+    vol_slice.setVoxel(1, 0, 0, VoxelType(2, VoxelType::getMaxDensity()));
+    vol_slice.setVoxel(2, 0, 0, VoxelType(2, VoxelType::getMaxDensity()));
+    vol_slice.setVoxel(0, 0, 1, VoxelType(3, VoxelType::getMaxDensity()));
+    vol_slice.setVoxel(0, 0, 2, VoxelType(3, VoxelType::getMaxDensity()));
 
     //
     // Extract the surface
     //
     pv::Region reg2(Vec3i(0, 0, 0),
-                    Vec3i(view_sz_x, view_sz_y, view_sz_z));
+                    Vec3i(VIEWSZ_X, VIEWSZ_Y, VIEWSZ_Z));
 
-    auto mesh = pv::extractCubicMesh(&vol_slice, reg2,
-                                     IsQuadNeeded<VoxelType>());
-    //         auto mesh = pv::extractCubicMesh(&volData, reg2);
-    //        auto mesh = pv::extractMarchingCubesMesh(&volData, reg2);
+    auto mesh = pv::extractCubicMesh(&vol_slice, reg2);
+    //auto mesh = pv::extractMarchingCubesMesh(&vol_slice, reg2);
     std::cout << "#vertices: " << mesh.getNoOfVertices() << std::endl;
 
     auto decodedMesh = pv::decodeMesh(mesh);
@@ -45,16 +66,7 @@ void GameWidget::initializeExample() {
     // Pass the surface to the OpenGL window
     //
     terrain_ = Model(create_opengl_mesh_from_raw(decodedMesh), terrain_shader_);
-    //terrain_.mesh_.rotation_y_ = -90.f;
-
-    //
-    // Load models
-    //
-    dorf_ = load_model("dorf", "assets/model/dorf.qb", rgb_vox_shader_);
-    cursor_ = load_model("cursor", "assets/model/cursor.qb", rgb_vox_shader_);
-
-    follow_cursor();
-//    qtimer_.start();
+    terrain_.mesh_->scale_.setY(-1.0f);
 }
 
 Model GameWidget::load_model(const char *register_as,
@@ -79,7 +91,7 @@ void GameWidget::renderOneFrame() {
 
     cursor_.render(this,
                    Vec3f((float)cursor_pos_.getX() - 0.5f,
-                         (float)cursor_pos_.getY() + 0.5f,
+                         -(float)cursor_pos_.getY() + 0.5f,
                          (float)cursor_pos_.getZ() - 0.5f),
                    0.f);
 }

@@ -12,7 +12,7 @@ void WorldPager::pageIn(const PolyVox::Region &region,
         for (int y = region.getLowerY(); y <= region.getUpperY(); y++) {
             for (int z = region.getLowerZ(); z <= region.getUpperZ(); z++) {
                 float noise_val = perlin.get_3d(x / 255.f, y / 255.f,
-                                                z / (float)(view_sz_z));
+                                                z / (float)(VIEWSZ_Z));
                 noise_val = (noise_val + 1.0f) * 0.5f;
                 auto voxel = get_perlin_voxel(noise_val, x, y, z);
                 // auto voxel = get_solid_block_voxel(noise_val, x, y, z);

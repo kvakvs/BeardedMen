@@ -13,29 +13,20 @@ namespace pv = PolyVox;
 namespace bm {
 
 class GameWidget : public BaseWidget {
-   public:
+  public:
     GameWidget(QWidget* parent) : BaseWidget(parent) {}
 
-// protect this fun?
     Model load_model(const char *register_as,
                      const char *file,
                      ShaderPtr shad);
 
-protected:
+  protected:
+    // World volume (pageable)
     std::unique_ptr<WorldPager> vol_;
     QElapsedTimer qtimer_;
 
     MeshMap raw_meshes_;
 
-    /*
-    // DORF!
-    std::unique_ptr<QBFile> model1_;
-    RawMesh          model1_mesh_;
-
-    // CURSOR!
-    std::unique_ptr<QBFile> cursor_;
-    RawMesh          cursor_mesh_;
-    */
     Model dorf_;
     Model cursor_;
     Vec3i cursor_pos_ = Vec3i(2,0,0);
@@ -46,28 +37,18 @@ protected:
 
     ShaderPtr  rgb_vox_shader_;
 
-    virtual void initializeExample() override;
-
-    // A function for mesh generation
-    template <typename VoxT>
-    class IsQuadNeeded {
-       public:
-        bool operator()(VoxT back, VoxT front, VoxT& materialToUse) {
-            if (back.getDensity() > 0 && front.getDensity() == 0) {
-                materialToUse = static_cast<VoxT>(back);
-                return true;
-            } else {
-                return false;
-            }
-        }
-    };
-
+    virtual void initialize_game() override;
     virtual void renderOneFrame() override;
 
     // QT override
     virtual void keyPressEvent( QKeyEvent* event ) override;
+
+private:
     // Reposition camera on cursor
     void follow_cursor();
+    // Take a slice of the world with 1 extra voxel around data. Generate new
+    // model and update 'terrain_'
+    void update_terrain_model();
 };
 
 }  // namespace bm

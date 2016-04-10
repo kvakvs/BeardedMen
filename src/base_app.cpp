@@ -29,7 +29,7 @@ namespace bm {
 
 void BaseWidget::initialize() {
     // Now do any initialization for the specific example.
-    initializeExample();
+    initialize_game();
 }
 
 BaseWidget::~BaseWidget() {}

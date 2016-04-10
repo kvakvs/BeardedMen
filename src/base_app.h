@@ -110,7 +110,7 @@ class BaseWidget : public GLVersion_Widget {
 protected:
     const float PI = M_PI;
 
-    virtual void initializeExample() = 0;
+    virtual void initialize_game() = 0;
     void initialize() override;
 
    private:

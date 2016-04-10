@@ -8,12 +8,14 @@ uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 
-//out vec4 worldPosition; //This is being passed to the fragment shader to calculate the normals
-//out vec3 normalFromVS;
+out vec4 worldPosition; //This is being passed to the fragment shader to calculate the normals
+// out vec3 normalFromVS;
 flat out ivec2 materialFromVS;
 
 void main()
 {
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
+    gl_Position    = projectionMatrix * viewMatrix * modelMatrix * position;
+    worldPosition  = position;
     materialFromVS = material;
+    //normalFromVS   = normal.xyz;
 }
