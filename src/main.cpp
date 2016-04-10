@@ -31,14 +31,19 @@ int main(int argc, char* argv[]) {
     // Create and show the Qt OpenGL window
     QApplication app(argc, argv);
 
+    auto bmaf = "Bearded men (and a Fortress)";
+    app.setApplicationDisplayName(bmaf);
+    app.setApplicationName(bmaf);
+
     QGLFormat gl_fmt;
     gl_fmt.setVersion(3, 2);
     gl_fmt.setProfile(QGLFormat::CoreProfile);
     gl_fmt.setSampleBuffers(true);
     QGLFormat::setDefaultFormat(gl_fmt);
 
-    bm::GameWidget openGLWidget(0);
-    openGLWidget.show();
+    bm::GameWidget main_wnd(0);
+    main_wnd.setWindowTitle(bmaf);
+    main_wnd.show();
 
     // Run the message pump.
     return app.exec();

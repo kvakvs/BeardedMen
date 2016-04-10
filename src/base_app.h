@@ -23,31 +23,30 @@ class BaseWidget : public GLVersion_Widget {
     // Convert a PolyVox mesh to OpenGL index/vertex buffers. Inlined because
     // it's templatised.
     template <typename MeshType>
-    OpenglMesh create_opengl_mesh_from_raw(
+    OpenglMesh::Ptr create_opengl_mesh_from_raw(
             const MeshType& surfaceMesh,
             const Vec3f& trans = Vec3f(0,0,0),
             const Vec3f &scale = Vec3f(1.0f, 1.0f, 1.0f))
     {
-        // This struct holds the OpenGL properties (buffer handles, etc) which
-        // will be used to render our mesh. We copy the data from the PolyVox
-        // mesh into this structure.
-        OpenglMesh result;
+        // Mesh is an opengl resource, so it needs to have access to gl context
+        // which is privately managed by this widget
+        OpenglMesh::Ptr result = std::make_shared<OpenglMesh>(this);
 
         // Create the VAO for the mesh
-        glGenVertexArrays(1, &(result.vert_array_));
-        glBindVertexArray(result.vert_array_);
+        glGenVertexArrays(1, &(result->vert_array_));
+        glBindVertexArray(result->vert_array_);
 
         // The GL_ARRAY_BUFFER will contain the list of vertex positions
-        glGenBuffers(1, &(result.vert_buf_));
-        glBindBuffer(GL_ARRAY_BUFFER, result.vert_buf_);
+        glGenBuffers(1, &(result->vert_buf_));
+        glBindBuffer(GL_ARRAY_BUFFER, result->vert_buf_);
         glBufferData(GL_ARRAY_BUFFER,
                      surfaceMesh.getNoOfVertices()
                         * sizeof(typename MeshType::VertexType),
                      surfaceMesh.getRawVertexData(), GL_STATIC_DRAW);
 
         // and GL_ELEMENT_ARRAY_BUFFER will contain the indices
-        glGenBuffers(1, &(result.indx_buf_));
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, result.indx_buf_);
+        glGenBuffers(1, &(result->indx_buf_));
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, result->indx_buf_);
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
             surfaceMesh.getNoOfIndices() * sizeof(typename MeshType::IndexType),
@@ -93,17 +92,16 @@ class BaseWidget : public GLVersion_Widget {
 
         // A few additional properties can be copied across for use during
         // rendering.
-        result.indx_count_ = surfaceMesh.getNoOfIndices();
-        result.translation_ = QVector3D(trans.getX(), trans.getY(),
+        result->indx_count_ = surfaceMesh.getNoOfIndices();
+        result->translation_ = QVector3D(trans.getX(), trans.getY(),
                                          trans.getZ());
-        result.scale_ = QVector3D(scale.getX(), scale.getY(),
+        result->scale_ = QVector3D(scale.getX(), scale.getY(),
                                    scale.getZ());
 
         // Set 16 or 32-bit index buffer size.
-        result.indx_type_ = sizeof(typename MeshType::IndexType) == 2
+        result->indx_type_ = sizeof(typename MeshType::IndexType) == 2
                                  ? GL_UNSIGNED_SHORT
                                  : GL_UNSIGNED_INT;
-
         return result;
     }
 

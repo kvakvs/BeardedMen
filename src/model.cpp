@@ -14,22 +14,28 @@ void Model::render(GLVersion_Widget *gl,
     // Set up the model matrrix based on provided translation and scale.
     //
     QMatrix4x4 model_mx;
-    model_mx.translate(mesh_.translation_
+    model_mx.translate(mesh_->translation_
                        + QVector3D(pos.getX(), pos.getY(), pos.getZ()));
-    model_mx.scale(mesh_.scale_);
-    model_mx.rotate(rot_y + mesh_.rotation_y_, 0.f, 1.f, 0.f);
+    model_mx.scale(mesh_->scale_);
+    model_mx.rotate(rot_y + mesh_->rotation_y_, 0.f, 1.f, 0.f);
 
     shad_->setUniformValue("modelMatrix", model_mx);
 
     // Bind the vertex array for the current mesh
-    gl->glBindVertexArray(mesh_.vert_array_);
+    gl->glBindVertexArray(mesh_->vert_array_);
     // Draw the mesh
-    gl->glDrawElements(GL_TRIANGLES, mesh_.indx_count_, mesh_.indx_type_, 0);
+    gl->glDrawElements(GL_TRIANGLES, mesh_->indx_count_, mesh_->indx_type_, 0);
     // Unbind the vertex array.
     gl->glBindVertexArray(0);
 
     // We're done with the shader for this frame.
     shad_->release();
+}
+
+void OpenglMesh::destroy()
+{
+    gl_->glDeleteBuffers(1, &indx_buf_);
+    gl_->glDeleteBuffers(1, &vert_buf_);
 }
 
 } // namespace bm
