@@ -1,4 +1,4 @@
-# NRDF: Not Really a Dwarf Fortress
+# BM: Bearded Men (and a fortress)
 
 A voxel-based simulation management game. Where bearded men build and dig
 and defend and hunt, all that sort of thing.

@@ -28,6 +28,10 @@ SET(SRC_FILES
     src/vector.h
     src/world.cpp		src/world.h
 
+    src/game/entity.cpp		src/game/entity.h
+    src/game/order.cpp          src/game/order.h
+    src/game/settlement.cpp	src/game/settlement.h
+
     polyvox/include/PolyVox/AStarPathfinder.h
     polyvox/include/PolyVox/AStarPathfinder.inl
     polyvox/include/PolyVox/AmbientOcclusionCalculator.h
@@ -100,10 +104,12 @@ SET(INC_FILES
 #SOURCE_GROUP("Headers" FILES ${INC_FILES})
 
 #Tell CMake the paths for OpenGL and for PolyVox (which is just relative to our current location)
-INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR}
+INCLUDE_DIRECTORIES(
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/polyvox/include
+    ${OPENGL_INCLUDE_DIR}
     ${PolyVoxHeaders_SOURCE_DIR}
-    ../common
-    polyvox/include)
+)
 
 #This will include the shader files inside the compiled binary
 QT5_ADD_RESOURCES(

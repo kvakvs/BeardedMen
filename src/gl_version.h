@@ -5,10 +5,10 @@
 
 #include "ogl_widget.h"
 
-namespace nrdf {
+namespace bm {
 
 using GLVersion_Funs = QOpenGLFunctions_3_2_Core;
 using GLVersion_Widget = MyGLWidget<GLVersion_Funs>;
 
-} // nrdf
+} // namespace bm
 

@@ -25,7 +25,7 @@ SOFTWARE.
 #include "base_app.h"
 #include <QOpenGLFunctions_3_2_Core>
 
-namespace nrdf {
+namespace bm {
 
 void BaseWidget::initialize() {
     // Now do any initialization for the specific example.
@@ -68,4 +68,4 @@ ShaderPtr BaseWidget::load_shader(const char *name)
     return shad;
 }
 
-} // ns nrdf
+} // namespace bm

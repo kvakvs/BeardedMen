@@ -12,7 +12,7 @@
 #include "model.h"
 
 namespace pv = PolyVox;
-namespace nrdf {
+namespace bm {
 
 class BaseWidget : public GLVersion_Widget {
     Q_OBJECT
@@ -121,4 +121,4 @@ protected:
     //QSharedPointer<QGLShaderProgram> shader_;
 };
 
-} // ns nrdf
+} // namespace bm

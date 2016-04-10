@@ -5,7 +5,7 @@
 #include "PolyVox/RawVolume.h"
 namespace pv = PolyVox;
 
-namespace nrdf {
+namespace bm {
 
 //using VoxelType = pv::MaterialDensityPair88;
 using VoxelType = pv::MaterialDensityPair<uint8_t, 8, 8>;
@@ -16,7 +16,7 @@ const int world_sz_y = 256;
 const int world_sz_z = 32;
 
 const int view_sz_x = 64;
-const int view_sz_y = 1;
+const int view_sz_y = 2;
 const int view_sz_z = 64;
 
 /**
@@ -83,4 +83,4 @@ public:
     }
 };
 
-} // ns nrdf
+} // namespace bm

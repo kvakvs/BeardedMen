@@ -1,7 +1,7 @@
 #include "world.h"
 #include "perlin.h"
 
-namespace nrdf {
+namespace bm {
 
 void WorldPager::pageIn(const PolyVox::Region &region,
                          PagedVolume::Chunk *pChunk) {
@@ -31,4 +31,4 @@ void WorldPager::pageOut(const PolyVox::Region &region,
               << " -> " << region.getUpperCorner() << std::endl;
 }
 
-} // ns nrdf
+} // namespace bm

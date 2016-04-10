@@ -8,7 +8,7 @@
 #include "vector.h"
 #include "gl_version.h"
 
-namespace nrdf {
+namespace bm {
 
 // This structure holds all the data required to render one of our meshes
 // through OpenGL
@@ -44,4 +44,4 @@ public:
                 const Vec3f &pos, float rot_y);
 };
 
-} // ns nrdf
+} // namespace bm

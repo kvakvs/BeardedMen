@@ -1,6 +1,6 @@
 #include "model.h"
 
-namespace nrdf {
+namespace bm {
 
 void Model::render(GLVersion_Widget *gl,
                    const Vec3f &pos, float rot_y)
@@ -32,4 +32,4 @@ void Model::render(GLVersion_Widget *gl,
     shad_->release();
 }
 
-} // ns nrdf
+} // namespace bm

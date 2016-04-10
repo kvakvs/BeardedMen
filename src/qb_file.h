@@ -12,7 +12,7 @@ namespace pv = PolyVox;
 #include <stdint.h>
 #include <memory>
 
-namespace nrdf {
+namespace bm {
 
 class QBVolume
 {

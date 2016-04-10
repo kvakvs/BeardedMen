@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
     gl_fmt.setSampleBuffers(true);
     QGLFormat::setDefaultFormat(gl_fmt);
 
-    nrdf::GameWidget openGLWidget(0);
+    bm::GameWidget openGLWidget(0);
     openGLWidget.show();
 
     // Run the message pump.

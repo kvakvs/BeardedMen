@@ -10,7 +10,7 @@ namespace pv = PolyVox;
 #include "vector.h"
 #include "world.h"
 
-namespace nrdf {
+namespace bm {
 
 class GameWidget : public BaseWidget {
    public:
@@ -70,4 +70,4 @@ protected:
     void follow_cursor();
 };
 
-}  // ns nrdf
+}  // namespace bm

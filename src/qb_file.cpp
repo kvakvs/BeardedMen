@@ -1,6 +1,6 @@
 #include "qb_file.h"
 
-namespace nrdf {
+namespace bm {
 
 QBFile::QBFile(const char* filename) {
     FILE* f = fopen(filename, "rb");
@@ -128,4 +128,4 @@ void QBVolume::create_voxels() {
     voxels_ = std::make_unique<VoxVolume>(reg);
 }
 
-} // ns nrdf
+} // namespace bm

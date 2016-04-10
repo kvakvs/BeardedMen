@@ -3,7 +3,7 @@
 #include <cmath>
 #include <QElapsedTimer>
 
-namespace nrdf {
+namespace bm {
 
 void GameWidget::initializeExample() {
     terrain_shader_ = load_shader("colored_blocks");
@@ -63,11 +63,9 @@ Model GameWidget::load_model(const char *register_as,
     auto qb_model = std::make_unique<QBFile>(file);
     auto raw_mesh = qb_model->get_mesh_for_volume(0);
 
-    // Using -.7f offset because 1 pixel is added all around the QB model and
-    // model's 0,0,0 is 0.5f away from block origin. Scale down by original 1/8
     auto opengl_mesh = create_opengl_mesh_from_raw(
                 raw_mesh,
-                Vec3f(0.f, 0.f, 0.f), //Vec3f(-.7f, 0.5f, +.7f),
+                Vec3f(0.f, 0.f, 0.f),
                 qb_model->get_downscale(0)
                 );
 
@@ -133,4 +131,4 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
     }
 }
 
-} // ns nrdf
+} // namespace bm
