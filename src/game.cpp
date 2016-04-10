@@ -153,7 +153,7 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
     case Qt::Key_S:
     case Qt::Key_A:
     case Qt::Key_D:
-    case Qt::Key_Escape:
+//    case Qt::Key_Escape:
         return BaseWidget::keyPressEvent(event);
     default:
         event->ignore();

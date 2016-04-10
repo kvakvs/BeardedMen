@@ -24,8 +24,43 @@ SOFTWARE.
 
 #include <QApplication>
 #include <QGLFormat>
+#include <QMainWindow>
+//#include <QGridLayout>
+#include <QDockWidget>
 
 #include "game.h"
+
+class GameMainWindow: public QMainWindow {
+public:
+    GameMainWindow(): QMainWindow(nullptr) {
+        gl_widget_ = new bm::GameWidget(this);
+        gl_widget_->setGeometry(0, 0, 500, 480);
+        setCentralWidget(gl_widget_);
+
+        cnc_dock_ = new QDockWidget("Command and Control", this);
+        cnc_dock_->setFeatures(QDockWidget::DockWidgetMovable
+                               | QDockWidget::DockWidgetFloatable
+                               //| QDockWidget::DockWidgetVerticalTitleBar
+                               );
+        cnc_dock_->resize(200, 400);
+        addDockWidget(Qt::RightDockWidgetArea, cnc_dock_);
+    }
+    virtual void keyPressEvent( QKeyEvent* event) override {
+        gl_widget_->keyPressEvent(event);
+        if (event->isAccepted() == false) {
+            QMainWindow::keyPressEvent(event);
+        }
+    }
+    virtual void keyReleaseEvent(QKeyEvent* event) override {
+        gl_widget_->keyReleaseEvent(event);
+        if (event->isAccepted() == false) {
+            QMainWindow::keyReleaseEvent(event);
+        }
+    }
+private:
+    bm::GameWidget *gl_widget_;
+    QDockWidget* cnc_dock_;
+};
 
 int main(int argc, char* argv[]) {
     // Create and show the Qt OpenGL window
@@ -41,9 +76,13 @@ int main(int argc, char* argv[]) {
     gl_fmt.setSampleBuffers(true);
     QGLFormat::setDefaultFormat(gl_fmt);
 
-    bm::GameWidget main_wnd(0);
-    main_wnd.setWindowTitle(bmaf);
-    main_wnd.show();
+    auto main_wnd  = new GameMainWindow();
+    main_wnd->setGeometry(0, 0, 640, 480);
+    //auto gl_widget = new bm::GameWidget(main_wnd);
+    //gl_widget->setGeometry(main_wnd->geometry());
+
+    main_wnd->setWindowTitle(bmaf);
+    main_wnd->show();
 
     // Run the message pump.
     return app.exec();

@@ -20,6 +20,10 @@ class GameWidget : public BaseWidget {
                      const char *file,
                      ShaderPtr shad);
 
+    // QT override
+    virtual void keyPressEvent( QKeyEvent* event ) override {
+        (this->*keyboard_handler_)(event);
+    }
   protected:
     // World volume (pageable)
     std::unique_ptr<WorldPager> vol_;
@@ -38,11 +42,6 @@ class GameWidget : public BaseWidget {
 
     virtual void initialize_game() override;
     virtual void render_frame() override;
-
-    // QT override
-    virtual void keyPressEvent( QKeyEvent* event ) override {
-        (this->*keyboard_handler_)(event);
-    }
 
 private:
     // Reposition camera on cursor
