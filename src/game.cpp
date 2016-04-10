@@ -77,12 +77,12 @@ Model GameWidget::load_model(const char *register_as,
 
 void GameWidget::renderOneFrame() {
     terrain_.render(this, Vec3f(0.f, 0.f, 0.f), 0.f);
-    dorf_.render(this, Vec3f(0.f, 0.f, 0.f), 0.f);
+    dorf_.render(this, Vec3f(-0.5f, 0.5f, -0.5f), 0.f);
 
     cursor_.render(this,
-                   Vec3f((float)cursor_pos_.getX() - .6f,
-                         (float)cursor_pos_.getY() + .5f,
-                         (float)cursor_pos_.getZ() + .8f),
+                   Vec3f((float)cursor_pos_.getX() - 0.5f,
+                         (float)cursor_pos_.getY() + 0.5f,
+                         (float)cursor_pos_.getZ() - 0.5f),
                    0.f);
 }
 
