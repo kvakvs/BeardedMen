@@ -44,39 +44,46 @@ void GameWidget::initializeExample() {
 
     // Pass the surface to the OpenGL window
     //
-    terrain_mesh_ = addMesh(decodedMesh);
-    terrain_mesh_.rotation_y_ = -90.f;
+    terrain_ = Model(create_opengl_mesh_from_raw(decodedMesh), terrain_shader_);
+    //terrain_.mesh_.rotation_y_ = -90.f;
 
     //
     // Load models
     //
-    model1_      = std::make_unique<QBFile>("assets/model/dorf.qb");
-    auto m1_tmp  = model1_->get_mesh_for_volume(0);
-    // Using -.7f offset because 1 pixel is added all around the QB model and
-    // model's 0,0,0 is 0.5f away from block origin. Scale down by original 1/8
-    model1_mesh_ = addMesh(m1_tmp,
-                           Vec3f(-.7f, 0.5f, +.7f),
-                           model1_->get_downscale(0));
+    dorf_ = load_model("dorf", "assets/model/dorf.qb", rgb_vox_shader_);
+    cursor_ = load_model("cursor", "assets/model/cursor.qb", rgb_vox_shader_);
 
-    cursor_  = std::make_unique<QBFile>("assets/model/cursor.qb");
-    auto cur_tmp  = cursor_->get_mesh_for_volume(0);
-    cursor_mesh_ = addMesh(cur_tmp,
-                           Vec3f(-.7f, 0.5f, -.7f),
-                           cursor_->get_downscale(0));
     follow_cursor();
 //    qtimer_.start();
 }
 
-void GameWidget::renderOneFrame() {
-    render_model(terrain_mesh_, terrain_shader_);
-    render_model(model1_mesh_, rgb_vox_shader_);
+Model GameWidget::load_model(const char *register_as,
+                             const char *file,
+                             ShaderPtr shad) {
+    auto qb_model = std::make_unique<QBFile>(file);
+    auto raw_mesh = qb_model->get_mesh_for_volume(0);
 
-//    cursor_mesh_.rotation_y_ =
-//            std::sin(qtimer_.elapsed() % 314159 / 1000.f) * 15.f;
-    cursor_mesh_.translation_ = QVector3D((float)cursor_pos_.getX() - .6f,
-                                         (float)cursor_pos_.getY() + .5f,
-                                         (float)cursor_pos_.getZ() + .8f),
-    render_model(cursor_mesh_, rgb_vox_shader_);
+    // Using -.7f offset because 1 pixel is added all around the QB model and
+    // model's 0,0,0 is 0.5f away from block origin. Scale down by original 1/8
+    auto opengl_mesh = create_opengl_mesh_from_raw(
+                raw_mesh,
+                Vec3f(0.f, 0.f, 0.f), //Vec3f(-.7f, 0.5f, +.7f),
+                qb_model->get_downscale(0)
+                );
+
+    raw_meshes_[register_as] = opengl_mesh;
+    return Model(opengl_mesh, shad);
+}
+
+void GameWidget::renderOneFrame() {
+    terrain_.render(this, Vec3f(0.f, 0.f, 0.f), 0.f);
+    dorf_.render(this, Vec3f(0.f, 0.f, 0.f), 0.f);
+
+    cursor_.render(this,
+                   Vec3f((float)cursor_pos_.getX() - .6f,
+                         (float)cursor_pos_.getY() + .5f,
+                         (float)cursor_pos_.getZ() + .8f),
+                   0.f);
 }
 
 void GameWidget::follow_cursor()
@@ -114,37 +121,16 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
             follow_cursor();
         }
         break;
+    case Qt::Key_W:
+    case Qt::Key_S:
+    case Qt::Key_A:
+    case Qt::Key_D:
+    case Qt::Key_Escape:
+        return BaseWidget::keyPressEvent(event);
     default:
         event->ignore();
         break;
     }
-}
-
-void GameWidget::render_model(OpenGLMeshData &mesh,
-                              BaseWidget::ShaderPtr shad) {
-    shad->bind();
-
-    // These two matrices are constant for all meshes.
-    shad->setUniformValue("viewMatrix", viewMatrix());
-    shad->setUniformValue("projectionMatrix", projectionMatrix());
-
-    // Set up the model matrrix based on provided translation and scale.
-    QMatrix4x4 model_mx;
-    model_mx.translate(mesh.translation_);
-    model_mx.scale(mesh.scale_);
-    // rotate all models (but not terrain, there is -90 to compensate for this)
-    model_mx.rotate(mesh.rotation_y_ + 90.f, 0.f, 1.f, 0.f);
-    shad->setUniformValue("modelMatrix", model_mx);
-
-    // Bind the vertex array for the current mesh
-    this->glBindVertexArray(mesh.vert_array_);
-    // Draw the mesh
-    this->glDrawElements(GL_TRIANGLES, mesh.indx_count_, mesh.indx_type_, 0);
-    // Unbind the vertex array.
-    this->glBindVertexArray(0);
-
-    // We're done with the shader for this frame.
-    shad->release();
 }
 
 } // ns nrdf

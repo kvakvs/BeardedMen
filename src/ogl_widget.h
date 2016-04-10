@@ -22,45 +22,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#ifndef __OpenGLWidget_H_A72D4D2F8E__  // Random junk as 'OpenGLWidget seems
-                                       // like it could be a common name.
-#define __OpenGLWidget_H_A72D4D2F8E__
+#pragma once
 
 #include <QElapsedTimer>
 #include <QGLWidget>
 #include <QMatrix4x4>
 
 // This is a very basic class for getting an OpenGL example up and running with
-// Qt5. It simply displays
-// an OpenGL widget and implements an FPS-style camera as well as other very
-// basic functionality. User
-// code can derive from this and override the provided virtual functions to
-// implement functionality.
+// Qt5. It simply displays an OpenGL widget and implements an FPS-style camera
+// as well as other very basic functionality. User code can derive from this
+// and override the provided virtual functions to implement functionality.
 // The class is templatized so users can specify the OpenGL version via the
 // appropriate QOpenGLFunctions.
 template <typename QOpenGLFunctionsType>
-class OpenGLWidget : public QGLWidget, protected QOpenGLFunctionsType {
+class MyGLWidget : public QGLWidget, public QOpenGLFunctionsType {
    protected:
     // Protected constructor because this widget should not be created directly
     // - it should only be subclassed.
-    OpenGLWidget(QWidget* parent);
+    MyGLWidget(QWidget* parent);
 
     // Derived classes should override these to provide functionality.
     virtual void initialize() {}
     virtual void renderOneFrame() {}
 
+public:
     // Getters for properties defined by this widget.
     const QMatrix4x4& viewMatrix();
     const QMatrix4x4& projectionMatrix();
 
     // Setters for properties defined by this widget.
     void setCameraTransform(QVector3D position, float pitch, float yaw);
-
-   private:
-    // Qt OpenGL functions
-    void initializeGL();
-    void resizeGL(int w, int h);
-    void paintGL();
 
     // Mouse handling
     void mouseMoveEvent(QMouseEvent* event);
@@ -69,6 +60,12 @@ class OpenGLWidget : public QGLWidget, protected QOpenGLFunctionsType {
     // Keyboard handling
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
+
+private:
+    // Qt OpenGL functions
+    void initializeGL();
+    void resizeGL(int w, int h);
+    void paintGL();
 
     // Matrices
     QMatrix4x4 mViewMatrix;
@@ -94,6 +91,5 @@ class OpenGLWidget : public QGLWidget, protected QOpenGLFunctionsType {
     QElapsedTimer mElapsedTimer;
 };
 
-#include "OpenGLWidget.inl"
+#include "ogl_widget.inl"
 
-#endif  //__OpenGLWidget_H_A72D4D2F8E__

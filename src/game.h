@@ -16,26 +16,37 @@ class GameWidget : public BaseWidget {
    public:
     GameWidget(QWidget* parent) : BaseWidget(parent) {}
 
-   protected:
+// protect this fun?
+    Model load_model(const char *register_as,
+                     const char *file,
+                     ShaderPtr shad);
+
+protected:
     std::unique_ptr<WorldPager> vol_;
     QElapsedTimer qtimer_;
 
+    MeshMap raw_meshes_;
+
+    /*
     // DORF!
     std::unique_ptr<QBFile> model1_;
-    OpenGLMeshData          model1_mesh_;
+    RawMesh          model1_mesh_;
 
     // CURSOR!
     std::unique_ptr<QBFile> cursor_;
-    OpenGLMeshData          cursor_mesh_;
+    RawMesh          cursor_mesh_;
+    */
+    Model dorf_;
+    Model cursor_;
     Vec3i cursor_pos_ = Vec3i(2,0,0);
 
     // Ground shader and mesh
-    ShaderPtr      terrain_shader_;
-    OpenGLMeshData terrain_mesh_;
+    ShaderPtr  terrain_shader_;
+    Model      terrain_;
 
-    ShaderPtr rgb_vox_shader_;
+    ShaderPtr  rgb_vox_shader_;
 
-    void initializeExample() override;
+    virtual void initializeExample() override;
 
     // A function for mesh generation
     template <typename VoxT>
@@ -55,7 +66,6 @@ class GameWidget : public BaseWidget {
 
     // QT override
     virtual void keyPressEvent( QKeyEvent* event ) override;
-    void render_model(OpenGLMeshData& mesh, ShaderPtr shad);
     // Reposition camera on cursor
     void follow_cursor();
 };

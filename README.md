@@ -8,6 +8,7 @@ and defend and hunt, all that sort of thing.
 * OpenGL 3.2 + Qt
 * World grid rendering
 * QB (Qubicle format) RGB-colored voxel models
+* Keyboard control, cursor (qb model), bearded man (qb model)
 
 TODO: everything else
 

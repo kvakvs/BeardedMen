@@ -1,68 +1,53 @@
 #pragma once
 
-#include "vector.h"
-
-#include "OpenGLWidget.h"
 #include "PolyVox/Mesh.h"
 
-#include <QGLShaderProgram>
 #include <QOpenGLBuffer>
-#include <QOpenGLFunctions_3_2_Core>
 #include <QOpenGLVertexArrayObject>
 
 #include <cmath>
 
+#include "gl_version.h"
+#include "vector.h"
+#include "model.h"
+
 namespace pv = PolyVox;
 namespace nrdf {
 
-// This structure holds all the data required
-// to render one of our meshes through OpenGL.
-struct OpenGLMeshData {
-    GLuint indx_count_;
-    GLenum indx_type_;
-    GLuint indx_buf_;
-    GLuint vert_buf_;
-    GLuint vert_array_;
-    float rotation_y_ = 0.f;
-    QVector3D translation_;
-    QVector3D scale_;
-};
-
-class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
+class BaseWidget : public GLVersion_Widget {
     Q_OBJECT
    public:
-    BaseWidget(QWidget* parent) : OpenGLWidget(parent) {}
+    BaseWidget(QWidget* parent) : MyGLWidget(parent) {}
     virtual ~BaseWidget();
-
-    using ShaderPtr = QSharedPointer<QGLShaderProgram>;
 
     // Convert a PolyVox mesh to OpenGL index/vertex buffers. Inlined because
     // it's templatised.
     template <typename MeshType>
-    OpenGLMeshData addMesh(const MeshType& surfaceMesh,
-                           const Vec3f& trans = Vec3f(0,0,0),
-                           const Vec3f &scale = Vec3f(1.0f, 1.0f, 1.0f))
+    OpenglMesh create_opengl_mesh_from_raw(
+            const MeshType& surfaceMesh,
+            const Vec3f& trans = Vec3f(0,0,0),
+            const Vec3f &scale = Vec3f(1.0f, 1.0f, 1.0f))
     {
         // This struct holds the OpenGL properties (buffer handles, etc) which
         // will be used to render our mesh. We copy the data from the PolyVox
         // mesh into this structure.
-        OpenGLMeshData meshData;
+        OpenglMesh result;
 
         // Create the VAO for the mesh
-        glGenVertexArrays(1, &(meshData.vert_array_));
-        glBindVertexArray(meshData.vert_array_);
+        glGenVertexArrays(1, &(result.vert_array_));
+        glBindVertexArray(result.vert_array_);
 
         // The GL_ARRAY_BUFFER will contain the list of vertex positions
-        glGenBuffers(1, &(meshData.vert_buf_));
-        glBindBuffer(GL_ARRAY_BUFFER, meshData.vert_buf_);
+        glGenBuffers(1, &(result.vert_buf_));
+        glBindBuffer(GL_ARRAY_BUFFER, result.vert_buf_);
         glBufferData(GL_ARRAY_BUFFER,
                      surfaceMesh.getNoOfVertices()
                         * sizeof(typename MeshType::VertexType),
                      surfaceMesh.getRawVertexData(), GL_STATIC_DRAW);
 
         // and GL_ELEMENT_ARRAY_BUFFER will contain the indices
-        glGenBuffers(1, &(meshData.indx_buf_));
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshData.indx_buf_);
+        glGenBuffers(1, &(result.indx_buf_));
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, result.indx_buf_);
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
             surfaceMesh.getNoOfIndices() * sizeof(typename MeshType::IndexType),
@@ -108,19 +93,18 @@ class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
 
         // A few additional properties can be copied across for use during
         // rendering.
-        meshData.indx_count_ = surfaceMesh.getNoOfIndices();
-        meshData.translation_ = QVector3D(trans.getX(), trans.getY(),
+        result.indx_count_ = surfaceMesh.getNoOfIndices();
+        result.translation_ = QVector3D(trans.getX(), trans.getY(),
                                          trans.getZ());
-        meshData.scale_ = QVector3D(scale.getX(), scale.getY(),
+        result.scale_ = QVector3D(scale.getX(), scale.getY(),
                                    scale.getZ());
 
         // Set 16 or 32-bit index buffer size.
-        meshData.indx_type_ = sizeof(typename MeshType::IndexType) == 2
+        result.indx_type_ = sizeof(typename MeshType::IndexType) == 2
                                  ? GL_UNSIGNED_SHORT
                                  : GL_UNSIGNED_INT;
 
-        // Now add the mesh to the list of meshes to render.
-        return meshData;
+        return result;
     }
 
     ShaderPtr load_shader(const char *name);
@@ -128,9 +112,8 @@ class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
 protected:
     const float PI = M_PI;
 
-    virtual void initializeExample() {}
+    virtual void initializeExample() = 0;
     void initialize() override;
-    void renderOneFrame() override;
 
    private:
     // Index/vertex buffer data

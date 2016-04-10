@@ -21,6 +21,9 @@ SET(SRC_FILES
     src/perlin.cpp
     src/base_app.cpp
     src/game.cpp		src/game.h
+    src/gl_version
+    src/model.cpp               src/model.h
+    src/ogl_widget.h		src/ogl_widget.inl
     src/qb_file.cpp		src/qb_file.h
     src/vector.h
     src/world.cpp		src/world.h
@@ -86,18 +89,15 @@ SET(SRC_FILES
     polyvox/include/PolyVox/Impl/Utility.h
 )
 
-#Projects headers files	
 SET(INC_FILES	
-    src/OpenGLWidget.h
-    src/OpenGLWidget.inl
     src/perlin.h
     src/base_app.h
 )
 
 #"Sources" and "Headers" are the group names in Visual Studio.
 #They may have other uses too...
-SOURCE_GROUP("Sources" FILES ${SRC_FILES})
-SOURCE_GROUP("Headers" FILES ${INC_FILES})
+#SOURCE_GROUP("Sources" FILES ${SRC_FILES})
+#SOURCE_GROUP("Headers" FILES ${INC_FILES})
 
 #Tell CMake the paths for OpenGL and for PolyVox (which is just relative to our current location)
 INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR}
