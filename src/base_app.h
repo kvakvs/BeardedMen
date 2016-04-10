@@ -18,13 +18,14 @@ namespace nrdf {
 // This structure holds all the data required
 // to render one of our meshes through OpenGL.
 struct OpenGLMeshData {
-    GLuint noOfIndices;
-    GLenum indexType;
-    GLuint indexBuffer;
-    GLuint vertexBuffer;
-    GLuint vertexArrayObject;
-    QVector3D translation;
-    QVector3D scale;
+    GLuint indx_count_;
+    GLenum indx_type_;
+    GLuint indx_buf_;
+    GLuint vert_buf_;
+    GLuint vert_array_;
+    float rotation_y_ = 0.f;
+    QVector3D translation_;
+    QVector3D scale_;
 };
 
 class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
@@ -48,20 +49,20 @@ class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
         OpenGLMeshData meshData;
 
         // Create the VAO for the mesh
-        glGenVertexArrays(1, &(meshData.vertexArrayObject));
-        glBindVertexArray(meshData.vertexArrayObject);
+        glGenVertexArrays(1, &(meshData.vert_array_));
+        glBindVertexArray(meshData.vert_array_);
 
         // The GL_ARRAY_BUFFER will contain the list of vertex positions
-        glGenBuffers(1, &(meshData.vertexBuffer));
-        glBindBuffer(GL_ARRAY_BUFFER, meshData.vertexBuffer);
+        glGenBuffers(1, &(meshData.vert_buf_));
+        glBindBuffer(GL_ARRAY_BUFFER, meshData.vert_buf_);
         glBufferData(GL_ARRAY_BUFFER,
                      surfaceMesh.getNoOfVertices()
                         * sizeof(typename MeshType::VertexType),
                      surfaceMesh.getRawVertexData(), GL_STATIC_DRAW);
 
         // and GL_ELEMENT_ARRAY_BUFFER will contain the indices
-        glGenBuffers(1, &(meshData.indexBuffer));
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshData.indexBuffer);
+        glGenBuffers(1, &(meshData.indx_buf_));
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshData.indx_buf_);
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
             surfaceMesh.getNoOfIndices() * sizeof(typename MeshType::IndexType),
@@ -107,14 +108,14 @@ class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
 
         // A few additional properties can be copied across for use during
         // rendering.
-        meshData.noOfIndices = surfaceMesh.getNoOfIndices();
-        meshData.translation = QVector3D(trans.getX(), trans.getY(),
+        meshData.indx_count_ = surfaceMesh.getNoOfIndices();
+        meshData.translation_ = QVector3D(trans.getX(), trans.getY(),
                                          trans.getZ());
-        meshData.scale = QVector3D(scale.getX(), scale.getY(),
+        meshData.scale_ = QVector3D(scale.getX(), scale.getY(),
                                    scale.getZ());
 
         // Set 16 or 32-bit index buffer size.
-        meshData.indexType = sizeof(typename MeshType::IndexType) == 2
+        meshData.indx_type_ = sizeof(typename MeshType::IndexType) == 2
                                  ? GL_UNSIGNED_SHORT
                                  : GL_UNSIGNED_INT;
 

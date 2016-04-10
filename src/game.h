@@ -18,6 +18,7 @@ class GameWidget : public BaseWidget {
 
    protected:
     std::unique_ptr<WorldPager> vol_;
+    QElapsedTimer qtimer_;
 
     // DORF!
     std::unique_ptr<QBFile> model1_;
@@ -52,7 +53,11 @@ class GameWidget : public BaseWidget {
 
     virtual void renderOneFrame() override;
 
+    // QT override
+    virtual void keyPressEvent( QKeyEvent* event ) override;
     void render_model(OpenGLMeshData& mesh, ShaderPtr shad);
+    // Reposition camera on cursor
+    void follow_cursor();
 };
 
 }  // ns nrdf
