@@ -36,6 +36,8 @@ void BaseWidget::renderOneFrame()
 {
 }
 
+BaseWidget::~BaseWidget() {}
+
 BaseWidget::ShaderPtr BaseWidget::load_shader(const char *name)
 {
     auto shad = QSharedPointer<QGLShaderProgram>(new QGLShaderProgram);

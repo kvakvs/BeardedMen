@@ -20,8 +20,10 @@ SET(SRC_FILES
     src/main.cpp
     src/perlin.cpp
     src/base_app.cpp
+    src/game.cpp		src/game.h
     src/qb_file.cpp		src/qb_file.h
     src/vector.h
+    src/world.cpp		src/world.h
 
     polyvox/include/PolyVox/AStarPathfinder.h
     polyvox/include/PolyVox/AStarPathfinder.inl

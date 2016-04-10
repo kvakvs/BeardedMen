@@ -39,11 +39,15 @@ public:
 
     // Call this when size_ is known and it's time to allocate voxels_
     // Result: creates voxels_
-    void create_voxels() {
-        pv::Region reg(Vec3i(0, 0, 0),
-                       Vec3i(size_.getX(), size_.getY(),
-                                         size_.getZ()));
-        voxels_ = std::make_unique<VoxVolume>(reg);
+    void create_voxels();
+    void set_vox(int x, int y, int z, VoxelType v) {
+        voxels_->setVoxel(x+1, y+1, z+1, v);
+    }
+    // Return (1,1,1) / size-(2,2,2)
+    Vec3f get_downscale() {
+        return Vec3f(1.0f / size_.getX(),
+                     1.0f / size_.getY(),
+                     1.0f / size_.getZ());
     }
 };
 
@@ -67,14 +71,20 @@ public:
     QBFile(const char *filename);
 
     auto get_mesh_for_volume(int i) {
-        QBVolume *volData = volumes_[i];
-        Vec3i unit_v(1,1,1);
+        QBVolume *qb_vol = volumes_[i];
+
+        Vec3i two(2, 2, 2);
         auto mesh = pv::extractCubicMesh(
-                    volData->voxels_.get(),
-                    pv::Region(Vec3i(0,0,0), volData->size_ - unit_v)
+                    qb_vol->voxels_.get(),
+                    pv::Region(Vec3i(0,0,0),
+                               qb_vol->size_ + two)
                     );
+
         auto decodedMesh = pv::decodeMesh(mesh);
         return decodedMesh;
+    }
+    Vec3f get_downscale(int i) {
+        return volumes_[i]->get_downscale();
     }
 
 private:

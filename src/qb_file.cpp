@@ -68,7 +68,7 @@ void QBFile::read_compressed(FILE *f, QBVolume *vol)
                 fread(&tmp, sizeof(uint32_t), 1, f);
                 v.setMaterial(tmp & 0xFFFFFF);
                 v.setDensity(tmp >> 24);
-                vol->voxels_->setVoxel(x, y, z, v);
+                vol->set_vox(x+1, y+1, z+1, v);
             }
         }
     }
@@ -103,7 +103,7 @@ void QBFile::read_uncompressed(FILE *f, QBVolume* vol)
 
                     v.setMaterial(data & 0xFFFFFF);
                     v.setDensity(data >> 24);
-                    vol->voxels_->setVoxel(x, y, z, v);
+                    vol->set_vox(x+1, y+1, z+1, v);
                     index++;
                 }
             } else {
@@ -112,13 +112,20 @@ void QBFile::read_uncompressed(FILE *f, QBVolume* vol)
 
                 v.setMaterial(data & 0xFFFFFF);
                 v.setDensity(data >> 24);
-                vol->voxels_->setVoxel(x, y, z, v);
+                vol->set_vox(x, y, z, v);
                 index++;
             }
         }
 
         z++;
     }
+}
+
+void QBVolume::create_voxels() {
+    // Have a margin around all voxels, hence all sizes+2
+    pv::Region reg(Vec3i(0, 0, 0),
+                   Vec3i(size_.getX()+2, size_.getY()+2, size_.getZ()+2));
+    voxels_ = std::make_unique<VoxVolume>(reg);
 }
 
 } // ns nrdf

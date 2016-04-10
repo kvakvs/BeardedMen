@@ -28,8 +28,10 @@ struct OpenGLMeshData {
 };
 
 class BaseWidget : public OpenGLWidget<QOpenGLFunctions_3_2_Core> {
+    Q_OBJECT
    public:
     BaseWidget(QWidget* parent) : OpenGLWidget(parent) {}
+    virtual ~BaseWidget();
 
     using ShaderPtr = QSharedPointer<QGLShaderProgram>;
 

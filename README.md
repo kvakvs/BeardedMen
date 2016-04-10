@@ -3,6 +3,14 @@
 A voxel-based simulation management game. Where bearded men build and dig
 and defend and hunt, all that sort of thing.
 
+## Current features
+
+* OpenGL 3.2 + Qt
+* World grid rendering
+* QB (Qubicle format) RGB-colored voxel models
+
+TODO: everything else
+
 ## Compiling
 
 This CMakeLists project builds under Qt5.6 (because QOpenGLWidget) and MacOSX.
