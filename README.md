@@ -10,6 +10,8 @@ and defend and hunt, all that sort of thing.
 * QB (Qubicle format) RGB-colored voxel models
 * Keyboard control, cursor (qb model), bearded man (qb model)
 
+<img src="http://i.imgur.com/JKPA7aN.png" height="300" />
+
 TODO: everything else
 
 ## Compiling
