@@ -18,21 +18,21 @@ MyGLWidget<QOpenGLFunctionsType>::MyGLWidget(QWidget *parent)
 template <typename QOpenGLFunctionsType>
 const QMatrix4x4& MyGLWidget<QOpenGLFunctionsType>::viewMatrix()
 {
-	return mViewMatrix;
+    return view_matrix_;
 }
 
 template <typename QOpenGLFunctionsType>
 const QMatrix4x4& MyGLWidget<QOpenGLFunctionsType>::projectionMatrix()
 {
-	return mProjectionMatrix;
+    return proj_matrix_;
 }
 
 template <typename QOpenGLFunctionsType>
 void MyGLWidget<QOpenGLFunctionsType>::setCameraTransform(QVector3D position, float pitch, float yaw)
 {
-	mCameraPosition = position;
-	mCameraYaw = yaw;
-	mCameraPitch = pitch;
+    cam_pos_ = position;
+    cam_yaw_ = yaw;
+    cam_pitch_ = pitch;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,26 +87,23 @@ void MyGLWidget<QOpenGLFunctionsType>::resizeGL(int w, int h)
 	float zNear = 1.0;
 	float zFar = 1000.0;
 
-	mProjectionMatrix.setToIdentity();
-	mProjectionMatrix.perspective(mCameraFOV, aspectRatio, zNear, zFar);
+    proj_matrix_.setToIdentity();
+    proj_matrix_.perspective(cam_fov_, aspectRatio, zNear, zFar);
 }
 
 template <typename QOpenGLFunctionsType>
 void MyGLWidget<QOpenGLFunctionsType>::paintGL()
 {
-	// Direction : Spherical coordinates to Cartesian coordinates conversion
+    // Direction : Spherical coordinates to Cartesian coordinates conversion
 	QVector3D cameraForward(
-                std::cos(mCameraPitch) * std::sin(mCameraYaw),
-                std::sin(mCameraPitch),
-                std::cos(mCameraPitch) * std::cos(mCameraYaw)
-		);
+                std::cos(cam_pitch_) * std::sin(cam_yaw_),
+                std::sin(cam_pitch_),
+                std::cos(cam_pitch_) * std::cos(cam_yaw_)
+                );
 
 	// Right vector
-	QVector3D cameraRight(
-                std::sin(mCameraYaw - 3.14f / 2.0f),
-		0,
-                std::cos(mCameraYaw - 3.14f / 2.0f)
-		);
+    QVector3D cameraRight(std::sin(cam_yaw_ - 3.14f / 2.0f), 0,
+                          std::cos(cam_yaw_ - 3.14f / 2.0f));
 
 	// Up vector
 	QVector3D cameraUp = QVector3D::crossProduct(cameraRight, cameraForward);
@@ -115,37 +112,37 @@ void MyGLWidget<QOpenGLFunctionsType>::paintGL()
 	float deltaTime = mElapsedTimer.restart() / 1000.0f;
 
 	// Move forward
-	if ((mPressedKeys.contains(Qt::Key_Up)) || (mPressedKeys.contains(Qt::Key_W)))
+    if ((pressed_keys_.contains(Qt::Key_Up)) || (pressed_keys_.contains(Qt::Key_W)))
 	{
-		mCameraPosition += cameraForward * deltaTime * mCameraMoveSpeed;
+        cam_pos_ += cameraForward * deltaTime * cam_move_speed;
 	}
 	// Move backward
-	if ((mPressedKeys.contains(Qt::Key_Down)) || (mPressedKeys.contains(Qt::Key_S)))
+    if ((pressed_keys_.contains(Qt::Key_Down)) || (pressed_keys_.contains(Qt::Key_S)))
 	{
-		mCameraPosition -= cameraForward * deltaTime * mCameraMoveSpeed;
+        cam_pos_ -= cameraForward * deltaTime * cam_move_speed;
 	}
 	// Strafe right
-	if ((mPressedKeys.contains(Qt::Key_Right)) || (mPressedKeys.contains(Qt::Key_D)))
+    if ((pressed_keys_.contains(Qt::Key_Right)) || (pressed_keys_.contains(Qt::Key_D)))
 	{
-		mCameraPosition += cameraRight * deltaTime * mCameraMoveSpeed;
+        cam_pos_ += cameraRight * deltaTime * cam_move_speed;
 	}
 	// Strafe left
-	if ((mPressedKeys.contains(Qt::Key_Left)) || (mPressedKeys.contains(Qt::Key_A)))
+    if ((pressed_keys_.contains(Qt::Key_Left)) || (pressed_keys_.contains(Qt::Key_A)))
 	{
-		mCameraPosition -= cameraRight * deltaTime * mCameraMoveSpeed;
+        cam_pos_ -= cameraRight * deltaTime * cam_move_speed;
 	}
 
-	mViewMatrix.setToIdentity();
-	mViewMatrix.lookAt(
-		mCameraPosition,           // Camera is here
-		mCameraPosition + cameraForward, // and looks here : at the same position, plus "direction"
+    view_matrix_.setToIdentity();
+    view_matrix_.lookAt(
+        cam_pos_,           // Camera is here
+        cam_pos_ + cameraForward, // and looks here : at the same position, plus "direction"
 		cameraUp                  // Head is up (set to 0,-1,0 to look upside-down)
 		);
 
 	//Clear the screen
 	this->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	renderOneFrame();
+    render_frame();
 
 	// Check for errors.
 	GLenum errCode = this->glGetError();
@@ -159,19 +156,19 @@ template <typename QOpenGLFunctionsType>
 void MyGLWidget<QOpenGLFunctionsType>::mousePressEvent(QMouseEvent* event)
 {
 	// Initialise these variables which will be used when the mouse actually moves.
-	m_CurrentMousePos = event->pos();
-	m_LastFrameMousePos = m_CurrentMousePos;
+    mouse_pos_ = event->pos();
+    last_frame_mouse_pos_ = mouse_pos_;
 }
 
 template <typename QOpenGLFunctionsType>
 void MyGLWidget<QOpenGLFunctionsType>::mouseMoveEvent(QMouseEvent* event)
 {
 	// Update the x and y rotations based on the mouse movement.
-	m_CurrentMousePos = event->pos();
-	QPoint diff = m_CurrentMousePos - m_LastFrameMousePos;
-	mCameraYaw -= diff.x() * mCameraRotateSpeed;
-	mCameraPitch -= diff.y() * mCameraRotateSpeed;
-	m_LastFrameMousePos = m_CurrentMousePos;
+    mouse_pos_ = event->pos();
+    QPoint diff = mouse_pos_ - last_frame_mouse_pos_;
+    cam_yaw_ -= diff.x() * cam_rotate_speed_;
+    cam_pitch_ -= diff.y() * cam_rotate_speed_;
+    last_frame_mouse_pos_ = mouse_pos_;
 }
 
 template <typename QOpenGLFunctionsType>
@@ -182,11 +179,11 @@ void MyGLWidget<QOpenGLFunctionsType>::keyPressEvent(QKeyEvent* event)
 		close();
 	}
 
-	mPressedKeys.append(event->key());
+    pressed_keys_.append(event->key());
 }
 
 template <typename QOpenGLFunctionsType>
 void MyGLWidget<QOpenGLFunctionsType>::keyReleaseEvent(QKeyEvent* event)
 {
-	mPressedKeys.removeAll(event->key());
+    pressed_keys_.removeAll(event->key());
 }

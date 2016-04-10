@@ -1,13 +1,12 @@
 #include "game.h"
 
 #include <cmath>
-#include <QElapsedTimer>
 
 namespace bm {
 
 void GameWidget::initialize_game() {
     terrain_shader_ = load_shader("colored_blocks");
-    rgb_vox_shader_   = load_shader("rgb_blocks");
+    rgb_vox_shader_ = load_shader("rgb_blocks");
 
     //
     // World setup and update terrain
@@ -22,8 +21,6 @@ void GameWidget::initialize_game() {
     cursor_pos_ = Vec3i(VIEWSZ_X / 2, 1, VIEWSZ_Z / 2);
 
     follow_cursor();
-//    qtimer_.start();
-
     update_terrain_model();
 }
 
@@ -67,6 +64,9 @@ void GameWidget::update_terrain_model() {
     //
     terrain_ = Model(create_opengl_mesh_from_raw(decodedMesh), terrain_shader_);
     terrain_.mesh_->scale_.setY(-1.0f);
+
+    // Keyboard input mode
+    change_keyboard_fsm(KeyFSM::ExploreMap);
 }
 
 Model GameWidget::load_model(const char *register_as,
@@ -85,7 +85,7 @@ Model GameWidget::load_model(const char *register_as,
     return Model(opengl_mesh, shad);
 }
 
-void GameWidget::renderOneFrame() {
+void GameWidget::render_frame() {
     terrain_.render(this, Vec3f(0.f, 0.f, 0.f), 0.f);
     dorf_.render(this, Vec3f(-0.5f, 0.5f, -0.5f), 0.f);
 
@@ -105,7 +105,21 @@ void GameWidget::follow_cursor()
                        PI); // yaw
 }
 
-void GameWidget::keyPressEvent(QKeyEvent *event) {
+void GameWidget::change_keyboard_fsm(GameWidget::KeyFSM id)
+{
+    switch (id) {
+    case KeyFSM::ExploreMap:
+        keyboard_handler_ = &GameWidget::fsm_keypress_exploremap;
+        break;
+    case KeyFSM::Orders:
+        keyboard_handler_ = &GameWidget::fsm_keypress_orders;
+        break;
+    }
+}
+
+// Normal keyboard mode where you can navigate camera and map, possibly switch
+// to different modes.
+void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
     switch ( event->key() ) {
     case Qt::Key_Right:
         if (cursor_pos_.getX() < world_sz_x - 1) {
@@ -131,11 +145,30 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
             follow_cursor();
         }
         break;
+    case Qt::Key_O: {
+        change_keyboard_fsm(KeyFSM::Orders);
+        break;
+    }
     case Qt::Key_W:
     case Qt::Key_S:
     case Qt::Key_A:
     case Qt::Key_D:
     case Qt::Key_Escape:
+        return BaseWidget::keyPressEvent(event);
+    default:
+        event->ignore();
+        break;
+    }
+}
+void GameWidget::fsm_keypress_orders(QKeyEvent *event) {
+    switch ( event->key() ) {
+    case Qt::Key_Escape:
+        change_keyboard_fsm(KeyFSM::ExploreMap);
+        break;
+    case Qt::Key_W:
+    case Qt::Key_S:
+    case Qt::Key_A:
+    case Qt::Key_D:
         return BaseWidget::keyPressEvent(event);
     default:
         event->ignore();

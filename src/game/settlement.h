@@ -24,7 +24,7 @@ class Settlement {
     // TODO: Garbage is also marked as storage room
     //std::vector<Region>   storage_rooms; // TODO: storage per type of goods
 
-    // Current orders from the player
+    // Current orders from the player. Some settlers may take them now or later
     std::list<IOrder::Ptr> orders_;
 public:
 };

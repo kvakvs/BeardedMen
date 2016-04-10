@@ -23,7 +23,6 @@ class GameWidget : public BaseWidget {
   protected:
     // World volume (pageable)
     std::unique_ptr<WorldPager> vol_;
-    QElapsedTimer qtimer_;
 
     MeshMap raw_meshes_;
 
@@ -38,10 +37,12 @@ class GameWidget : public BaseWidget {
     ShaderPtr  rgb_vox_shader_;
 
     virtual void initialize_game() override;
-    virtual void renderOneFrame() override;
+    virtual void render_frame() override;
 
     // QT override
-    virtual void keyPressEvent( QKeyEvent* event ) override;
+    virtual void keyPressEvent( QKeyEvent* event ) override {
+        (this->*keyboard_handler_)(event);
+    }
 
 private:
     // Reposition camera on cursor
@@ -49,6 +50,19 @@ private:
     // Take a slice of the world with 1 extra voxel around data. Generate new
     // model and update 'terrain_'
     void update_terrain_model();
+
+    // Change keyboard handler to get different keypress reactions
+    typedef void(GameWidget::*KeyboardHandler)(QKeyEvent*);
+    KeyboardHandler keyboard_handler_;
+
+    enum class KeyFSM: int {
+        ExploreMap,        // regular keyboard movement and cursor operation
+        Orders,
+    };
+
+    void change_keyboard_fsm(KeyFSM id);
+    void fsm_keypress_exploremap(QKeyEvent *event);
+    void fsm_keypress_orders(QKeyEvent *event);
 };
 
 }  // namespace bm

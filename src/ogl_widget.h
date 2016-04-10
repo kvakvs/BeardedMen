@@ -43,7 +43,7 @@ class MyGLWidget : public QGLWidget, public QOpenGLFunctionsType {
 
     // Derived classes should override these to provide functionality.
     virtual void initialize() {}
-    virtual void renderOneFrame() {}
+    virtual void render_frame() {}
 
 public:
     // Getters for properties defined by this widget.
@@ -68,25 +68,25 @@ private:
     void paintGL();
 
     // Matrices
-    QMatrix4x4 mViewMatrix;
-    QMatrix4x4 mProjectionMatrix;
+    QMatrix4x4 view_matrix_;
+    QMatrix4x4 proj_matrix_;
 
     // Mouse data
-    QPoint m_LastFrameMousePos;
-    QPoint m_CurrentMousePos;
+    QPoint last_frame_mouse_pos_;
+    QPoint mouse_pos_;
 
     // Keyboard data
-    QList<int> mPressedKeys;
+    QList<int> pressed_keys_;
 
     // For input handling and movement
-    float mCameraMoveSpeed = 50.0f;
-    float mCameraRotateSpeed = 0.005f;
+    float cam_move_speed = 50.0f;
+    float cam_rotate_speed_ = 0.005f;
 
     // Camera properties
-    QVector3D mCameraPosition = QVector3D(0, 0, -100);
-    float mCameraYaw = 0.0f;
-    float mCameraPitch = 0.0f;
-    float mCameraFOV = 60.0f;
+    QVector3D cam_pos_ = QVector3D(0, 0, -100);
+    float cam_yaw_ = 0.0f;
+    float cam_pitch_ = 0.0f;
+    float cam_fov_ = 60.0f;
 
     QElapsedTimer mElapsedTimer;
 };
