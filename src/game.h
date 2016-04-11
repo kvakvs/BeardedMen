@@ -32,8 +32,9 @@ class GameWidget : public BaseWidget {
 
     Model dorf_;
     Vec3i dorf_pos_;
-    Model cursor_;
+    Model cursor_, cursor_red_;
     Vec3i cursor_pos_ = Vec3i(2,0,0);
+    Model grass_[3], wood_;
 
     // Ground shader and mesh
     ShaderPtr  terrain_shader_;

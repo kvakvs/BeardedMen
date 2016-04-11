@@ -18,8 +18,15 @@ void GameWidget::initialize_game() {
     //
     dorf_ = load_model("dorf", "assets/model/dorf.qb", rgb_vox_shader_);
     cursor_ = load_model("cursor", "assets/model/cursor.qb", rgb_vox_shader_);
+    cursor_red_ = load_model("cursor_red", "assets/model/cursor_red.qb",
+                             rgb_vox_shader_);
     cursor_pos_ = Vec3i(VIEWSZ_X / 2, 2, VIEWSZ_Z / 2);
     dorf_pos_ = cursor_pos_;
+
+    wood_ = load_model("wood", "assets/model/wood.qb", rgb_vox_shader_);
+    grass_[0] = load_model("grass1", "assets/model/grass1.qb", rgb_vox_shader_);
+    grass_[1] = load_model("grass2", "assets/model/grass2.qb", rgb_vox_shader_);
+    grass_[2] = load_model("grass3", "assets/model/grass3.qb", rgb_vox_shader_);
 
     follow_cursor();
     update_terrain_model();
@@ -90,7 +97,12 @@ void GameWidget::render_frame() {
     terrain_.render(this, Vec3f(0.f, 0.f, 0.f), 0.f);
     dorf_.render(this, pos_for_cell(dorf_pos_), 0.f);
 
-    cursor_.render(this, pos_for_cell(cursor_pos_), 0.f);
+    grass_[0].render(this, pos_for_cell(dorf_pos_+Vec3i(1,0,0)), 0.f);
+    grass_[1].render(this, pos_for_cell(dorf_pos_+Vec3i(1,0,1)), 0.f);
+    grass_[2].render(this, pos_for_cell(dorf_pos_+Vec3i(-1,0,0)), 0.f);
+    wood_.render(this, pos_for_cell(dorf_pos_+Vec3i(0,0,2)), 0.f);
+
+    cursor_red_.render(this, pos_for_cell(cursor_pos_), 0.f);
 }
 
 
