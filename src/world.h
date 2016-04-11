@@ -11,15 +11,15 @@ namespace bm {
 using VoxelType = pv::MaterialDensityPair<uint8_t, 8, 8>;
 using PagedVolume = pv::PagedVolume<VoxelType>;
 
-const int world_sz_x = 256;
-const int world_sz_y = 256;
-const int world_sz_z = 32;
+const int WORLDSZ_X = 256;  // map width
+const int WORLDSZ_Y = 32;   // depth
+const int WORLDSZ_Z = 256;  // map height
 
 // Visible slab of volume, height=2 so that we see the ground and the walls
 // We actually fetch 1 more row then zero it to get good mesh generation
-const int VIEWSZ_X = 64;
+const int VIEWSZ_X = 32;
 const int VIEWSZ_Y = 2;
-const int VIEWSZ_Z = 64;
+const int VIEWSZ_Z = 32;
 
 /**
  * Is a voxel volume
@@ -33,43 +33,11 @@ class WorldPager : public PagedVolume::Pager {
     virtual void pageIn(const pv::Region& region,
                         PagedVolume::Chunk* pChunk) override;
 
-    static VoxelType get_solid_block_voxel(float perlinVal,
-                                           int x,
-                                           int y,
-                                           int z) {
-        VoxelType voxel;
-        uint8_t m = (uint32_t)(perlinVal * 255.0) % 5 + 1;
-        if (m == 0) {
-            voxel.setMaterial(0);
-            voxel.setDensity(VoxelType::getMinDensity());
-        } else {
-            voxel.setMaterial(m);
-            voxel.setDensity(VoxelType::getMaxDensity());
-        }
-        return voxel;
-    }
+    static inline VoxelType get_solid_block_voxel(
+            float perlinVal, int x, int y, int z);
 
-    static VoxelType get_perlin_voxel(float perlinVal, int x, int y, int z) {
-        VoxelType voxel;
-        if (y > perlinVal * VIEWSZ_Y) {
-            const int xpos = 50;
-            const int zpos = 100;
-            if ((x - xpos) * (x - xpos) + (z - zpos) * (z - zpos) < 200) {
-                // tunnel
-                voxel.setMaterial(1);
-                voxel.setDensity(VoxelType::getMinDensity());
-            } else {
-                // solid
-                uint8_t m = (uint32_t)(perlinVal * 50.0) % 5 + 1;
-                voxel.setMaterial(m);
-                voxel.setDensity(VoxelType::getMaxDensity());
-            }
-        } else {
-            voxel.setMaterial(0);
-            voxel.setDensity(VoxelType::getMinDensity());
-        }
-        return voxel;
-    }
+    static inline VoxelType get_perlin_voxel(
+            float perlinVal, int x, int y, int z);
 
     virtual void pageOut(const pv::Region& region,
                          PagedVolume::Chunk* /*pChunk*/) override;

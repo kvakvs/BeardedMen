@@ -34,6 +34,80 @@ void BaseWidget::initialize() {
 
 BaseWidget::~BaseWidget() {}
 
+OpenglMesh::Ptr BaseWidget::create_mesh_from_raw_(
+        GLsizeiptr n_verts, void *raw_vertex_data, size_t sizeof_vertex,
+        GLsizeiptr n_indices, void *raw_index_data, size_t sizeof_index,
+        size_t sizeof_vertex_data,
+        void *offsetof_vertex_pos,
+        void *offsetof_vertex_normal,
+        void *offsetof_vertex_data,
+        const Vec3f &trans, const Vec3f &scale)
+{
+    // Mesh is an opengl resource, so it needs to have access to gl context
+    // which is privately managed by this widget
+    OpenglMesh::Ptr result = std::make_shared<OpenglMesh>(this);
+
+    // Create the VAO for the mesh
+    glGenVertexArrays(1, &(result->vert_array_));
+    glBindVertexArray(result->vert_array_);
+
+    // The GL_ARRAY_BUFFER will contain the list of vertex positions
+    glGenBuffers(1, &(result->vert_buf_));
+    glBindBuffer(GL_ARRAY_BUFFER, result->vert_buf_);
+    glBufferData(GL_ARRAY_BUFFER, n_verts * sizeof_vertex,
+                 raw_vertex_data, GL_STATIC_DRAW);
+
+    // and GL_ELEMENT_ARRAY_BUFFER will contain the indices
+    glGenBuffers(1, &(result->indx_buf_));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, result->indx_buf_);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_indices * sizeof_index,
+                raw_index_data, GL_STATIC_DRAW);
+
+    // Every surface extractor outputs valid positions for the vertices, so
+    // tell OpenGL how these are laid out
+    glEnableVertexAttribArray(0);  // Attrib '0' is the vertex positions
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof_vertex,
+                          offsetof_vertex_pos);
+    // take the first 3 floats from every
+    //      sizeof(decltype(vecVertices)::value_type)
+
+    // Some surface extractors also generate normals, so tell OpenGL how
+    // these are laid out. If a surface extractor does not generate normals
+    // then nonsense values are written into the buffer here and sghould be
+    // ignored by the shader. This is mostly just to simplify this example
+    // code - in a real application you will know whether your chosen surface
+    // extractor generates normals and can skip uploading them if not.
+    glEnableVertexAttribArray(1);  // Attrib '1' is the vertex normals.
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof_vertex,
+                          offsetof_vertex_normal);
+
+    // Finally a surface extractor will probably output additional data.
+    // This is highly application dependant. For this example code we're
+    // just uploading it as a set of bytes which we can read individually,
+    // but real code will want to do something specialised here.
+    glEnableVertexAttribArray(2);  // Shader attribute '2'
+    GLint size = (std::min)(sizeof_vertex_data, size_t(4));
+    // Can't upload more that 4 components (vec4 is GLSL's biggest type)
+    glVertexAttribIPointer(2, size, GL_UNSIGNED_BYTE, sizeof_vertex,
+                           offsetof_vertex_data);
+
+    // We're done uploading and can now unbind.
+    glBindVertexArray(0);
+
+    // A few additional properties can be copied across for use during
+    // rendering.
+    result->indx_count_ = n_indices;
+    result->translation_ = QVector3D(trans.getX(), trans.getY(),
+                                     trans.getZ());
+    result->scale_ = QVector3D(scale.getX(), scale.getY(),
+                               scale.getZ());
+
+    // Set 16 or 32-bit index buffer size.
+    result->indx_type_ = (sizeof_index == 2) ? GL_UNSIGNED_SHORT
+                                             : GL_UNSIGNED_INT;
+    return result;
+}
+
 ShaderPtr BaseWidget::load_shader(const char *name)
 {
     auto shad = QSharedPointer<QGLShaderProgram>(new QGLShaderProgram);

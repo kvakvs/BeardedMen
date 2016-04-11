@@ -25,8 +25,44 @@ void WorldPager::pageIn(const PolyVox::Region &region,
     }
 }
 
+VoxelType WorldPager::get_solid_block_voxel(float perlinVal,
+                                            int x, int y, int z) {
+    VoxelType voxel;
+    uint8_t m = (uint32_t)(perlinVal * 255.0) % 5 + 1;
+    if (m == 0) {
+        voxel.setMaterial(0);
+        voxel.setDensity(VoxelType::getMinDensity());
+    } else {
+        voxel.setMaterial(m);
+        voxel.setDensity(VoxelType::getMaxDensity());
+    }
+    return voxel;
+}
+
+VoxelType WorldPager::get_perlin_voxel(float perlinVal, int x, int y, int z) {
+    VoxelType voxel;
+    if (y < perlinVal * WORLDSZ_Y / 4) {
+        const int xpos = 50;
+        const int zpos = 100;
+        if ((x - xpos) * (x - xpos) + (z - zpos) * (z - zpos) < 200) {
+            // tunnel
+            voxel.setMaterial(1);
+            voxel.setDensity(VoxelType::getMinDensity());
+        } else {
+            // solid
+            uint8_t m = (uint32_t)(perlinVal * 50.0) % 5 + 1;
+            voxel.setMaterial(m);
+            voxel.setDensity(VoxelType::getMaxDensity());
+        }
+    } else {
+        voxel.setMaterial(0);
+        voxel.setDensity(VoxelType::getMinDensity());
+    }
+    return voxel;
+}
+
 void WorldPager::pageOut(const PolyVox::Region &region,
-                          PagedVolume::Chunk *) {
+                         PagedVolume::Chunk *) {
     std::cout << "warning unloading region: " << region.getLowerCorner()
               << " -> " << region.getUpperCorner() << std::endl;
 }

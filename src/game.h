@@ -32,6 +32,7 @@ class GameWidget : public BaseWidget {
   protected:
     // World volume (pageable)
     std::unique_ptr<WorldPager> vol_;
+    std::unique_ptr<SlabVolume> vol_slice_;
 
     MeshMap raw_meshes_;
 
@@ -45,12 +46,26 @@ class GameWidget : public BaseWidget {
 
     // Ground shader and mesh
     ShaderPtr  terrain_shader_;
-    Model      terrain_;
+    std::unique_ptr<Model> terrain_;
 
     ShaderPtr  rgb_vox_shader_;
 
     virtual void initialize_game() override;
     virtual void render_frame() override;
+
+    class TerrainIsQuadNeeded {
+       public:
+        bool operator()(VoxelType back, VoxelType front,
+                        VoxelType& materialToUse) {
+            if (back.getDensity() > 0
+                && front.getDensity() == 0) {
+                materialToUse = static_cast<VoxelType>(back);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
 
 private:
     // Reposition camera on cursor
@@ -77,7 +92,10 @@ private:
                      -(float)i.getY() + 0.5f,
                      (float)i.getZ() - 0.5f);
     }
+
     void render_overlay_xyz();
+
+    void on_cursor_changed();
 };
 
 }  // namespace bm
