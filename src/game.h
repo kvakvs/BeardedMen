@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include "PolyVox/CubicSurfaceExtractor.h"
 #include "PolyVox/MarchingCubesSurfaceExtractor.h"
 #include "PolyVox/Mesh.h"
@@ -8,13 +10,19 @@ namespace pv = PolyVox;
 #include "base_app.h"
 #include "qb_file.h"
 #include "vector.h"
-#include "world.h"
+#include "world_pager.h"
+
+#include "game/world.h"
+#include "game/entity.h"
 
 namespace bm {
 
 class GameWidget : public BaseWidget {
     Q_OBJECT
   public:
+    static constexpr float WALL_HEIGHT = 1.0f;
+    static constexpr float CELL_SIZE = 1.0f;
+
     GameWidget(QWidget* parent) : BaseWidget(parent) {}
 
     Model load_model(const char *register_as,
@@ -30,15 +38,16 @@ class GameWidget : public BaseWidget {
     void SIG_cursor_changed(const QPoint &xz, int depth) const;
 
   protected:
-    // World volume (pageable)
-    std::unique_ptr<WorldPager>     vol_;
-    std::unique_ptr<SlabVolume>     vol_slice_;
-    //std::unique_ptr<bm::RawVolume>  tmp_volume_;
+    // World volume
+    //std::unique_ptr<WorldPager>     vol_;
+    //std::unique_ptr<SlabVolume>     vol_slice_;
+    std::unique_ptr<bm::RawVolume>  volume_;
+    std::unique_ptr<World> world_;
 
     MeshMap raw_meshes_;
 
-    Model dorf_;
-    Vec3i dorf_pos_;
+    //Model dorf_;
+    //Vec3i dorf_pos_;
     Model cursor_, cursor_red_;
     Vec3i cursor_pos_ = Vec3i(2,0,0);
 //    Model grass_[3];
@@ -87,11 +96,12 @@ private:
     void change_keyboard_fsm(KeyFSM id);
     void fsm_keypress_exploremap(QKeyEvent *event);
     void fsm_keypress_orders(QKeyEvent *event);
+
     // Given integer cell position make world pos
     static Vec3f pos_for_cell(const Vec3i &i) {
-        return Vec3f((float)i.getX() - 0.5f,
-                     -(float)i.getY() + 0.5f,
-                     (float)i.getZ() - 0.5f);
+        return Vec3f((float)i.getX() - CELL_SIZE * 0.5f,
+                     -(float)i.getY() - WALL_HEIGHT * 0.5f,
+                     (float)i.getZ() - CELL_SIZE * 0.5f);
     }
 
     void render_overlay_xyz();

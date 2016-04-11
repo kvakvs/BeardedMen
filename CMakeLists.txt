@@ -26,11 +26,12 @@ SET(SRC_FILES
     src/ogl_widget.h		src/ogl_widget.inl
     src/qb_file.cpp		src/qb_file.h
     src/vector.h
-    src/world.cpp		src/world.h
+    src/world_pager.cpp		src/world_pager.h
 
     src/game/entity.cpp		src/game/entity.h
     src/game/order.cpp          src/game/order.h
     src/game/settlement.cpp	src/game/settlement.h
+    src/game/world.cpp		src/game/world.h
     
     src/ui/main_window.h
     src/ui/dock.h

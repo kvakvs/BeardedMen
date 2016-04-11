@@ -1,10 +1,13 @@
 #pragma once
 
-#include "vector.h"
 #include <stdint.h>
+
+#include "vector.h"
+#include "model.h"
 
 namespace bm {
 
+class World;
 using EntityId = uint64_t;
 
 // Entity is anything which has a position in the world.
@@ -20,14 +23,45 @@ public:
     virtual void set_id(EntityId id) = 0;
 };
 
+class IRenderable {
+public:
+    // Draw me like one of your cubic models
+    virtual Model *get_model() = 0;
+};
+
 class Entity: public IEntity {
     Vec3i pos_;
     EntityId id_;
 public:
+    // -- Entity --
     virtual Vec3i get_pos() const override { return pos_; }
-    virtual void set_pos(const Vec3i &v) const override { pos_ = v; }
+    virtual void set_pos(const Vec3i &v) override { pos_ = v; }
     virtual EntityId get_id() const override { return id_; }
-    virtual void set_id(EntityId id) const override { id_ = id; }
+    virtual void set_id(EntityId id) override { id_ = id; }
+};
+
+class IIntelligent {
+public:
+    virtual void think(const World &w) = 0;
+};
+
+class BeardedMan:
+        public IIntelligent,
+        public IRenderable,
+        public Entity
+{
+    Model model_;
+public:
+    BeardedMan(Model &m, const Vec3i &pos): model_(m) {
+        this->set_pos(pos);
+    }
+
+    // -- Intelligent --
+    virtual void think(const World &w) override;
+    // -- Renderable --
+    virtual Model *get_model() override {
+        return &model_;
+    }
 };
 
 } // namespace bm

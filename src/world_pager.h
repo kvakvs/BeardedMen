@@ -34,12 +34,6 @@ class WorldPager : public PagedVolume::Pager {
     virtual void pageIn(const pv::Region& region,
                         PagedVolume::Chunk* pChunk) override;
 
-    static inline VoxelType get_solid_block_voxel(
-            float perlinVal, int x, int y, int z);
-
-    static inline VoxelType get_perlin_voxel(
-            float perlinVal, int x, int y, int z);
-
     virtual void pageOut(const pv::Region& region,
                          PagedVolume::Chunk* /*pChunk*/) override;
 };
@@ -53,5 +47,13 @@ public:
     {
     }
 };
+
+namespace populate {
+void populate_voxels(const PolyVox::Region &region,
+                     bm::RawVolume &vol);
+
+VoxelType get_perlin_voxel(float perlinVal, int x, int y, int z);
+
+} // ns populate
 
 } // namespace bm
