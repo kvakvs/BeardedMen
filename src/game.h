@@ -13,6 +13,7 @@ namespace pv = PolyVox;
 namespace bm {
 
 class GameWidget : public BaseWidget {
+    Q_OBJECT
   public:
     GameWidget(QWidget* parent) : BaseWidget(parent) {}
 
@@ -24,6 +25,10 @@ class GameWidget : public BaseWidget {
     virtual void keyPressEvent( QKeyEvent* event ) override {
         (this->*keyboard_handler_)(event);
     }
+
+  signals:
+    void SIG_cursor_changed(const QPoint &xz, int depth) const;
+
   protected:
     // World volume (pageable)
     std::unique_ptr<WorldPager> vol_;

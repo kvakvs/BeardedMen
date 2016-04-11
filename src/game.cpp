@@ -53,11 +53,6 @@ void GameWidget::update_terrain_model() {
             vol_slice.setVoxel(x, 0, z, empty);
         }
     }
-    vol_slice.setVoxel(0, 0, 0, VoxelType(1, VoxelType::getMaxDensity()));
-    vol_slice.setVoxel(1, 0, 0, VoxelType(2, VoxelType::getMaxDensity()));
-    vol_slice.setVoxel(2, 0, 0, VoxelType(2, VoxelType::getMaxDensity()));
-    vol_slice.setVoxel(0, 0, 1, VoxelType(3, VoxelType::getMaxDensity()));
-    vol_slice.setVoxel(0, 0, 2, VoxelType(3, VoxelType::getMaxDensity()));
 
     //
     // Extract the surface
@@ -112,6 +107,7 @@ void GameWidget::render_frame() {
 }
 
 void GameWidget::render_overlay_xyz() {
+    glDisable(GL_DEPTH_TEST);
     glViewport(0, 0,
                this->geometry().width() * 0.25f,
                this->geometry().height() * 0.25f);
@@ -126,6 +122,7 @@ void GameWidget::render_overlay_xyz() {
         );
 
     xyz_.render(this, Vec3f(0.f, 0.f, 0.f), -cam_yaw_);
+    glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -137,6 +134,9 @@ void GameWidget::follow_cursor()
                                  cursor_pos_.getZ() + 7), // z+some cells down
                        -PI/3, //pitch (minus - look down)
                        PI); // yaw
+    emit SIG_cursor_changed(QPoint(cursor_pos_.getX(),
+                                   cursor_pos_.getZ()),
+                            cursor_pos_.getY());
 }
 
 void GameWidget::change_keyboard_fsm(GameWidget::KeyFSM id)

@@ -31,6 +31,9 @@ SET(SRC_FILES
     src/game/entity.cpp		src/game/entity.h
     src/game/order.cpp          src/game/order.h
     src/game/settlement.cpp	src/game/settlement.h
+    
+    src/ui/main_window.h
+    src/ui/dock.h
 
     polyvox/include/PolyVox/AStarPathfinder.h
     polyvox/include/PolyVox/AStarPathfinder.inl
