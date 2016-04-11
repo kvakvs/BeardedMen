@@ -31,8 +31,9 @@ class GameWidget : public BaseWidget {
 
   protected:
     // World volume (pageable)
-    std::unique_ptr<WorldPager> vol_;
-    std::unique_ptr<SlabVolume> vol_slice_;
+    std::unique_ptr<WorldPager>     vol_;
+    std::unique_ptr<SlabVolume>     vol_slice_;
+    //std::unique_ptr<bm::RawVolume>  tmp_volume_;
 
     MeshMap raw_meshes_;
 

@@ -14,6 +14,10 @@ void GameWidget::initialize_game() {
     vol_ = std::make_unique<WorldPager>();
     vol_slice_ = std::make_unique<SlabVolume>(vol_.get(), 64 * 1048576, 64);
 
+//    pv::Region view_reg(Vec3i(0, 0, 0),
+//                        Vec3i(VIEWSZ_X, VIEWSZ_Y + 1, VIEWSZ_Z));
+//    tmp_volume_ = std::make_unique<RawVolume>(view_reg);
+
     // now don't support movement, just prefetch around cursor
     Vec3i half_view(VIEWSZ_X / 2, 0, VIEWSZ_Z / 2);
     pv::Region pf_reg(cursor_pos_ - half_view,
@@ -47,9 +51,9 @@ void GameWidget::initialize_game() {
 
 // Extract the surface
 void GameWidget::update_terrain_model() {
-    auto org_y = cursor_pos_.getY()-1;
+    auto org_y = cursor_pos_.getY();
     pv::Region reg2(Vec3i(0, org_y, 0),
-                    Vec3i(VIEWSZ_X, org_y + VIEWSZ_Y, VIEWSZ_Z));
+                    Vec3i(VIEWSZ_X, org_y + VIEWSZ_Y - 1, VIEWSZ_Z));
 
     auto raw_mesh = pv::extractCubicMesh(
                 vol_slice_.get(), reg2, TerrainIsQuadNeeded(), true);
@@ -64,7 +68,7 @@ void GameWidget::update_terrain_model() {
     terrain_.release();
     terrain_ = std::make_unique<Model>(
                 create_opengl_mesh_from_raw(decoded_mesh), terrain_shader_);
-    terrain_->mesh_->scale_.setY(-1.0f);
+    terrain_->mesh_->scale_.setY(-2.0f);
     // move terrain slab together with cursor
     terrain_->mesh_->translation_.setY(-cursor_pos_.getY());
 

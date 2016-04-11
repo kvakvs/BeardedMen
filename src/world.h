@@ -8,8 +8,9 @@ namespace pv = PolyVox;
 namespace bm {
 
 //using VoxelType = pv::MaterialDensityPair88;
-using VoxelType = pv::MaterialDensityPair<uint8_t, 8, 8>;
+using VoxelType   = pv::MaterialDensityPair<uint8_t, 8, 8>;
 using PagedVolume = pv::PagedVolume<VoxelType>;
+using RawVolume   = pv::RawVolume<VoxelType>;
 
 const int WORLDSZ_X = 256;  // map width
 const int WORLDSZ_Y = 32;   // depth
