@@ -74,7 +74,7 @@ void MyGLWidget<QOpenGLFunctionsType>::initializeGL()
 	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
 	timer->start(0);
 
-	mElapsedTimer.start();
+    elapsed_timer_.start();
 }
 
 template <typename QOpenGLFunctionsType>
@@ -95,11 +95,7 @@ template <typename QOpenGLFunctionsType>
 void MyGLWidget<QOpenGLFunctionsType>::paintGL()
 {
     // Direction : Spherical coordinates to Cartesian coordinates conversion
-	QVector3D cameraForward(
-                std::cos(cam_pitch_) * std::sin(cam_yaw_),
-                std::sin(cam_pitch_),
-                std::cos(cam_pitch_) * std::cos(cam_yaw_)
-                );
+    auto cameraForward = get_cam_forward();
 
 	// Right vector
     QVector3D cameraRight(std::sin(cam_yaw_ - 3.14f / 2.0f), 0,
@@ -109,7 +105,7 @@ void MyGLWidget<QOpenGLFunctionsType>::paintGL()
 	QVector3D cameraUp = QVector3D::crossProduct(cameraRight, cameraForward);
 
 	// Get the elapsed time since last frame and convert to seconds.
-	float deltaTime = mElapsedTimer.restart() / 1000.0f;
+    float deltaTime = elapsed_timer_.restart() / 1000.0f;
 
 	// Move forward
     if ((pressed_keys_.contains(Qt::Key_Up)) || (pressed_keys_.contains(Qt::Key_W)))

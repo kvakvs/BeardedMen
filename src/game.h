@@ -34,7 +34,9 @@ class GameWidget : public BaseWidget {
     Vec3i dorf_pos_;
     Model cursor_, cursor_red_;
     Vec3i cursor_pos_ = Vec3i(2,0,0);
-    Model grass_[3], wood_;
+//    Model grass_[3];
+    Model wood_;
+    Model xyz_;
 
     // Ground shader and mesh
     ShaderPtr  terrain_shader_;
@@ -70,6 +72,7 @@ private:
                      -(float)i.getY() + 0.5f,
                      (float)i.getZ() - 0.5f);
     }
+    void render_overlay_xyz();
 };
 
 }  // namespace bm

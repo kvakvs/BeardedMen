@@ -83,6 +83,9 @@ public:
         auto decodedMesh = pv::decodeMesh(mesh);
         return decodedMesh;
     }
+    void free_voxels_for_volume(int i) {
+        volumes_[i]->voxels_.release();
+    }
     Vec3f get_downscale(int i) {
         return volumes_[i]->get_downscale();
     }

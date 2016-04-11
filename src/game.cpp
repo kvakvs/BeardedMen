@@ -24,9 +24,12 @@ void GameWidget::initialize_game() {
     dorf_pos_ = cursor_pos_;
 
     wood_ = load_model("wood", "assets/model/wood.qb", rgb_vox_shader_);
-    grass_[0] = load_model("grass1", "assets/model/grass1.qb", rgb_vox_shader_);
-    grass_[1] = load_model("grass2", "assets/model/grass2.qb", rgb_vox_shader_);
-    grass_[2] = load_model("grass3", "assets/model/grass3.qb", rgb_vox_shader_);
+//    grass_[0] = load_model("grass1", "assets/model/grass1.qb", rgb_vox_shader_);
+//    grass_[1] = load_model("grass2", "assets/model/grass2.qb", rgb_vox_shader_);
+//    grass_[2] = load_model("grass3", "assets/model/grass3.qb", rgb_vox_shader_);
+    xyz_ = load_model("xyz", "assets/model/xyz.qb", rgb_vox_shader_);
+    xyz_.mesh_->scale_ *= 2.0f;
+    xyz_.mesh_->translation_ = QVector3D(-1.0f, -1.0f, -1.0f);
 
     follow_cursor();
     update_terrain_model();
@@ -82,6 +85,7 @@ Model GameWidget::load_model(const char *register_as,
                              ShaderPtr shad) {
     auto qb_model = std::make_unique<QBFile>(file);
     auto raw_mesh = qb_model->get_mesh_for_volume(0);
+    qb_model->free_voxels_for_volume(0);
 
     auto opengl_mesh = create_opengl_mesh_from_raw(
                 raw_mesh,
@@ -97,12 +101,31 @@ void GameWidget::render_frame() {
     terrain_.render(this, Vec3f(0.f, 0.f, 0.f), 0.f);
     dorf_.render(this, pos_for_cell(dorf_pos_), 0.f);
 
-    grass_[0].render(this, pos_for_cell(dorf_pos_+Vec3i(1,0,0)), 0.f);
-    grass_[1].render(this, pos_for_cell(dorf_pos_+Vec3i(1,0,1)), 0.f);
-    grass_[2].render(this, pos_for_cell(dorf_pos_+Vec3i(-1,0,0)), 0.f);
+//    grass_[0].render(this, pos_for_cell(dorf_pos_+Vec3i(1,0,0)), 0.f);
+//    grass_[1].render(this, pos_for_cell(dorf_pos_+Vec3i(1,0,1)), 0.f);
+//    grass_[2].render(this, pos_for_cell(dorf_pos_+Vec3i(-1,0,0)), 0.f);
     wood_.render(this, pos_for_cell(dorf_pos_+Vec3i(0,0,2)), 0.f);
 
-    cursor_red_.render(this, pos_for_cell(cursor_pos_), 0.f);
+    cursor_.render(this, pos_for_cell(cursor_pos_), 0.f);
+
+    render_overlay_xyz();
+}
+
+void GameWidget::render_overlay_xyz() {
+    glViewport(0, 0,
+               this->geometry().width() * 0.25f,
+               this->geometry().height() * 0.25f);
+
+    QVector3D cam_f = this->get_cam_forward() * 5.0f;
+
+    view_matrix_.setToIdentity();
+    view_matrix_.lookAt(
+        -cam_f,  // Camera is at
+        QVector3D(0.f, 0.f, 0.f),  // Look at
+        QVector3D(0.f, 1.f, 0.f)   // Camera up
+        );
+
+    xyz_.render(this, Vec3f(0.f, 0.f, 0.f), -cam_yaw_);
 }
 
 

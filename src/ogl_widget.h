@@ -36,7 +36,7 @@ SOFTWARE.
 // appropriate QOpenGLFunctions.
 template <typename QOpenGLFunctionsType>
 class MyGLWidget : public QGLWidget, public QOpenGLFunctionsType {
-   protected:
+protected:
     // Protected constructor because this widget should not be created directly
     // - it should only be subclassed.
     MyGLWidget(QWidget* parent);
@@ -61,7 +61,7 @@ public:
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
 
-private:
+protected:
     // Qt OpenGL functions
     void initializeGL();
     void resizeGL(int w, int h);
@@ -88,7 +88,15 @@ private:
     float cam_pitch_ = 0.0f;
     float cam_fov_ = 60.0f;
 
-    QElapsedTimer mElapsedTimer;
+    QElapsedTimer elapsed_timer_;
+
+    QVector3D get_cam_forward() const {
+        return QVector3D(
+                    std::cos(cam_pitch_) * std::sin(cam_yaw_),
+                    std::sin(cam_pitch_),
+                    std::cos(cam_pitch_) * std::cos(cam_yaw_)
+                    );
+    }
 };
 
 #include "ogl_widget.inl"
