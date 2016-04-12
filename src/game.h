@@ -25,9 +25,11 @@ class GameWidget : public BaseWidget {
 
     GameWidget(QWidget* parent) : BaseWidget(parent) {}
 
-    Model load_model(const char *register_as,
-                     const char *file,
-                     ShaderPtr shad);
+    // Returns pointer for temporary use and modification, do not store permanently
+    Model *load_model(ModelId register_as,
+                    const char *file,
+                    ShaderPtr shad);
+    const Model *find_model(ModelId id) const;
 
     // QT override
     virtual void keyPressEvent( QKeyEvent* event ) override {
@@ -44,15 +46,9 @@ class GameWidget : public BaseWidget {
     std::unique_ptr<bm::RawVolume>  volume_;
     std::unique_ptr<World> world_;
 
-    MeshMap raw_meshes_;
+    ModelMap models_;
 
-    //Model dorf_;
-    //Vec3i dorf_pos_;
-    Model cursor_, cursor_red_;
     Vec3i cursor_pos_ = Vec3i(2,0,0);
-//    Model grass_[3];
-    Model wood_;
-    Model xyz_;
 
     // Ground shader and mesh
     ShaderPtr  terrain_shader_;

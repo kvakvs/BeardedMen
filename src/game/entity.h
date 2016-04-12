@@ -4,6 +4,7 @@
 
 #include "vector.h"
 #include "model.h"
+#include "model_id.h"
 
 namespace bm {
 
@@ -23,10 +24,10 @@ public:
     virtual void set_id(EntityId id) = 0;
 };
 
-class IRenderable {
+class IHasModel {
 public:
     // Draw me like one of your cubic models
-    virtual Model *get_model() = 0;
+    virtual ModelId get_model_id() = 0;
 };
 
 class Entity: public IEntity {
@@ -47,20 +48,19 @@ public:
 
 class BeardedMan:
         public IIntelligent,
-        public IRenderable,
+        public IHasModel,
         public Entity
 {
-    Model model_;
 public:
-    BeardedMan(Model &m, const Vec3i &pos): model_(m) {
+    BeardedMan(const Vec3i &pos) {
         this->set_pos(pos);
     }
 
     // -- Intelligent --
     virtual void think(const World &w) override;
     // -- Renderable --
-    virtual Model *get_model() override {
-        return &model_;
+    virtual ModelId get_model_id() override {
+        return ModelId::BeardedMan;
     }
 };
 

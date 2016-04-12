@@ -19,7 +19,7 @@ const int WORLDSZ_Z = 256;  // map height
 // Visible slab of volume, height=2 so that we see the ground and the walls
 // We actually fetch 1 more row then zero it to get good mesh generation
 const int VIEWSZ_X = 32;
-const int VIEWSZ_Y = 2;
+const int VIEWSZ_Y = 6;
 const int VIEWSZ_Z = 32;
 
 /**

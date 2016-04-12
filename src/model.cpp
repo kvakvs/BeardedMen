@@ -3,7 +3,7 @@
 namespace bm {
 
 void Model::render(GLVersion_Widget *gl,
-                   const Vec3f &pos, float rot_y)
+                   const Vec3f &pos, float rot_y) const
 {
     if (!mesh_->is_valid()) {
         return;

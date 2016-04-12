@@ -21,24 +21,22 @@ void GameWidget::initialize_game() {
     //
     // Load models
     //
-    cursor_ = load_model("cursor", "assets/model/cursor.qb", rgb_vox_shader_);
-    cursor_red_ = load_model("cursor_red", "assets/model/cursor_red.qb",
-                             rgb_vox_shader_);
+    load_model(ModelId::Cursor,
+                         "assets/model/cursor.qb", rgb_vox_shader_);
+    load_model(ModelId::CursorRed,
+                             "assets/model/cursor_red.qb", rgb_vox_shader_);
     cursor_pos_ = Vec3i(VIEWSZ_X / 2, 8, VIEWSZ_Z / 2);
 
     // Spawn one bearded man
     world_ = std::make_unique<World>(*volume_);
-    auto bm_mod = load_model("dorf", "assets/model/dorf.qb", rgb_vox_shader_);
-    auto bman = new BeardedMan(bm_mod, cursor_pos_);
+    load_model(ModelId::BeardedMan, "assets/model/dorf.qb", rgb_vox_shader_);
+    auto bman = new BeardedMan(cursor_pos_);
     world_->add(bman);
 
-    wood_ = load_model("wood", "assets/model/wood.qb", rgb_vox_shader_);
-//    grass_[0] = load_model("grass1", "assets/model/grass1.qb", rgb_vox_shader_);
-//    grass_[1] = load_model("grass2", "assets/model/grass2.qb", rgb_vox_shader_);
-//    grass_[2] = load_model("grass3", "assets/model/grass3.qb", rgb_vox_shader_);
-    xyz_ = load_model("xyz", "assets/model/xyz.qb", rgb_vox_shader_);
-    xyz_.mesh_->scale_ *= 2.0f;
-    xyz_.mesh_->translation_ = QVector3D(-1.0f, -1.0f, -1.0f); // pivot
+    load_model(ModelId::Wood, "assets/model/wood.qb", rgb_vox_shader_);
+    auto xyz = load_model(ModelId::Xyz, "assets/model/xyz.qb", rgb_vox_shader_);
+    xyz->mesh_->scale_ *= 2.0f;
+    xyz->mesh_->translation_ = QVector3D(-1.0f, -1.0f, -1.0f); // pivot
 
     follow_cursor();
     update_terrain_model();
@@ -73,7 +71,8 @@ void GameWidget::update_terrain_model() {
     this->update();
 } // upd terrain
 
-Model GameWidget::load_model(const char *register_as,
+// Returns pointer for temporary use and modification, do not store permanently
+Model *GameWidget::load_model(ModelId register_as,
                              const char *file,
                              ShaderPtr shad) {
     auto qb_model = std::make_unique<QBFile>(file);
@@ -86,8 +85,15 @@ Model GameWidget::load_model(const char *register_as,
                 qb_model->get_downscale(0)
                 );
 
-    raw_meshes_[register_as] = opengl_mesh;
-    return Model(opengl_mesh, shad);
+    models_[register_as] = Model(opengl_mesh, shad);
+    return &(models_[register_as]);
+}
+
+const Model *GameWidget::find_model(ModelId id) const
+{
+    auto iter = models_.find(id);
+    if (iter == models_.end()) { return nullptr; }
+    return &iter->second;
 }
 
 void GameWidget::render_frame() {
@@ -95,18 +101,21 @@ void GameWidget::render_frame() {
     //dorf_.render(this, pos_for_cell(dorf_pos_), 0.f);
 
     world_->each_ent([this](EntityId id, IEntity *e) {
-        auto r = dynamic_cast<IRenderable*>(e);
+        auto r = dynamic_cast<IHasModel*>(e);
         if (r) {
-            auto model = r->get_model();
-            if (model) {
-                model->render(this, pos_for_cell(e->get_pos()), 0.0f);
+            auto model_id = r->get_model_id();
+            if (model_id != ModelId::NIL) {
+                auto m = find_model(model_id);
+                Q_ASSERT(m);
+                m->render(this, pos_for_cell(e->get_pos()), 0.0f);
             }
         }
     });
 
     //wood_.render(this, pos_for_cell(dorf_pos_+Vec3i(0,0,2)), 0.f);
 
-    cursor_.render(this, pos_for_cell(cursor_pos_), 0.f);
+    auto cursor = models_.find(ModelId::Cursor);
+    cursor->second.render(this, pos_for_cell(cursor_pos_), 0.f);
 
     render_overlay_xyz();
 }
@@ -126,7 +135,7 @@ void GameWidget::render_overlay_xyz() {
         QVector3D(0.f, 1.f, 0.f)   // Camera up
         );
 
-    xyz_.render(this, Vec3f(0.f, 0.f, 0.f), -cam_yaw_);
+    find_model(ModelId::Xyz)->render(this, Vec3f(0.f, 0.f, 0.f), -cam_yaw_);
     glEnable(GL_DEPTH_TEST);
 }
 

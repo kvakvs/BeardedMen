@@ -7,6 +7,7 @@
 
 #include "vector.h"
 #include "gl_version.h"
+#include "model_id.h"
 
 namespace bm {
 
@@ -46,8 +47,14 @@ private:
     void destroy();
 };
 
-using MeshMap = std::map<std::string, OpenglMesh::Ptr>;
 using ShaderPtr = QSharedPointer<QGLShaderProgram>;
+
+//class Model;
+// Implement this in Game or wherever ModelMap is located
+//class IModelStorage {
+//public:
+//    virtual Model *find_model(ModelId) = 0;
+//};
 
 class Model {
 public:
@@ -56,15 +63,13 @@ public:
 
     Model() {}
     Model(OpenglMesh::Ptr m, ShaderPtr shad): mesh_(m), shad_(shad) {}
-    Model(MeshMap &storage, const char *name, ShaderPtr shad)
-        : shad_(shad)
-    {
-        mesh_ = storage[name];
-    }
     ~Model() {}
 
     void render(GLVersion_Widget *gl,
-                const Vec3f &pos, float rot_y);
+                const Vec3f &pos, float rot_y) const;
 };
+
+//using MeshMap = std::map<ModelId, OpenglMesh::Ptr>;
+using ModelMap = std::map<ModelId, Model>;
 
 } // namespace bm

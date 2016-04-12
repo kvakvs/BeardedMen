@@ -22,7 +22,8 @@ SET(SRC_FILES
     src/base_app.cpp
     src/game.cpp		src/game.h
     src/gl_version
-    src/model.cpp               src/model.h
+    src/model.cpp		src/model.h
+    src/model_id.h
     src/ogl_widget.h		src/ogl_widget.inl
     src/qb_file.cpp		src/qb_file.h
     src/vector.h
