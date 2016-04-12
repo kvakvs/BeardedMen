@@ -3,15 +3,18 @@
 A voxel-based simulation management game. Where bearded men build and dig
 and defend and hunt, all that sort of thing.
 
+<img src="http://i.imgur.com/oOWkTRT.png" width="100%" />
+
 ## Current features
 
 * OpenGL 3.2 + Qt
-* World grid rendering
+* World grid rendering (current level and floor under it), can navigate deeper with +/- keys.
+    That also rebuilds world mesh.
 * QB (Qubicle format) RGB-colored voxel models
 * Keyboard controls the cursor (qb model), showing a bearded man (qb model)
-* Main window and tool dock added, praise Qt!
-
-<img src="http://i.imgur.com/VEBVZPX.png" height="300" />
+* Tool dock showing cursor position and depth.
+* XYZ axes in screen corner (very proud of them!)
+* Game logic (simple now) runs when you press Dot key.
 
 TODO: everything else
 
