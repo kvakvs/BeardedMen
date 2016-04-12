@@ -63,8 +63,7 @@ class GameWidget : public BaseWidget {
        public:
         bool operator()(VoxelType back, VoxelType front,
                         VoxelType& materialToUse) {
-            if (back.getDensity() > 0
-                && front.getDensity() == 0) {
+            if (is_solid(back) && is_air(front)) {
                 materialToUse = static_cast<VoxelType>(back);
                 return true;
             } else {

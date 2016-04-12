@@ -29,6 +29,7 @@ SET(SRC_FILES
     src/vector.h
     src/world_pager.cpp		src/world_pager.h
 
+    src/game/block_id.h
     src/game/entity.cpp		src/game/entity.h
     src/game/order.cpp          src/game/order.h
     src/game/settlement.cpp	src/game/settlement.h

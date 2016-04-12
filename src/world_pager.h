@@ -5,12 +5,48 @@
 #include "PolyVox/RawVolume.h"
 namespace pv = PolyVox;
 
+#include "game/block_id.h"
+
 namespace bm {
 
+template <typename Type, Type AIR_VALUE>
+class MyVoxelType {
+public:
+    using This = MyVoxelType<Type, AIR_VALUE>;
+
+    MyVoxelType(): material_(AIR_VALUE) {}
+    MyVoxelType(Type m, Type d)
+        : material_(m) {}
+
+    bool operator==(const MyVoxelType& rhs) const {
+        return material_ == rhs.material_;
+    }
+
+    bool operator!=(const MyVoxelType& rhs) const {
+        return !(*this == rhs);
+    }
+
+    Type getDensity() const { return material_; }
+    Type getMaterial() const { return material_; }
+
+    void setDensity(Type) {}
+    void setMaterial(Type m) { material_ = m; }
+
+    static Type getMaxDensity() { return BlockId(1); }
+    static Type getMinDensity() { return BlockId::AIR; }
+
+private:
+    Type material_;
+};
+
 //using VoxelType = pv::MaterialDensityPair88;
-using VoxelType   = pv::MaterialDensityPair<uint8_t, 8, 8>;
+//using VoxelType   = pv::MaterialDensityPair<uint8_t, 8, 8>;
+using VoxelType   = MyVoxelType<BlockId, BlockId::AIR>;
 using PagedVolume = pv::PagedVolume<VoxelType>;
 using RawVolume   = pv::RawVolume<VoxelType>;
+
+inline bool is_solid(VoxelType v) { return v.getMaterial() != BlockId::AIR; }
+inline bool is_air(VoxelType v) { return v.getMaterial() == BlockId::AIR; }
 
 const int WORLDSZ_X = 256;  // map width
 const int WORLDSZ_Y = 32;   // depth

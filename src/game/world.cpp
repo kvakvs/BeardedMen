@@ -11,8 +11,8 @@ void World::think() {
     // Here we think for entities (passive things like gravity)
     each_ent([this](auto id, auto ent) {
         auto ent_pos = ent->get_pos();
-        auto ground = get_under(ent_pos);
-        if (ground.getDensity() == 0) {
+        auto block_under = get_under(ent_pos);
+        if (is_air(block_under)) {
             // fall
             ent_pos.setY(ent_pos.getY() + 1);
             ent->set_pos(ent_pos);

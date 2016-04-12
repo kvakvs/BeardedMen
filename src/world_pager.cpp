@@ -38,11 +38,11 @@ VoxelType populate::get_perlin_voxel(float perlinVal, int x, int y, int z) {
     VoxelType voxel;
     if (y > perlinVal * WORLDSZ_Y) {
         // solid
-        uint8_t m = (uint32_t)(perlinVal * 50.0) % 5 + 1;
+        BlockId m = (BlockId)((int)(perlinVal * 50.0) % 5 + 1);
         voxel.setMaterial(m);
         voxel.setDensity(VoxelType::getMaxDensity());
     } else {
-        voxel.setMaterial(0);
+        voxel.setMaterial(BlockId::AIR);
         voxel.setDensity(VoxelType::getMinDensity());
     }
     return voxel;

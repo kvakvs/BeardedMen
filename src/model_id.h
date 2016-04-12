@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+namespace bm {
+
 enum class ModelId: uint32_t {
     NIL = 0,
     Cursor, CursorRed,
@@ -9,3 +11,5 @@ enum class ModelId: uint32_t {
     BeardedMan,
     Xyz,
 };
+
+} // ns bm
