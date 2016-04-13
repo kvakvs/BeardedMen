@@ -102,14 +102,14 @@ void GameWidget::render_frame() {
     terrain_->render(this, Vec3f(0.f, 0.f, 0.f), 0.f);
     //dorf_.render(this, pos_for_cell(dorf_pos_), 0.f);
 
-    world_->each_ent([this](EntityId id, IEntity *e) {
-        auto r = dynamic_cast<IHasModel*>(e);
-        if (r) {
-            auto model_id = r->get_model_id();
+    world_->each_obj([this](auto /*id*/, auto co) {
+        auto ent = co->as_entity();
+        if (ent) {
+            auto model_id = ent->get_model_id();
             if (model_id != ModelId::NIL) {
                 auto m = find_model(model_id);
                 Q_ASSERT(m);
-                m->render(this, pos_for_cell(e->get_pos()), 0.0f);
+                m->render(this, pos_for_cell(ent->get_pos()), 0.0f);
             }
         }
     });

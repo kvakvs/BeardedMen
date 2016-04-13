@@ -3,8 +3,5 @@
 
 namespace bm {
 
-void BeardedMan::think(const World &w) {
-}
-
 
 } // ns bm

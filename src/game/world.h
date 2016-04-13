@@ -9,11 +9,11 @@ class World {
 public:
     World(bm::RawVolume& vol): volume_(vol) {
     }
-    void add(IEntity *ent);
+    void add(ComponentObject *ent);
 
-    template <typename EachEntityFn>
-    void each_ent(EachEntityFn fn) {
-        for (auto pair: entities_) {
+    template <typename EachObjFn>
+    void each_obj(EachObjFn fn) {
+        for (auto pair: objects_) {
             fn(pair.first, pair.second);
         }
     }
@@ -26,7 +26,7 @@ public:
 
 private:
     uint64_t ent_id_ = 0;
-    std::map<EntityId, IEntity *> entities_;
+    std::map<EntityId, ComponentObject *> objects_;
     // Visible piece of world + some nearby
     bm::RawVolume& volume_;
 };
