@@ -1,4 +1,4 @@
-#include "ogl_widget.h"
+#include "gfx/ogl_widget.h"
 
 #include <QMouseEvent>
 #include <QTimer>

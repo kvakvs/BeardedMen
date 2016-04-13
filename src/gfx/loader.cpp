@@ -22,19 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#include "base_app.h"
+#include "gfx/loader.h"
 #include <QOpenGLFunctions_3_2_Core>
 
 namespace bm {
 
-void BaseWidget::initialize() {
-    // Now do any initialization for the specific example.
-    initialize_game();
-}
-
-BaseWidget::~BaseWidget() {}
-
-OpenglMesh::Ptr BaseWidget::create_mesh_from_raw_(
+OpenglMesh::Ptr Loader::create_mesh_from_raw_(
+        GLVersion_Widget* gl,
         GLsizeiptr n_verts, void *raw_vertex_data, size_t sizeof_vertex,
         GLsizeiptr n_indices, void *raw_index_data, size_t sizeof_index,
         size_t sizeof_vertex_data,
@@ -45,28 +39,28 @@ OpenglMesh::Ptr BaseWidget::create_mesh_from_raw_(
 {
     // Mesh is an opengl resource, so it needs to have access to gl context
     // which is privately managed by this widget
-    OpenglMesh::Ptr result = std::make_shared<OpenglMesh>(this);
+    OpenglMesh::Ptr result = std::make_shared<OpenglMesh>(gl);
 
     // Create the VAO for the mesh
-    glGenVertexArrays(1, &(result->vert_array_));
-    glBindVertexArray(result->vert_array_);
+    gl->glGenVertexArrays(1, &(result->vert_array_));
+    gl->glBindVertexArray(result->vert_array_);
 
     // The GL_ARRAY_BUFFER will contain the list of vertex positions
-    glGenBuffers(1, &(result->vert_buf_));
-    glBindBuffer(GL_ARRAY_BUFFER, result->vert_buf_);
-    glBufferData(GL_ARRAY_BUFFER, n_verts * sizeof_vertex,
+    gl->glGenBuffers(1, &(result->vert_buf_));
+    gl->glBindBuffer(GL_ARRAY_BUFFER, result->vert_buf_);
+    gl->glBufferData(GL_ARRAY_BUFFER, n_verts * sizeof_vertex,
                  raw_vertex_data, GL_STATIC_DRAW);
 
     // and GL_ELEMENT_ARRAY_BUFFER will contain the indices
-    glGenBuffers(1, &(result->indx_buf_));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, result->indx_buf_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_indices * sizeof_index,
+    gl->glGenBuffers(1, &(result->indx_buf_));
+    gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, result->indx_buf_);
+    gl->glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_indices * sizeof_index,
                 raw_index_data, GL_STATIC_DRAW);
 
     // Every surface extractor outputs valid positions for the vertices, so
     // tell OpenGL how these are laid out
-    glEnableVertexAttribArray(0);  // Attrib '0' is the vertex positions
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof_vertex,
+    gl->glEnableVertexAttribArray(0);  // Attrib '0' is the vertex positions
+    gl->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof_vertex,
                           offsetof_vertex_pos);
     // take the first 3 floats from every
     //      sizeof(decltype(vecVertices)::value_type)
@@ -77,22 +71,22 @@ OpenglMesh::Ptr BaseWidget::create_mesh_from_raw_(
     // ignored by the shader. This is mostly just to simplify this example
     // code - in a real application you will know whether your chosen surface
     // extractor generates normals and can skip uploading them if not.
-    glEnableVertexAttribArray(1);  // Attrib '1' is the vertex normals.
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof_vertex,
+    gl->glEnableVertexAttribArray(1);  // Attrib '1' is the vertex normals.
+    gl->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof_vertex,
                           offsetof_vertex_normal);
 
     // Finally a surface extractor will probably output additional data.
     // This is highly application dependant. For this example code we're
     // just uploading it as a set of bytes which we can read individually,
     // but real code will want to do something specialised here.
-    glEnableVertexAttribArray(2);  // Shader attribute '2'
+    gl->glEnableVertexAttribArray(2);  // Shader attribute '2'
     GLint size = (std::min)(sizeof_vertex_data, size_t(4));
     // Can't upload more that 4 components (vec4 is GLSL's biggest type)
-    glVertexAttribIPointer(2, size, GL_UNSIGNED_BYTE, sizeof_vertex,
+    gl->glVertexAttribIPointer(2, size, GL_UNSIGNED_BYTE, sizeof_vertex,
                            offsetof_vertex_data);
 
     // We're done uploading and can now unbind.
-    glBindVertexArray(0);
+    gl->glBindVertexArray(0);
 
     // A few additional properties can be copied across for use during
     // rendering.
@@ -108,7 +102,7 @@ OpenglMesh::Ptr BaseWidget::create_mesh_from_raw_(
     return result;
 }
 
-ShaderPtr BaseWidget::load_shader(const char *name)
+ShaderPtr Loader::load_shader(const char *name)
 {
     auto shad = QSharedPointer<QGLShaderProgram>(new QGLShaderProgram);
     std::string v_name = std::string(":/shader/") + name + ".vert";

@@ -4,9 +4,9 @@
 
 namespace bm {
 
-void GameWidget::initialize_game() {
-    terrain_shader_ = load_shader("colored_blocks");
-    rgb_vox_shader_ = load_shader("rgb_blocks");
+void GameWidget::initialize() {
+    terrain_shader_ = Loader::load_shader("colored_blocks");
+    rgb_vox_shader_ = Loader::load_shader("rgb_blocks");
 
     //
     // World setup and update terrain
@@ -63,7 +63,8 @@ void GameWidget::update_terrain_model() {
     //
     terrain_.release();
     terrain_ = std::make_unique<Model>(
-                create_opengl_mesh_from_raw(decoded_mesh), terrain_shader_);
+                Loader::create_opengl_mesh_from_raw(this, decoded_mesh),
+                terrain_shader_);
     terrain_->mesh_->scale_.setY(-WALL_HEIGHT);
     // move terrain slab together with cursor
     terrain_->mesh_->translation_.setY(-cursor_pos_.getY());
@@ -79,7 +80,8 @@ Model *GameWidget::load_model(ModelId register_as,
     auto raw_mesh = qb_model->get_mesh_for_volume(0);
     qb_model->free_voxels_for_volume(0);
 
-    auto opengl_mesh = create_opengl_mesh_from_raw(
+    auto opengl_mesh = Loader::create_opengl_mesh_from_raw(
+                this,
                 raw_mesh,
                 Vec3f(0.f, 0.f, 0.f),
                 qb_model->get_downscale(0)
@@ -145,8 +147,8 @@ void GameWidget::follow_cursor()
                       (15.0f - cursor_pos_.getY()) * WALL_HEIGHT, // up
                       (cursor_pos_.getZ() + 7) * CELL_SIZE);
     setCameraTransform(cam_pos,
-                       -7.0*PI/18.0, //pitch (minus - look down)
-                       PI); // yaw
+                       -7.0 * M_PI / 18.0, //pitch (minus - look down)
+                       M_PI); // yaw
     on_cursor_changed();
 }
 
@@ -229,7 +231,7 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
     case Qt::Key_A:
     case Qt::Key_D:
 //    case Qt::Key_Escape:
-        return BaseWidget::keyPressEvent(event);
+        return GLVersion_Widget::keyPressEvent(event);
     default:
         event->ignore();
         break;
@@ -244,7 +246,7 @@ void GameWidget::fsm_keypress_orders(QKeyEvent *event) {
     case Qt::Key_S:
     case Qt::Key_A:
     case Qt::Key_D:
-        return BaseWidget::keyPressEvent(event);
+        return GLVersion_Widget::keyPressEvent(event);
     default:
         event->ignore();
         break;

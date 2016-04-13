@@ -7,8 +7,8 @@
 #include "PolyVox/Mesh.h"
 namespace pv = PolyVox;
 
-#include "base_app.h"
-#include "qb_file.h"
+#include "gfx/loader.h"
+#include "gfx/qb_file.h"
 #include "vector.h"
 #include "world_pager.h"
 
@@ -17,13 +17,13 @@ namespace pv = PolyVox;
 
 namespace bm {
 
-class GameWidget : public BaseWidget {
+class GameWidget : public GLVersion_Widget {
     Q_OBJECT
   public:
     static constexpr float WALL_HEIGHT = 1.0f;
     static constexpr float CELL_SIZE = 1.0f;
 
-    GameWidget(QWidget* parent) : BaseWidget(parent) {}
+    GameWidget(QWidget* parent) : GLVersion_Widget(parent) {}
 
     // Returns pointer for temporary use and modification, do not store permanently
     Model *load_model(ModelId register_as,
@@ -56,7 +56,7 @@ class GameWidget : public BaseWidget {
 
     ShaderPtr  rgb_vox_shader_;
 
-    virtual void initialize_game() override;
+    virtual void initialize() override;
     virtual void render_frame() override;
 
     class TerrainIsQuadNeeded {

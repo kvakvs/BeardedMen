@@ -19,15 +19,16 @@ set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
 SET(SRC_FILES
     src/main.cpp
     src/perlin.cpp
-    src/base_app.cpp
     src/game.cpp		src/game.h
-    src/gl_version
-    src/model.cpp		src/model.h
     src/model_id.h
-    src/ogl_widget.h		src/ogl_widget.inl
-    src/qb_file.cpp		src/qb_file.h
     src/vector.h
     src/world_pager.cpp		src/world_pager.h
+
+    src/gfx/gl_version.h
+    src/gfx/loader.cpp		src/gfx/loader.h
+    src/gfx/model.cpp		src/gfx/model.h
+    src/gfx/ogl_widget.h	src/gfx/ogl_widget.inl
+    src/gfx/qb_file.cpp		src/gfx/qb_file.h
 
     src/game/block_id.h
     src/game/entity.cpp		src/game/entity.h
@@ -99,10 +100,7 @@ SET(SRC_FILES
     polyvox/include/PolyVox/Impl/Utility.h
 )
 
-SET(INC_FILES	
-    src/perlin.h
-    src/base_app.h
-)
+#SET(INC_FILES .......)
 
 #"Sources" and "Headers" are the group names in Visual Studio.
 #They may have other uses too...

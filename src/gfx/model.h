@@ -6,7 +6,7 @@
 #include <map>
 
 #include "vector.h"
-#include "gl_version.h"
+#include "gfx/gl_version.h"
 #include "model_id.h"
 
 namespace bm {

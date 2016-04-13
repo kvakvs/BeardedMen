@@ -7,22 +7,19 @@
 
 #include <cmath>
 
-#include "gl_version.h"
+#include "gfx/gl_version.h"
 #include "vector.h"
-#include "model.h"
+#include "gfx/model.h"
 
 namespace pv = PolyVox;
 namespace bm {
 
-class BaseWidget : public GLVersion_Widget {
-    Q_OBJECT
-   public:
-    BaseWidget(QWidget* parent) : MyGLWidget(parent) {}
-    virtual ~BaseWidget();
-
+class Loader {
+public:
     // Convert a PolyVox mesh to OpenGL index/vertex buffers.
     template <typename MeshType>
-    OpenglMesh::Ptr create_opengl_mesh_from_raw(
+    static OpenglMesh::Ptr create_opengl_mesh_from_raw(
+            GLVersion_Widget* gl,
             const MeshType& mesh,
             const Vec3f& trans = Vec3f(0,0,0),
             const Vec3f& scale = Vec3f(1.0f, 1.0f, 1.0f))
@@ -33,6 +30,7 @@ class BaseWidget : public GLVersion_Widget {
         void *raw_i_data = const_cast<void*>(
                             static_cast<const void*>(mesh.getRawIndexData()));
         return create_mesh_from_raw_(
+            gl,
             mesh.getNoOfVertices(), raw_v_data,
             sizeof_vertex,
             mesh.getNoOfIndices(), raw_i_data,
@@ -44,28 +42,24 @@ class BaseWidget : public GLVersion_Widget {
             trans, scale);
     }
 
-    ShaderPtr load_shader(const char *name);
+    static ShaderPtr load_shader(const char *name);
 
-protected:
-    const float PI = M_PI;
-
-    virtual void initialize_game() = 0;
-    void initialize() override;
-
-   private:
+private:
     // Index/vertex buffer data
     //std::vector<OpenGLMeshData> mesh_data_;
     //QSharedPointer<QGLShaderProgram> shader_;
-    OpenglMesh::Ptr create_mesh_from_raw_(
-            GLsizeiptr n_verts, void *raw_vertex_data,
-            size_t sizeof_vertex,
-            GLsizeiptr n_indices, void *raw_index_data,
-            size_t sizeof_index,
-            size_t sizeof_vertex_data,
-            void* offsetof_vertex_pos,
-            void* offsetof_vertex_normal,
-            void* offsetof_vertex_data,
-            const Vec3f& trans, const Vec3f& scale);
+    static OpenglMesh::Ptr create_mesh_from_raw_(
+        GLVersion_Widget* gl,
+        GLsizeiptr n_verts, void *raw_vertex_data,
+        size_t sizeof_vertex,
+        GLsizeiptr n_indices, void *raw_index_data,
+        size_t sizeof_index,
+        size_t sizeof_vertex_data,
+        void* offsetof_vertex_pos,
+        void* offsetof_vertex_normal,
+        void* offsetof_vertex_data,
+        const Vec3f& trans, const Vec3f& scale);
 };
+
 
 } // namespace bm

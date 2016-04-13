@@ -3,7 +3,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_3_2_Core>
 
-#include "ogl_widget.h"
+#include "gfx/ogl_widget.h"
 
 namespace bm {
 
