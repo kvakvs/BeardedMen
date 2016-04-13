@@ -28,12 +28,6 @@ SOFTWARE.
 #include <QGLWidget>
 #include <QMatrix4x4>
 
-// This is a very basic class for getting an OpenGL example up and running with
-// Qt5. It simply displays an OpenGL widget and implements an FPS-style camera
-// as well as other very basic functionality. User code can derive from this
-// and override the provided virtual functions to implement functionality.
-// The class is templatized so users can specify the OpenGL version via the
-// appropriate QOpenGLFunctions.
 template <typename QOpenGLFunctionsType>
 class MyGLWidget : public QGLWidget, public QOpenGLFunctionsType {
 protected:
@@ -47,11 +41,11 @@ protected:
 
 public:
     // Getters for properties defined by this widget.
-    const QMatrix4x4& viewMatrix();
-    const QMatrix4x4& projectionMatrix();
+    const QMatrix4x4& get_view_matrix() const;
+    const QMatrix4x4& get_projection_matrix() const;
 
     // Setters for properties defined by this widget.
-    void setCameraTransform(QVector3D position, float pitch, float yaw);
+    void set_camera_transform(QVector3D position, float pitch, float yaw);
 
     // Mouse handling
     void mouseMoveEvent(QMouseEvent* event);

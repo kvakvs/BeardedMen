@@ -64,9 +64,6 @@ public:
     Model() {}
     Model(OpenglMesh::Ptr m, ShaderPtr shad): mesh_(m), shad_(shad) {}
     ~Model() {}
-
-    void render(GLVersion_Widget *gl,
-                const Vec3f &pos, float rot_y) const;
 };
 
 //using MeshMap = std::map<ModelId, OpenglMesh::Ptr>;

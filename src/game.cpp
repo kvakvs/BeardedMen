@@ -99,7 +99,7 @@ const Model *GameWidget::find_model(ModelId id) const
 }
 
 void GameWidget::render_frame() {
-    terrain_->render(this, Vec3f(0.f, 0.f, 0.f), 0.f);
+    render(*terrain_, Vec3f(0.f, 0.f, 0.f), 0.f);
     //dorf_.render(this, pos_for_cell(dorf_pos_), 0.f);
 
     world_->each_obj([this](auto /*id*/, auto co) {
@@ -109,7 +109,7 @@ void GameWidget::render_frame() {
             if (model_id != ModelId::NIL) {
                 auto m = find_model(model_id);
                 Q_ASSERT(m);
-                m->render(this, pos_for_cell(ent->get_pos()), 0.0f);
+                render(*m, pos_for_cell(ent->get_pos()), 0.0f);
             }
         }
     });
@@ -117,9 +117,44 @@ void GameWidget::render_frame() {
     //wood_.render(this, pos_for_cell(dorf_pos_+Vec3i(0,0,2)), 0.f);
 
     auto cursor = models_.find(ModelId::Cursor);
-    cursor->second.render(this, pos_for_cell(cursor_pos_), 0.f);
+    render(cursor->second, pos_for_cell(cursor_pos_), 0.f);
 
     render_overlay_xyz();
+}
+
+void GameWidget::render(const Model& m, const Vec3f &pos, float rot_y)
+{
+    if (!m.mesh_->is_valid()) {
+        return;
+    }
+
+    m.shad_->bind();
+
+    // These two matrices are constant for all meshes.
+    m.shad_->setUniformValue("viewMatrix", this->get_view_matrix());
+    m.shad_->setUniformValue("projectionMatrix", this->get_projection_matrix());
+
+    // Set up the model matrrix based on provided translation and scale.
+    //
+    QMatrix4x4 model_mx;
+    model_mx.translate(m.mesh_->translation_
+                       + QVector3D(pos.getX(), pos.getY(), pos.getZ()));
+    model_mx.scale(m.mesh_->scale_);
+    model_mx.rotate(rot_y + m.mesh_->rotation_y_, 0.f, 1.f, 0.f);
+
+    m.shad_->setUniformValue("modelMatrix", model_mx);
+
+    // Bind the vertex array for the current mesh
+    glBindVertexArray(m.mesh_->vert_array_);
+    // Draw the mesh
+    glDrawElements(GL_TRIANGLES,
+                   m.mesh_->indx_count_,
+                   m.mesh_->indx_type_, 0);
+    // Unbind the vertex array.
+    glBindVertexArray(0);
+
+    // We're done with the shader for this frame.
+    m.shad_->release();
 }
 
 void GameWidget::render_overlay_xyz() {
@@ -137,7 +172,9 @@ void GameWidget::render_overlay_xyz() {
         QVector3D(0.f, 1.f, 0.f)   // Camera up
         );
 
-    find_model(ModelId::Xyz)->render(this, Vec3f(0.f, 0.f, 0.f), -cam_yaw_);
+    auto xyz = find_model(ModelId::Xyz);
+    Q_ASSERT(xyz);
+    render(*xyz, Vec3f(0.f, 0.f, 0.f), -cam_yaw_);
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -146,7 +183,7 @@ void GameWidget::follow_cursor()
     QVector3D cam_pos(cursor_pos_.getX() * CELL_SIZE,
                       (15.0f - cursor_pos_.getY()) * WALL_HEIGHT, // up
                       (cursor_pos_.getZ() + 7) * CELL_SIZE);
-    setCameraTransform(cam_pos,
+    set_camera_transform(cam_pos,
                        -7.0 * M_PI / 18.0, //pitch (minus - look down)
                        M_PI); // yaw
     on_cursor_changed();

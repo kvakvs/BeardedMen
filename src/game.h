@@ -72,6 +72,8 @@ class GameWidget : public GLVersion_Widget {
         }
     };
 
+    void render(const Model& m, const Vec3f &pos, float rot_y);
+
 private:
     // Reposition camera on cursor
     void follow_cursor();

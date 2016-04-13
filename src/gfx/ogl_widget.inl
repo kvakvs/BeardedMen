@@ -16,19 +16,19 @@ MyGLWidget<QOpenGLFunctionsType>::MyGLWidget(QWidget *parent)
 }
 
 template <typename QOpenGLFunctionsType>
-const QMatrix4x4& MyGLWidget<QOpenGLFunctionsType>::viewMatrix()
+const QMatrix4x4& MyGLWidget<QOpenGLFunctionsType>::get_view_matrix() const
 {
     return view_matrix_;
 }
 
 template <typename QOpenGLFunctionsType>
-const QMatrix4x4& MyGLWidget<QOpenGLFunctionsType>::projectionMatrix()
+const QMatrix4x4& MyGLWidget<QOpenGLFunctionsType>::get_projection_matrix() const
 {
     return proj_matrix_;
 }
 
 template <typename QOpenGLFunctionsType>
-void MyGLWidget<QOpenGLFunctionsType>::setCameraTransform(QVector3D position, float pitch, float yaw)
+void MyGLWidget<QOpenGLFunctionsType>::set_camera_transform(QVector3D position, float pitch, float yaw)
 {
     cam_pos_ = position;
     cam_yaw_ = yaw;
