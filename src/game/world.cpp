@@ -24,21 +24,27 @@ void World::think() {
     });
 
     // Entities think for themselves
-    each_obj([this](auto /*id*/, auto co) {
+    each_obj([this](auto id, auto co) {
         BrainsComponent* brains = co->as_brains();
         if (brains) {
             brains->think(*this);
         } // if brains
 
         WorkerComponent* worker = co->as_worker();
-        if (worker && worker->is_idle()) {
-            for (auto order: orders_) {
-                if (worker->take_order(order)) {
-                    qDebug() << "Order accepted (removed from queue)";
-                    orders_.erase(order);
-                    break;
-                } // if order taken
-            } // for each order
+        if (worker) {
+            if (worker->is_idle()) {
+                for (Order::Ptr order: orders_)
+                {
+                    if (worker->take_order(co, order)) {
+                        qDebug() << "Order accepted (removed from queue)";
+                        orders_.erase(order);
+                        break;
+                    } // if order taken
+                } // for each order
+            } else {
+                // not idle, have order
+                worker->perform(*this, co);
+            }
         } // if worker
     });
 }

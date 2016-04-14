@@ -23,12 +23,15 @@ enum class JobType: uint16_t {
 class Order {
 public:
     using Ptr = std::shared_ptr<Order>;
-    Order(OrderTargetType tt, JobType jt): target_type_(tt), job_(jt) {
+    Order(OrderTargetType tt, JobType jt): target_type_(tt), job_type_(jt) {
     }
+
     OrderTargetType get_target_type() const { return target_type_; }
+    JobType get_job_type() const { return job_type_; }
+
 protected:
     OrderTargetType target_type_;
-    JobType job_;
+    JobType job_type_;
 };
 
 class AreaOrder: public Order {
@@ -47,6 +50,7 @@ public:
     PositionOrder(const Vec3i &p, JobType jt)
         : Order(OrderTargetType::Position, jt), pos_(p) {
     }
+    Vec3i get_pos() const { return pos_; }
 };
 
 class EntityOrder: public Order {

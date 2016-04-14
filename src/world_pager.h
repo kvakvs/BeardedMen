@@ -15,7 +15,7 @@ public:
     using This = MyVoxelType<Type, AIR_VALUE>;
 
     MyVoxelType(): material_(AIR_VALUE) {}
-    MyVoxelType(Type m, Type d)
+    MyVoxelType(Type m, int d)
         : material_(m) {}
 
     bool operator==(const MyVoxelType& rhs) const {
@@ -44,6 +44,7 @@ private:
 using VoxelType   = MyVoxelType<BlockId, BlockId::AIR>;
 using PagedVolume = pv::PagedVolume<VoxelType>;
 using RawVolume   = pv::RawVolume<VoxelType>;
+using VolumeType  = RawVolume;
 
 inline bool is_solid(VoxelType v) { return v.getMaterial() != BlockId::AIR; }
 inline bool is_air(VoxelType v) { return v.getMaterial() == BlockId::AIR; }

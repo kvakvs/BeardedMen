@@ -30,14 +30,30 @@ public:
 
     void add_position_order(const Vec3i &pos, JobType jt);
     bool is_mineable(const Vec3i &pos) const;
+    bm::VolumeType* get_volume() { return &volume_; }
 
 private:
     uint64_t ent_id_ = 0;
     std::map<EntityId, ComponentObject *> objects_;
     // Visible piece of world + some nearby
-    bm::RawVolume& volume_;
+    bm::VolumeType& volume_;
     // Orders!
-    std::set<Order::Ptr> orders_;
+    using OrderSet = std::set<Order::Ptr>;
+    OrderSet orders_;
 };
+
+inline uint64_t square_distance(const Vec3i& a, const Vec3i& b) {
+    auto dx = b.getX() - a.getX();
+    auto dy = b.getY() - a.getY();
+    auto dz = b.getZ() - a.getZ();
+    return dx*dx + dy*dy + dz*dz;
+}
+
+inline bool adjacent_or_same(const Vec3i& a, const Vec3i& b) {
+    auto dx = b.getX() - a.getX();
+    auto dy = b.getY() - a.getY();
+    auto dz = b.getZ() - a.getZ();
+    return (dy == 0) && std::abs(dx) <= 1 && std::abs(dz) <= 1;
+}
 
 } // ns bm

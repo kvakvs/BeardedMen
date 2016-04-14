@@ -16,7 +16,6 @@ class WorkerComponent;
 
 #define AS_COMPONENT(Lowercase, Capitalized) \
     virtual Capitalized##Component* as_##Lowercase() { \
-        Q_ASSERT(false); \
         return nullptr;  \
     }
 

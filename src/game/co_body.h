@@ -3,6 +3,8 @@
 #include <vector>
 #include <stdint.h>
 
+#include "game/order.h"
+
 namespace bm {
 
 enum class BodyType: uint32_t {
@@ -25,6 +27,17 @@ public:
         bool        is_vital_:  1;
         uint32_t    hit_points_:23;
     };
+
+    bool can_perform_job(JobType) const {
+        // Here check if worker has enough limbs. So far all types of work
+        // require one hand
+        for (Part part: parts_) {
+            if (part.type_ == PartType::Hand) {
+                return true;
+            }
+        }
+        return false;
+    }
 private:
     std::vector<Part> parts_;
     int hunger_;        // fix with food

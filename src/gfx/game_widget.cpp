@@ -28,8 +28,9 @@ void GameWidget::initialize() {
                              "assets/model/cursor_red.qb", rgb_vox_shader_);
     cursor_pos_ = Vec3i(VIEWSZ_X / 2, 5, VIEWSZ_Z / 2);
 
-    // Spawn one bearded man
     world_ = std::make_unique<World>(*volume_);
+
+    // Spawn 7 bearded men
     load_model(ModelId::BeardedMan, "assets/model/dorf.qb", rgb_vox_shader_);
     for (auto bm = 0; bm < 7; ++bm) {
         world_->add(new BeardedMan(cursor_pos_ + Vec3i(bm, 0, bm)));
