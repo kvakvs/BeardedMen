@@ -307,11 +307,15 @@ void GameWidget::fsm_keypress_digging(QKeyEvent *event)
     case Qt::Key_Escape:
         change_keyboard_fsm(KeyFSM::Default);
         break;
-    case Qt::Key_W:
-    case Qt::Key_S:
-    case Qt::Key_A:
     case Qt::Key_D:
-        return GLVersion_Widget::keyPressEvent(event);
+        // {D}esignations -> {D} mine
+        // Places mining command on current cell immediately
+        world_->add_position_order(cursor_pos_, JobType::Mine);
+        // Order accepted, return to default
+        change_keyboard_fsm(KeyFSM::Default);
+        break;
+//    case Qt::Key_W:case Qt::Key_S:case Qt::Key_A:case Qt::Key_D:
+//        return GLVersion_Widget::keyPressEvent(event);
     default:
         event->ignore();
         break;

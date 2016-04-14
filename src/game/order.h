@@ -10,37 +10,51 @@ namespace bm {
 // Abstract order interface, that actors will adhere to.
 // Order can be an area order (i.e. dig these halls) a position order (i.e.
 // dig here, move here), target order (kill target).
-enum class OrderType: uint32_t {
+enum class OrderTargetType: uint16_t {
     Area,
     Position,
-    Target
+    Entity
 };
 
-class IOrder {
+enum class JobType: uint16_t {
+    Mine,   // Remove cells (or one cell) preserving walls, ceiling and floor
+};
+
+class Order {
 public:
-    using Ptr = std::shared_ptr<IOrder>;
-    virtual OrderType get_type() const = 0;
+    Order(OrderTargetType tt, JobType jt): target_type_(tt), job_(jt) {
+    }
+    using Ptr = std::shared_ptr<Order>;
+protected:
+    OrderTargetType target_type_;
+    JobType job_;
 };
 
-class AreaOrder {
+class AreaOrder: public Order {
 private:
     std::vector<Region> areas_;
 public:
-    virtual OrderType get_type() const override { return OrderType::Area; }
+    AreaOrder(JobType jt)
+        : Order(OrderTargetType::Area, jt) {
+    }
 };
 
-class PositionOrder {
+class PositionOrder: public Order {
 private:
     Vec3i pos_;
 public:
-    virtual OrderType get_type() const override { return OrderType::Position; }
+    PositionOrder(const Vec3i &p, JobType jt)
+        : Order(OrderTargetType::Position, jt), pos_(p) {
+    }
 };
 
-class TargetOrder {
+class EntityOrder: public Order {
 private:
     std::vector<EntityId> targets_;
 public:
-    virtual OrderType get_type() const override { return OrderType::Target; }
+    EntityOrder(JobType jt)
+        : Order(OrderTargetType::Entity, jt) {
+    }
 };
 
 } // namespace bm

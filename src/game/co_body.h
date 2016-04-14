@@ -18,6 +18,7 @@ public:
     };
 
     // TODO: slash damage to cut limbs
+    // Maybe store just count of multiple parts and take them away one by one
     class Part {
     public:
         PartType    type_:      8;

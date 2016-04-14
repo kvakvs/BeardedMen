@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
+	<file>stylesheet.qss</file>
+	
 	<file>shader/colored_blocks.vert</file>
 	<file>shader/colored_blocks.frag</file>
 	<file>shader/rgb_blocks.vert</file>

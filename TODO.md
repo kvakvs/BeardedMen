@@ -67,3 +67,20 @@ Material extra properties:
 - Gathering (low return, runs out of bushes)
 - Fishing (much time, low return)
 - Hunting
+
+# Altars and Temples
+
+- Certain shape and materials for a holy or unholy structure
+- Can convert room to temple/consecrate
+- Buffs/Bonuses for sacrifices, for covering with specific types of liquids
+
+# Engineering
+
+- Pumps?
+- Drawbridges
+- Doors
+- Levers. Lever can be connected to a weapon too!
+- Timed mechanism
+- Presense sensors
+- This leads to traps
+- Cages, spike traps, etc.

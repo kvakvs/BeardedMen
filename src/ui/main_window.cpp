@@ -18,6 +18,14 @@ GameMainWindow::GameMainWindow(): QMainWindow(nullptr) {
     //dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     cnc_dock_->setup_event_connections(gl_widget_);
     addDockWidget(Qt::RightDockWidgetArea, cnc_dock_);
+
+    QFile file(":/stylesheet.qss");
+    if(file.open(QFile::ReadOnly | QFile::Text))
+    {
+        auto style = file.readAll();
+        this->setStyleSheet(style);
+        file.close();
+    }
 }
 
 void GameMainWindow::keyPressEvent(QKeyEvent *event) {

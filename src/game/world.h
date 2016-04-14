@@ -1,6 +1,8 @@
 #pragma once
 
 #include "game/entity.h"
+#include "game/order.h"
+
 #include "world_pager.h"
 
 namespace bm {
@@ -24,11 +26,17 @@ public:
         return volume_.getVoxel(pos.getX(), pos.getY()+1, pos.getZ());
     }
 
+    void add_position_order(const Vec3i &pos, JobType jt) {
+        orders_.push_back(std::make_shared<PositionOrder>(pos, jt));
+    }
+
 private:
     uint64_t ent_id_ = 0;
     std::map<EntityId, ComponentObject *> objects_;
     // Visible piece of world + some nearby
     bm::RawVolume& volume_;
+    // Orders!
+    std::list<Order::Ptr> orders_;
 };
 
 } // ns bm

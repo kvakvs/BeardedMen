@@ -6,14 +6,17 @@
 namespace bm {
 
 CNCDock::CNCDock(QMainWindow *w): QDockWidget(w) {
-    main_.panel = new QWidget(this);
-    main_.panel->setFixedWidth(200);
-    this->setWidget(main_.panel);
+    //this->setStyleSheet("QDockWidget { padding-left: -20px }");
 
+    main_.panel = new QWidget(this);
+    main_.panel->setFixedWidth(220);
+    this->setWidget(main_.panel);
     main_.layout = new QFormLayout(main_.panel);
+    //main_.layout->setContentsMargins(0, 0, 0, 0);
 
     keyframe_.frame = new QFrame(main_.panel);
-    keyframe_.frame->setGeometry(QRect(0, 0, 100, 100));
+    keyframe_.frame->setFrameShadow(QFrame::Raised);
+    keyframe_.frame->setFrameShape(QFrame::StyledPanel);
     keyframe_.stacked_layout = new QStackedLayout(keyframe_.frame);
 
     main_.layout->addWidget(keyframe_.frame);
@@ -36,14 +39,17 @@ void CNCDock::SLOT_cursor_changed(const QPoint &p, int depth) {
     this->setWindowTitle(text);
 }
 
-void CNCDock::SLOT_keyboard_fsm_changed(KeyFSM fsm_state)
-{
+void CNCDock::reset_keyboard_panel() {
     auto l_widget = new QWidget(main_.panel);
     keyframe_.layout = new QVBoxLayout(l_widget);
-    keyframe_.layout->setContentsMargins(0, 0, 0, 0);
+    //keyframe_.layout->setContentsMargins(0, 0, 0, 0);
     delete keyframe_.stacked_layout->currentWidget();
     keyframe_.stacked_layout->addWidget(l_widget);
+}
 
+void CNCDock::SLOT_keyboard_fsm_changed(KeyFSM fsm_state)
+{
+    reset_keyboard_panel();
     switch(fsm_state) {
     case KeyFSM::Default:
         add_fsm_keys_default();
@@ -52,25 +58,38 @@ void CNCDock::SLOT_keyboard_fsm_changed(KeyFSM fsm_state)
         add_fsm_keys_digging();
         break;
     }
+
+}
+
+QString CNCDock::highlight_keys(const char *str0) {
+    return util::re_replace(str0, "\\{(.+)\\}",
+        [](auto match) -> QString {
+            return QString("<font color='#f66'><u>") + match + "</></font>";
+        });
 }
 
 void CNCDock::shortcut_label(const char *str0)
 {
-    QString str = util::re_replace(str0, "\\{(.)\\}",
-        [](auto match) -> QString {
-            return QString("<font color='#f66'><u>") + match + "</></font>";
-        });
+    keyframe_.layout->addWidget(new QLabel(highlight_keys(str0)));
+}
 
-    keyframe_.layout->addWidget(new QLabel(str));
+void CNCDock::breadcrumbs(const char *crumbs) {
+    auto l = new QLabel(QString("<b>") + crumbs + "</b>"
+                        + highlight_keys(" {Esc}↩"));
+    l->setStyleSheet("background: #aaa;padding: 4px;");
+    keyframe_.layout->addWidget(l);
 }
 
 void CNCDock::add_fsm_keys_default() {
-    shortcut_label("{B}uilding, {D}ig, set {O}rders");
+    //shortcut_label("{B}uilding");
+    shortcut_label("{D}esignations");
+    shortcut_label("{Arrows} move | {+} {-} depth");
 }
 
 void CNCDock::add_fsm_keys_digging() {
-    shortcut_label("{M}ining, {C}hannel, {R}amp");
-    shortcut_label("stairs ({U}p, {D}own, {J}-both)");
+    breadcrumbs("Designations >");
+    shortcut_label("{D} mine"); //|{H} channel|{R}amp");
+    //shortcut_label("stairs ({U}p {D}own {J}-both)");
 }
 
 
