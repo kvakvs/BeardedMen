@@ -1,4 +1,5 @@
-#include "game.h"
+#include "gfx/game_widget.h"
+#include "game/obj_bearded_man.h"
 
 #include <cmath>
 
@@ -25,13 +26,14 @@ void GameWidget::initialize() {
                          "assets/model/cursor.qb", rgb_vox_shader_);
     load_model(ModelId::CursorRed,
                              "assets/model/cursor_red.qb", rgb_vox_shader_);
-    cursor_pos_ = Vec3i(VIEWSZ_X / 2, 8, VIEWSZ_Z / 2);
+    cursor_pos_ = Vec3i(VIEWSZ_X / 2, 5, VIEWSZ_Z / 2);
 
     // Spawn one bearded man
     world_ = std::make_unique<World>(*volume_);
     load_model(ModelId::BeardedMan, "assets/model/dorf.qb", rgb_vox_shader_);
-    auto bman = new BeardedMan(cursor_pos_);
-    world_->add(bman);
+    for (auto bm = 0; bm < 7; ++bm) {
+        world_->add(new BeardedMan(cursor_pos_ + Vec3i(bm, 0, bm)));
+    }
 
     load_model(ModelId::Wood, "assets/model/wood.qb", rgb_vox_shader_);
     auto xyz = load_model(ModelId::Xyz, "assets/model/xyz.qb", rgb_vox_shader_);
@@ -42,7 +44,7 @@ void GameWidget::initialize() {
     update_terrain_model();
 
     // Keyboard input mode
-    change_keyboard_fsm(KeyFSM::ExploreMap);
+    change_keyboard_fsm(KeyFSM::Default);
 }
 
 // Extract the surface
@@ -196,16 +198,20 @@ void GameWidget::on_cursor_changed()
                             cursor_pos_.getY());
 }
 
-void GameWidget::change_keyboard_fsm(GameWidget::KeyFSM id)
+void GameWidget::change_keyboard_fsm(bm::KeyFSM fsm_state)
 {
-    switch (id) {
-    case KeyFSM::ExploreMap:
+    switch (fsm_state) {
+    case KeyFSM::Default:
         keyboard_handler_ = &GameWidget::fsm_keypress_exploremap;
         break;
     case KeyFSM::Orders:
         keyboard_handler_ = &GameWidget::fsm_keypress_orders;
         break;
+    case KeyFSM::Digging:
+        keyboard_handler_ = &GameWidget::fsm_keypress_digging;
+        break;
     }
+    emit SIG_keyboard_fsm_changed(fsm_state);
 }
 
 // Normal keyboard mode where you can navigate camera and map, possibly switch
@@ -258,6 +264,10 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
 //        change_keyboard_fsm(KeyFSM::Orders);
 //        break;
 //    }
+    case Qt::Key_D: {
+        change_keyboard_fsm(KeyFSM::Digging);
+        break;
+    }
     case Qt::Key_Period: {
         world_->think();
         this->update();
@@ -266,7 +276,7 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
     case Qt::Key_W:
     case Qt::Key_S:
     case Qt::Key_A:
-    case Qt::Key_D:
+//    case Qt::Key_D:
 //    case Qt::Key_Escape:
         return GLVersion_Widget::keyPressEvent(event);
     default:
@@ -274,10 +284,28 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
         break;
     }
 }
+
 void GameWidget::fsm_keypress_orders(QKeyEvent *event) {
     switch ( event->key() ) {
     case Qt::Key_Escape:
-        change_keyboard_fsm(KeyFSM::ExploreMap);
+        change_keyboard_fsm(KeyFSM::Default);
+        break;
+    case Qt::Key_W:
+    case Qt::Key_S:
+    case Qt::Key_A:
+    case Qt::Key_D:
+        return GLVersion_Widget::keyPressEvent(event);
+    default:
+        event->ignore();
+        break;
+    }
+}
+
+void GameWidget::fsm_keypress_digging(QKeyEvent *event)
+{
+    switch ( event->key() ) {
+    case Qt::Key_Escape:
+        change_keyboard_fsm(KeyFSM::Default);
         break;
     case Qt::Key_W:
     case Qt::Key_S:

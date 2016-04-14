@@ -14,7 +14,7 @@ void WorldPager::pageOut(const PolyVox::Region &region,
 }
 
 void populate::populate_voxels(const PolyVox::Region &region, RawVolume &vol) {
-    Perlin perlin(2, 2, 1, 1234);
+    Perlin perlin(2, 2.0, 1.0, 1234);
     //float noise_val = 0.f;
 
     for (int x = region.getLowerX(); x <= region.getUpperX(); x++) {
@@ -36,7 +36,9 @@ void populate::populate_voxels(const PolyVox::Region &region, RawVolume &vol) {
 
 VoxelType populate::get_perlin_voxel(float perlinVal, int x, int y, int z) {
     VoxelType voxel;
-    if (y > perlinVal * WORLDSZ_Y) {
+    // Perlin formula gives values in range 0.3...0.8 approx.
+    // So in top 3-8 layers we build earth surface
+    if (y < perlinVal * 10) {
         // solid
         BlockId m = (BlockId)((int)(perlinVal * 50.0) % 5 + 1);
         voxel.setMaterial(m);

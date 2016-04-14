@@ -17,6 +17,13 @@ namespace pv = PolyVox;
 
 namespace bm {
 
+// Currently active keyboard map. Changes to allow access to sub-commands.
+enum class KeyFSM: int {
+    Default,        // regular keyboard movement and cursor operation
+    Orders,
+    Digging,
+};
+
 class GameWidget : public GLVersion_Widget {
     Q_OBJECT
   public:
@@ -38,6 +45,7 @@ class GameWidget : public GLVersion_Widget {
 
   signals:
     void SIG_cursor_changed(const QPoint &xz, int depth) const;
+    void SIG_keyboard_fsm_changed(bm::KeyFSM);
 
   protected:
     // World volume
@@ -85,14 +93,10 @@ private:
     typedef void(GameWidget::*KeyboardHandler)(QKeyEvent*);
     KeyboardHandler keyboard_handler_;
 
-    enum class KeyFSM: int {
-        ExploreMap,        // regular keyboard movement and cursor operation
-        Orders,
-    };
-
     void change_keyboard_fsm(KeyFSM id);
     void fsm_keypress_exploremap(QKeyEvent *event);
     void fsm_keypress_orders(QKeyEvent *event);
+    void fsm_keypress_digging(QKeyEvent *event);
 
     // Given integer cell position make world pos
     static Vec3f pos_for_cell(const Vec3i &i) {

@@ -51,35 +51,4 @@ public:
     void think(const World &w) {}
 };
 
-
-// TODO: evict from this file, make own file
-class BodyComponent {
-public:
-    enum class PartType: uint8_t {
-        Head, Eye, Hand, Leg
-    };
-
-    class Part {
-    public:
-        PartType    type_:      8;
-        bool        is_vital_:  1;
-        uint32_t    hit_points_:23;
-    };
-private:
-    std::vector<Part> body_parts_;
-};
-
-// TODO: evict from this file, make own file
-class BeardedMan: public ComponentObject
-{
-    EntityComponent entity_;
-    BrainsComponent brains_;
-public:
-    BeardedMan(const Vec3i &pos)
-        : entity_(pos, ModelId::BeardedMan) {
-    }
-    virtual EntityComponent* as_entity() override { return &entity_; }
-    virtual BrainsComponent* as_brains() override { return &brains_; }
-};
-
 } // namespace bm

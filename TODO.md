@@ -13,6 +13,7 @@
 - Throwing, attacking - may wound/kill
 - Sicknesses (syndromes), immunity, contraction: injected, on contact, inhaled
 - Getting wet, contaminated with liquids
+- Skills and attributes. Rust if not used for a long time.
 
 ## Personal
 
@@ -28,6 +29,9 @@
 ## Building
 
 - Orders, repeat orders, cancel order
+- Digging
+- Stone properties: warm (lava is close), damp (water is close).
+- Flooding
 
 # Items and Objects
 

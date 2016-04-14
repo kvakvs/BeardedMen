@@ -19,11 +19,12 @@ set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
 SET(SRC_FILES
     src/main.cpp
     src/perlin.cpp
-    src/game.cpp		src/game.h
     src/model_id.h
+    src/util_str.h
     src/vector.h
     src/world_pager.cpp		src/world_pager.h
 
+    src/gfx/game_widget.cpp	src/gfx/game_widget.h
     src/gfx/gl_version.h
     src/gfx/loader.cpp		src/gfx/loader.h
     src/gfx/model.cpp		src/gfx/model.h
@@ -32,13 +33,15 @@ SET(SRC_FILES
 
     src/game/block_id.h
     src/game/component.h
+    src/game/co_body.cpp	src/game/co_body.h
     src/game/entity.cpp		src/game/entity.h
+    src/game/obj_bearded_man.h	
     src/game/order.cpp          src/game/order.h
     src/game/settlement.cpp	src/game/settlement.h
     src/game/world.cpp		src/game/world.h
     
-    src/ui/main_window.h
-    src/ui/dock.h
+    src/ui/main_window.cpp	src/ui/main_window.h
+    src/ui/dock.cpp		src/ui/dock.h
 
     polyvox/include/PolyVox/AStarPathfinder.h
     polyvox/include/PolyVox/AStarPathfinder.inl

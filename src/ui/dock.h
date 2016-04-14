@@ -2,44 +2,47 @@
 
 #include <QMainWindow>
 #include <QObject>
-#include <QFormLayout>
 #include <QDockWidget>
 #include <QLabel>
 
-#include "game.h"
+#include <QFormLayout>
+#include <QStackedLayout>
+
+#include "gfx/game_widget.h"
 
 namespace bm {
 
 class CNCDock: public QDockWidget {
     Q_OBJECT
 private:
-    QLabel *l_pos_;
-    QLabel *l_depth_;
+    struct {
+        QWidget *panel;
+        QFormLayout *layout;
+    } main_;
+
+    // Keyboard hints panel
+    struct {
+        QFrame *frame;
+        QStackedLayout *stacked_layout;
+        QVBoxLayout *layout;
+    } keyframe_;
 
 public:
-    CNCDock(QMainWindow *w): QDockWidget("Command and Control", w) {
-        auto panel = new QWidget(this);
-        this->setWidget(panel);
+    CNCDock(QMainWindow *w);
 
-        auto lay = new QFormLayout(panel);
-        //panel->setLayout(lay);
-
-        l_pos_ = new QLabel("(0; 0)", panel);
-        lay->addRow("Position", l_pos_);
-        l_depth_ = new QLabel("1", panel);
-        lay->addRow("Depth", l_depth_);
-    }
-
-    void setup_event_connections(GameWidget *g) {
-        QObject::connect(g, &GameWidget::SIG_cursor_changed,
-                         this, &CNCDock::SLOT_cursor_changed);
-    }
+    void setup_event_connections(GameWidget *g);
 
 public slots:
-    void SLOT_cursor_changed(const QPoint &p, int depth) {
-        l_pos_->setText(QString("(%1; %2)").arg(p.x()).arg(p.y()));
-        l_depth_->setText(QString("%1").arg(depth));
-    }
+    void SLOT_cursor_changed(const QPoint &p, int depth);
+    void SLOT_keyboard_fsm_changed(bm::KeyFSM fsm);
+
+private:
+    // Process string s, replacing {K} with <font color...<u>K</u></font>
+    // and make a QLabel with this. Adds it to keyframe_.layout
+    void shortcut_label(const char *s);
+    void add_pos_labels();
+    void add_fsm_keys_default();
+    void add_fsm_keys_digging();
 };
 
 } // ns bm
