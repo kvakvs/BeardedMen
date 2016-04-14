@@ -1,7 +1,10 @@
 #pragma once
 
+#include "model_id.h"
+
 #include "game/component.h"
 #include "game/co_body.h"
+#include "game/co_worker.h"
 
 namespace bm {
 
@@ -11,6 +14,7 @@ class BeardedMan: public ComponentObject
     EntityComponent entity_;
     BrainsComponent brains_;
     BodyComponent   body_;
+    WorkerComponent worker_;
 public:
     BeardedMan(const Vec3i &pos)
         : entity_(pos, ModelId::BeardedMan),
@@ -18,6 +22,7 @@ public:
     }
     virtual EntityComponent* as_entity() override { return &entity_; }
     virtual BrainsComponent* as_brains() override { return &brains_; }
+    virtual WorkerComponent* as_worker() override { return &worker_; }
 };
 
 } // ns bm

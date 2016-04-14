@@ -1,4 +1,7 @@
 #include "game/world.h"
+#include "game/co_worker.h"
+
+#include <QDebug>
 
 namespace bm {
 
@@ -22,11 +25,32 @@ void World::think() {
 
     // Entities think for themselves
     each_obj([this](auto /*id*/, auto co) {
-        auto brains = co->as_brains();
+        BrainsComponent* brains = co->as_brains();
         if (brains) {
             brains->think(*this);
-        }
+        } // if brains
+
+        WorkerComponent* worker = co->as_worker();
+        if (worker && worker->is_idle()) {
+            for (auto order: orders_) {
+                if (worker->take_order(order)) {
+                    qDebug() << "Order accepted (removed from queue)";
+                    orders_.erase(order);
+                    break;
+                } // if order taken
+            } // for each order
+        } // if worker
     });
+}
+
+bool World::is_mineable(const Vec3i &pos) const {
+    auto vox = volume_.getVoxel(pos);
+    volume_.setVoxel(pos, VoxelType());
+    return is_solid(vox);
+}
+
+void World::add_position_order(const Vec3i &pos, JobType jt) {
+    orders_.insert(std::make_shared<PositionOrder>(pos, jt));
 }
 
 } // ns bm

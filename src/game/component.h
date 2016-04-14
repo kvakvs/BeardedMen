@@ -12,6 +12,7 @@ namespace bm {
 class EntityComponent;
 class BrainsComponent;
 class BodyComponent;
+class WorkerComponent;
 
 #define AS_COMPONENT(Lowercase, Capitalized) \
     virtual Capitalized##Component* as_##Lowercase() { \
@@ -25,6 +26,7 @@ public:
     AS_COMPONENT(entity, Entity)
     AS_COMPONENT(brains, Brains)
     AS_COMPONENT(body,   Body)
+    AS_COMPONENT(worker, Worker)
 };
 
 

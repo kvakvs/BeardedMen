@@ -310,7 +310,12 @@ void GameWidget::fsm_keypress_digging(QKeyEvent *event)
     case Qt::Key_D:
         // {D}esignations -> {D} mine
         // Places mining command on current cell immediately
-        world_->add_position_order(cursor_pos_, JobType::Mine);
+        if (world_->is_mineable(cursor_pos_)) {
+            world_->add_position_order(cursor_pos_, JobType::Mine);
+            qDebug() << "Positional order: Mining";
+        } else {
+            qDebug() << "Block is not mineable";
+        }
         // Order accepted, return to default
         change_keyboard_fsm(KeyFSM::Default);
         break;

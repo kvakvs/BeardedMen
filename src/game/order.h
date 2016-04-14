@@ -22,9 +22,10 @@ enum class JobType: uint16_t {
 
 class Order {
 public:
+    using Ptr = std::shared_ptr<Order>;
     Order(OrderTargetType tt, JobType jt): target_type_(tt), job_(jt) {
     }
-    using Ptr = std::shared_ptr<Order>;
+    OrderTargetType get_target_type() const { return target_type_; }
 protected:
     OrderTargetType target_type_;
     JobType job_;

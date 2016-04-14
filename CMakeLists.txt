@@ -34,6 +34,7 @@ SET(SRC_FILES
     src/game/block_id.h
     src/game/component.h
     src/game/co_body.cpp	src/game/co_body.h
+    src/game/co_worker.cpp	src/game/co_worker.h
     src/game/entity.cpp		src/game/entity.h
     src/game/obj_bearded_man.h	
     src/game/order.cpp          src/game/order.h
