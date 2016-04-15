@@ -1,4 +1,4 @@
-#include "gfx/game_widget.h"
+ #include "gfx/game_widget.h"
 #include "game/obj_bearded_man.h"
 
 #include <cmath>
@@ -32,7 +32,8 @@ void GameWidget::initialize() {
 
     // Spawn 7 bearded men
     load_model(ModelId::BeardedMan, "assets/model/dorf.qb", rgb_vox_shader_);
-    for (auto bm = 0; bm < 7; ++bm) {
+    const int MANY_BEARDED_MEN = 1;
+    for (auto bm = 0; bm < MANY_BEARDED_MEN; ++bm) {
         world_->add(new BeardedMan(cursor_pos_ + Vec3i(bm, 0, bm)));
     }
 
@@ -271,6 +272,10 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
     }
     case Qt::Key_Period: {
         world_->think();
+        if (world_->any_voxel_changed_) {
+            update_terrain_model();
+            world_->any_voxel_changed_ = false;
+        }
         this->update();
     } break;
 
@@ -311,12 +316,12 @@ void GameWidget::fsm_keypress_digging(QKeyEvent *event)
     case Qt::Key_D:
         // {D}esignations -> {D} mine
         // Places mining command on current cell immediately
-        if (world_->is_mineable(cursor_pos_)) {
+        //if (world_->is_mineable(cursor_pos_)) {
             world_->add_position_order(cursor_pos_, JobType::Mine);
             qDebug() << "Positional order: Mining";
-        } else {
-            qDebug() << "Block is not mineable";
-        }
+//        } else {
+//            qDebug() << "Block is not mineable";
+//        }
         // Order accepted, return to default
         change_keyboard_fsm(KeyFSM::Default);
         break;

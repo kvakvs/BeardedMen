@@ -21,6 +21,8 @@ void World::think() {
             ent_pos.setY(ent_pos.getY() + 1);
             ent->set_pos(ent_pos);
         }
+        // if entity has planned route
+        ent->step(*this);
     });
 
     // Entities think for themselves
@@ -51,8 +53,17 @@ void World::think() {
 
 bool World::is_mineable(const Vec3i &pos) const {
     auto vox = volume_.getVoxel(pos);
-    volume_.setVoxel(pos, VoxelType());
     return is_solid(vox);
+}
+
+void World::mine_voxel(const Vec3i &pos) {
+    if (is_solid(volume_.getVoxel(pos))) {
+        volume_.setVoxel(pos, VoxelType());
+        any_voxel_changed_ = true;
+        // TODO: Produce a drop with mined rock
+    } else {
+        qDebug() << "can't mine - not solid";
+    }
 }
 
 void World::add_position_order(const Vec3i &pos, JobType jt) {

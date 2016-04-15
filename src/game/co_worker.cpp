@@ -40,7 +40,7 @@ void WorkerComponent::perform(World& wo, ComponentObject *co)
     }
 }
 
-static bool astar_vox_validator(const VolumeType*, const Vec3i&) {
+static inline bool astar_vox_validator(const VolumeType*, const Vec3i&) {
     return true;
 }
 
@@ -53,40 +53,52 @@ void WorkerComponent::perform_position_order(World& wo,
 
     // Prepare path just in case
     EntityComponent* ent = co->as_entity();
-    if (path_.empty() && !adjacent_or_same(ent->get_pos(), po->get_pos())) {
-        {
-            auto fr = ent->get_pos();
-            auto to = po->get_pos();
-            qDebug() << "astar from" << fr.getX() << fr.getY() << fr.getZ()
-                     << "to" << to.getX() << to.getY() << to.getZ();
-        }
-        pv::AStarPathfinderParams<VolumeType> pfpar(
-                    wo.get_volume(),
-                    ent->get_pos(),
-                    po->get_pos(),
-                    &path_,
-                    1.0,
-                    16,
-                    pv::SixConnected,
-                    & astar_vox_validator);
-        //pfpar.maxNumberOfNodes = 16;
-        //pfpar.connectivity = pv::EighteenConnected;
+    bool is_adjacent = adjacent_or_same(ent->get_pos(), po->get_pos());
 
-        pv::AStarPathfinder<VolumeType> pf(pfpar);
-        try {
-            pf.execute();
-        } catch (std::runtime_error) {
-            // No path - cancel order
-            //order_.reset();
-            //return;
-        }
+    if (ent->has_planned_route() == false && ! is_adjacent)
+    {
+        plan_path_to(wo, po, ent);
+    }
 
-        for (auto v: path_) {
-            qDebug() << v.getX() << v.getY() << v.getZ();
-            //wo.get_volume()->setVoxel(v, VoxelType(BlockId::Clay, 1));
-        }
+    if (is_adjacent) {
+        // Reached destination and can work
+        wo.mine_voxel(po->get_pos());
+        // Complete
+        order_.reset();
+        ent->clear_planned_route(); // stop moving
     }
 }
 
+void WorkerComponent::plan_path_to(World& wo,
+                                   PositionOrder *po,
+                                   EntityComponent *ent) {
+    {
+        auto fr = ent->get_pos();
+        auto to = po->get_pos();
+        qDebug() << "astar from" << fr.getX() << fr.getY() << fr.getZ()
+                 << "to" << to.getX() << to.getY() << to.getZ();
+    }
+
+    std::list<Vec3i> path;
+    pv::AStarPathfinderParams<VolumeType> pfpar(
+                wo.get_volume(),
+                ent->get_pos(),
+                po->get_pos(),
+                &path,
+                1.0,
+                1000, // maxlength?
+                pv::SixConnected,
+                & astar_vox_validator);
+
+    pv::AStarPathfinder<VolumeType> pf(pfpar);
+    try {
+        pf.execute();
+        ent->set_planned_route(path);
+    } catch (std::runtime_error) {
+        // No path - cancel order
+        order_.reset();
+        return;
+    }
+}
 
 } // ns bm

@@ -1,8 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
-#include "game/entity.h"
+#include "game/co_entity.h"
 #include "vector.h"
 
 namespace bm {

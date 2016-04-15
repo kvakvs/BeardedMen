@@ -23,12 +23,12 @@ public:
 
 private:
     Order::Ptr order_;
-    std::list<Vec3i> path_;
 
 private:
     void perform_position_order(World& wo,
                                 ComponentObject* co,
                                 PositionOrder* po);
+    void plan_path_to(World &wo, PositionOrder *po, EntityComponent *ent);
 };
 
 } // ns bm
