@@ -15,11 +15,20 @@ class World;
 class BrainsComponent {
 public:
     // -- Intelligent --
-    void think(const World &w) {}
+    void think(const World &w);
+
+    // Set a goal. AI will try and find a way to reach the goal.
+    void want(const ai::Condition &desire) {
+        ai_want_.push_back(desire);
+    }
 
 private:
-    std::vector<ai::Condition> ai_goals_;
-    std::vector<ai::Step> ai_steps_;
+    //int ai_goal_; // goal index or -1
+
+    // List of all things we want done
+    std::vector<ai::Condition> ai_want_;
+
+    //std::vector<ai::Step> ai_steps_;
     //ai::State ai_state_;
 };
 

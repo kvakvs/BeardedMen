@@ -3,7 +3,10 @@
 #include <vector>
 #include "vector.h"
 
-namespace bm {namespace ai {
+namespace bm {
+class World;
+
+namespace ai {
 
 enum class State: uint8_t {
     Moving,
@@ -11,38 +14,64 @@ enum class State: uint8_t {
 };
 
 // Desired effects
-enum class EffectType: uint16_t {
+enum class CondType: uint16_t {
     NearPosition,   // Creature moved to be in reach
     BlockMined,     // A rock block was extracted using tools
 };
 
 enum class Check: uint8_t {
-    False,
-    True,
+    IsFalse,
+    IsTrue,
     Equal,
     //Greater,
 };
 
+// A 3d vector with trivial ctor (unlike Vec3i)
+class Pos3i {
+public:
+    int32_t x, y, z;
+    Pos3i(const Vec3i &v): x(v.getX()), y(v.getY()), z(v.getZ()) {}
+};
+
 class Value {
-    union {
-        Vec3i   pos_;
+private:
+    enum class Type: uint8_t {
+        Position
     };
+    union {
+        Pos3i pos_;
+    };
+    Type type_;
+public:
+    Value(const Value &) = default;
+    Value(const Vec3i &p): pos_(p), type_(Type::Position) {}
+
+    bool is_position() const { return type_ == Type::Position; }
+    Vec3i get_pos() const;
 };
 
 // Condition represents some check. Value of eff_ must be pass the check_(arg_)
 class Condition {
 public:
-    EffectType  eff_;
-    Check       check_;
-    //Value       arg_;
+    CondType eff_;
+    Check    check_;
+    Value    arg_;
+
+    Condition(CondType ef, Check chk, Value arg)
+        : eff_(ef), check_(chk), arg_(arg) {
+    }
+    // Using world's state (read-only) check if condition stands true
+    // This is global world check without entity reference, and it will fail
+    // for all entity conditions like their position or state.
+    bool is_fulfilled_glob(const World &wo) const;
 };
 
 class Step {
 public:
     // Precondition, what must be present
-    Condition precond_;
+    std::vector<Condition> precond_;
     // Desired effect: what we must do
-    EffectType desired_;
+    CondType desired_;
 };
 
 enum class GoalType: uint16_t {

@@ -33,22 +33,21 @@ void World::think() {
             brains->think(*this);
         } // if brains
 
-        WorkerComponent* worker = co->as_worker();
-        if (worker) {
-            if (worker->is_idle()) {
-                for (Order::Ptr order: orders_)
-                {
-                    if (worker->take_order(co, order)) {
-                        qDebug() << "Order accepted (removed from queue)";
-                        orders_.erase(order);
-                        break;
-                    } // if order taken
-                } // for each order
-            } else {
-                // not idle, have order
-                worker->perform(*this, co);
-            }
-        } // if worker
+//        WorkerComponent* worker = co->as_worker();
+//            if (co->is_idle()) {
+//                for (Order::Ptr order: orders_)
+//                {
+//                    if (worker->take_order(co, order)) {
+//                        qDebug() << "Order accepted (removed from queue)";
+//                        orders_.erase(order);
+//                        break;
+//                    } // if order taken
+//                } // for each order
+//            } else {
+//                // not idle, have order
+//                worker->perform(*this, co);
+//            }
+//        } // if worker
     });
 }
 
@@ -67,8 +66,8 @@ void World::mine_voxel(const Vec3i &pos) {
     }
 }
 
-void World::add_position_order(const Vec3i &pos, JobType jt) {
-    orders_.insert(std::make_shared<PositionOrder>(pos, jt));
-}
+//void World::add_position_order(const Vec3i &pos, JobType jt) {
+//    orders_.insert(std::make_shared<PositionOrder>(pos, jt));
+//}
 
 } // ns bm

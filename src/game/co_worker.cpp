@@ -1,5 +1,9 @@
 #include "game/co_worker.h"
+
+#if 0
+
 #include "game/co_body.h"
+#include "game/co_brains.h"
 #include "game/world.h"
 
 #include "world_pager.h"
@@ -25,7 +29,22 @@ bool WorkerComponent::take_order(ComponentObject* co,
         return false;
     }
 
-    order_ = order;
+    //order_ = order;
+
+    // Define the intent: we want to have block mined
+    BrainsComponent *brains = co->as_brains();
+
+    switch (order->get_target_type()) {
+    case OrderTargetType::Position: {
+            auto po = (PositionOrder*)order.get();
+            ai::Condition to_mine(ai::EffectType::BlockMined,
+                                  ai::Check::IsTrue,
+                                  po->get_pos());
+            brains->want(to_mine);
+        } break;
+    default: qDebug() << "Unsupported order type";
+    }
+
     return true;
 }
 
@@ -102,3 +121,5 @@ void WorkerComponent::plan_path_to(World& wo,
 }
 
 } // ns bm
+
+#endif//0

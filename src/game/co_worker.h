@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <list>
 
+#if 0
+
 #include "game/order.h"
 
 namespace bm {
@@ -10,9 +12,9 @@ namespace bm {
 // Is able to take orders
 class WorkerComponent {
 public:
-    WorkerComponent(): order_() {}
+    WorkerComponent() {}
 
-    bool is_idle() const { return ! ((bool)order_); }
+    //bool is_idle() const { return ! ((bool)order_); }
 
     // Returns true if order accepted
     // arg Co is outer object that contains this worker component
@@ -22,7 +24,7 @@ public:
     void perform(World& wo, ComponentObject* co);
 
 private:
-    Order::Ptr order_;
+    //Order::Ptr order_;
 
 private:
     void perform_position_order(World& wo,
@@ -32,3 +34,5 @@ private:
 };
 
 } // ns bm
+
+#endif //0

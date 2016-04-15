@@ -319,18 +319,20 @@ void GameWidget::fsm_keypress_digging(QKeyEvent *event)
     case Qt::Key_Escape:
         change_keyboard_fsm(KeyFSM::Default);
         break;
-    case Qt::Key_D:
+    case Qt::Key_D: {
         // {D}esignations -> {D} mine
-        // Places mining command on current cell immediately
-        //if (world_->is_mineable(cursor_pos_)) {
-            world_->add_position_order(cursor_pos_, JobType::Mine);
-            qDebug() << "Positional order: Mining";
-//        } else {
-//            qDebug() << "Block is not mineable";
-//        }
+        // Records player's wish to have current cell mined out
+        ai::Condition desire(ai::CondType::BlockMined,
+                             ai::Check::IsTrue,
+                             cursor_pos_);
+        if (world_->add_order(desire)) {
+            qDebug() << "Player wishes to mine out a block";
+        } else {
+            qDebug() << "Can't mine - there is no rock";
+        }
         // Order accepted, return to default
         change_keyboard_fsm(KeyFSM::Default);
-        break;
+    } break;
 //    case Qt::Key_W:case Qt::Key_S:case Qt::Key_A:case Qt::Key_D:
 //        return GLVersion_Widget::keyPressEvent(event);
     default:

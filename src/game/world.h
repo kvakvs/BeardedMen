@@ -4,6 +4,7 @@
 
 #include "game/co_entity.h"
 #include "game/order.h"
+#include "game/ai_goal.h"
 
 #include "world_pager.h"
 
@@ -28,12 +29,22 @@ public:
         return volume_.getVoxel(pos.getX(), pos.getY()+1, pos.getZ());
     }
 
-    void add_position_order(const Vec3i &pos, JobType jt);
+//    void add_position_order(const Vec3i &pos, JobType jt);
     bool is_mineable(const Vec3i &pos) const;
     bm::VolumeType* get_volume() { return &volume_; }
     void mine_voxel(const Vec3i &pos);
     VoxelType get_voxel(const Vec3i& pos) const {
         return volume_.getVoxel(pos);
+    }
+
+    // Check if any orders are available
+    bool have_orders() const { return orders_.empty() == false; }
+    bool add_order(const ai::Condition &order) {
+        if (order.is_fulfilled_glob(*this) == false) {
+            orders_.push_back(order);
+            return true;
+        }
+        return false;
     }
 
 public:
@@ -43,9 +54,10 @@ private:
     std::map<EntityId, ComponentObject *> objects_;
     // Visible piece of world + some nearby
     bm::VolumeType& volume_;
-    // Orders!
-    using OrderSet = std::set<Order::Ptr>;
-    OrderSet orders_;
+
+    // What player desires - will propagate to workers and they will see how
+    // to fulfill master's wish
+    std::vector<ai::Condition> orders_;
 };
 
 
