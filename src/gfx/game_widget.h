@@ -7,6 +7,8 @@
 #include "PolyVox/Mesh.h"
 namespace pv = PolyVox;
 
+#include <selene.h>
+
 #include "gfx/loader.h"
 #include "gfx/qb_file.h"
 #include "vector.h"
@@ -30,7 +32,7 @@ class GameWidget : public GLVersion_Widget {
     static constexpr float WALL_HEIGHT = 1.0f;
     static constexpr float CELL_SIZE = 1.0f;
 
-    GameWidget(QWidget* parent) : GLVersion_Widget(parent) {}
+    GameWidget(QWidget* parent);
 
     // Returns pointer for temporary use and modification, do not store permanently
     Model *load_model(ModelId register_as,
@@ -53,6 +55,7 @@ class GameWidget : public GLVersion_Widget {
     //std::unique_ptr<SlabVolume>     vol_slice_;
     std::unique_ptr<bm::RawVolume>  volume_;
     std::unique_ptr<World> world_;
+    sel::State  lua_;
 
     ModelMap models_;
 

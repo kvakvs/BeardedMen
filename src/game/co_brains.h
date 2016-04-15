@@ -18,8 +18,9 @@ public:
     void think(const World &w) {}
 
 private:
-    std::vector<ai::Plan> ai_plans_;
-    ai::State ai_state_;
+    std::vector<ai::Condition> ai_goals_;
+    std::vector<ai::Step> ai_steps_;
+    //ai::State ai_state_;
 };
 
 } // namespace bm

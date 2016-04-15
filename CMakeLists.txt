@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(playable_alpha4)
+PROJECT(BeardedMen)
 
 # Qt library
 find_package(Qt5Widgets)
@@ -13,7 +13,7 @@ if(APPLE)
 #    MARK_AS_ADVANCED (GLUT_LIBRARY)
 endif(APPLE)
 
-set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS -std=c++14 ${CMAKE_CXX_FLAGS})
 
 #Projects source files
 SET(SRC_FILES
@@ -105,6 +105,43 @@ SET(SRC_FILES
     polyvox/include/PolyVox/Impl/RandomVectors.h
     polyvox/include/PolyVox/Impl/Timer.h
     polyvox/include/PolyVox/Impl/Utility.h
+
+    #lua-5.3.2/lua.c
+    #lua-5.3.2/luac.c
+    lua-5.3.2/lapi.c	lua-5.3.2/ldebug.c	lua-5.3.2/llex.h
+    lua-5.3.2/lparser.h	lua-5.3.2/lapi.h
+    lua-5.3.2/ldebug.h	lua-5.3.2/llimits.h	lua-5.3.2/lprefix.h
+    lua-5.3.2/lua.h     lua-5.3.2/lauxlib.c	lua-5.3.2/ldo.c
+    lua-5.3.2/lmathlib.c  lua-5.3.2/lstate.c
+    lua-5.3.2/lauxlib.h	lua-5.3.2/ldo.h		lua-5.3.2/lmem.c
+    lua-5.3.2/lstate.h	lua-5.3.2/luaconf.h     lua-5.3.2/lbaselib.c
+    lua-5.3.2/ldump.c	lua-5.3.2/lmem.h        lua-5.3.2/lstring.c
+    lua-5.3.2/lualib.h  lua-5.3.2/lbitlib.c	lua-5.3.2/lfunc.c
+    lua-5.3.2/loadlib.c lua-5.3.2/lstring.h	lua-5.3.2/lundump.c
+    lua-5.3.2/lcode.c	lua-5.3.2/lfunc.h	lua-5.3.2/lobject.c
+    lua-5.3.2/lstrlib.c	lua-5.3.2/lundump.h     lua-5.3.2/lcode.h
+    lua-5.3.2/lgc.c	lua-5.3.2/lobject.h     lua-5.3.2/ltable.c
+    lua-5.3.2/lutf8lib.c lua-5.3.2/lcorolib.c	lua-5.3.2/lgc.h
+    lua-5.3.2/lopcodes.c lua-5.3.2/ltable.h	lua-5.3.2/lvm.c
+    lua-5.3.2/lctype.c	lua-5.3.2/linit.c	lua-5.3.2/lopcodes.h
+    lua-5.3.2/ltablib.c	lua-5.3.2/lvm.h         lua-5.3.2/lctype.h
+    lua-5.3.2/liolib.c	lua-5.3.2/loslib.c      lua-5.3.2/ltm.c
+    lua-5.3.2/lzio.c    lua-5.3.2/ldblib.c	lua-5.3.2/llex.c
+    lua-5.3.2/lparser.c lua-5.3.2/ltm.h		lua-5.3.2/lzio.h
+
+    selene/include/selene/BaseFun.h     selene/include/selene/Class.h
+    selene/include/selene/ClassFun.h    selene/include/selene/Ctor.h
+    selene/include/selene/Dtor.h        selene/include/selene/ExceptionHandler.h
+    selene/include/selene/ExceptionTypes.h
+    selene/include/selene/Fun.h         selene/include/selene/function.h
+    selene/include/selene/LuaName.h     selene/include/selene/LuaRef.h
+    selene/include/selene/MetatableRegistry.h
+    selene/include/selene/Obj.h         selene/include/selene/ObjFun.h
+    selene/include/selene/primitives.h  selene/include/selene/references.h
+    selene/include/selene/Registry.h    selene/include/selene/ResourceHandler.h
+    selene/include/selene/Selector.h    selene/include/selene/State.h
+    selene/include/selene/traits.h      selene/include/selene/Tuple.h
+    selene/include/selene/util.h        selene/include/selene.h
 )
 
 #SET(INC_FILES .......)
@@ -118,8 +155,10 @@ SET(SRC_FILES
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/polyvox/include
+    ${CMAKE_SOURCE_DIR}/lua-5.3.2
+    ${CMAKE_SOURCE_DIR}/selene/include
     ${OPENGL_INCLUDE_DIR}
-    ${PolyVoxHeaders_SOURCE_DIR}
+#    ${PolyVoxHeaders_SOURCE_DIR}
 )
 
 #This will include the shader files inside the compiled binary
@@ -131,21 +170,21 @@ QT5_ADD_RESOURCES(
 SOURCE_GROUP("Resources" FILES src/pa.qrc ${COMMON_RESOURCES_RCC})
 
 #Build
-ADD_EXECUTABLE(playable_alpha4 ${SRC_FILES} ${COMMON_RESOURCES_RCC})
+ADD_EXECUTABLE(BeardedMen ${SRC_FILES} ${COMMON_RESOURCES_RCC})
 IF(MSVC)
 	SET_TARGET_PROPERTIES(
-	    playable_alpha4 PROPERTIES
+            BeardedMen PROPERTIES
 	    COMPILE_FLAGS "/W4 /wd4127")
 ENDIF(MSVC)
-TARGET_LINK_LIBRARIES(playable_alpha4
+TARGET_LINK_LIBRARIES(BeardedMen
     Qt5::OpenGL
     # ${GLUT_LIBRARY}
 )
-#SET_PROPERTY(TARGET playable_alpha4 PROPERTY FOLDER "Examples")
+#SET_PROPERTY(TARGET BeardedMen PROPERTY FOLDER "Examples")
 
 #Install - Only install the example in Windows
 IF(WIN32)
-	INSTALL(TARGETS playable_alpha4
+        INSTALL(TARGETS BeardedMen
 		RUNTIME DESTINATION Examples/OpenGL/bin
 		LIBRARY DESTINATION Examples/OpenGL/lib
 		ARCHIVE DESTINATION Examples/OpenGL/lib

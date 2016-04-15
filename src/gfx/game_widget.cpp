@@ -77,8 +77,13 @@ void GameWidget::update_terrain_model() {
 } // upd terrain
 
 // Returns pointer for temporary use and modification, do not store permanently
+GameWidget::GameWidget(QWidget *parent)
+    : GLVersion_Widget(parent), lua_(true) {
+    lua_.Load("scripts/game.lua");
+}
+
 Model *GameWidget::load_model(ModelId register_as,
-                             const char *file,
+                              const char *file,
                              ShaderPtr shad) {
     auto qb_model = std::make_unique<QBFile>(file);
     auto raw_mesh = qb_model->get_mesh_for_volume(0);
