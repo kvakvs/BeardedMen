@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <vector>
 
 namespace bm {
 
@@ -26,6 +27,7 @@ public:
     AS_COMPONENT(brains, Brains)
     AS_COMPONENT(body,   Body)
     AS_COMPONENT(worker, Worker)
+
 };
 
 

@@ -95,14 +95,14 @@ template <typename QOpenGLFunctionsType>
 void MyGLWidget<QOpenGLFunctionsType>::paintGL()
 {
     // Direction : Spherical coordinates to Cartesian coordinates conversion
-    auto cameraForward = get_cam_forward();
+    auto cam_forward = get_cam_forward();
 
 	// Right vector
-    QVector3D cameraRight(std::sin(cam_yaw_ - 3.14f / 2.0f), 0,
-                          std::cos(cam_yaw_ - 3.14f / 2.0f));
+    QVector3D cam_right(std::sin(cam_yaw_ - 3.14f / 2.0f), 0,
+                        std::cos(cam_yaw_ - 3.14f / 2.0f));
 
 	// Up vector
-	QVector3D cameraUp = QVector3D::crossProduct(cameraRight, cameraForward);
+    QVector3D cam_up = get_camera_up(cam_right, cam_forward);
 
 	// Get the elapsed time since last frame and convert to seconds.
     float deltaTime = elapsed_timer_.restart() / 1000.0f;
@@ -110,42 +110,44 @@ void MyGLWidget<QOpenGLFunctionsType>::paintGL()
 	// Move forward
     if ((pressed_keys_.contains(Qt::Key_Up)) || (pressed_keys_.contains(Qt::Key_W)))
 	{
-        cam_pos_ += cameraForward * deltaTime * cam_move_speed;
+        cam_pos_ += cam_forward * deltaTime * cam_move_speed;
 	}
 	// Move backward
     if ((pressed_keys_.contains(Qt::Key_Down)) || (pressed_keys_.contains(Qt::Key_S)))
 	{
-        cam_pos_ -= cameraForward * deltaTime * cam_move_speed;
+        cam_pos_ -= cam_forward * deltaTime * cam_move_speed;
 	}
 	// Strafe right
     if ((pressed_keys_.contains(Qt::Key_Right)) || (pressed_keys_.contains(Qt::Key_D)))
 	{
-        cam_pos_ += cameraRight * deltaTime * cam_move_speed;
+        cam_pos_ += cam_right * deltaTime * cam_move_speed;
 	}
 	// Strafe left
     if ((pressed_keys_.contains(Qt::Key_Left)) || (pressed_keys_.contains(Qt::Key_A)))
 	{
-        cam_pos_ -= cameraRight * deltaTime * cam_move_speed;
+        cam_pos_ -= cam_right * deltaTime * cam_move_speed;
 	}
 
     view_matrix_.setToIdentity();
+
+    auto cam_focus = get_camera_focus(cam_forward);
     view_matrix_.lookAt(
         cam_pos_,           // Camera is here
-        cam_pos_ + cameraForward, // and looks here : at the same position, plus "direction"
-		cameraUp                  // Head is up (set to 0,-1,0 to look upside-down)
-		);
+        cam_focus, // and looks here : at the same position, plus "direction"
+        cam_up                  // Head is up (set to 0,-1,0 to look upside-down)
+        );
 
-	//Clear the screen
-	this->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //Clear the screen
+    this->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     render_frame();
 
-	// Check for errors.
-	GLenum errCode = this->glGetError();
-	if (errCode != GL_NO_ERROR)
-	{
-		std::cerr << "OpenGL Error: " << errCode << std::endl;
-	}
+    // Check for errors.
+    GLenum errCode = this->glGetError();
+    if (errCode != GL_NO_ERROR)
+    {
+        std::cerr << "OpenGL Error: " << errCode << std::endl;
+    }
 }
 
 template <typename QOpenGLFunctionsType>

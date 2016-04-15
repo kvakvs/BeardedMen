@@ -13,7 +13,7 @@ namespace pv = PolyVox;
 #include "world_pager.h"
 
 #include "game/world.h"
-#include "game/entity.h"
+#include "game/co_entity.h"
 
 namespace bm {
 
@@ -81,10 +81,18 @@ class GameWidget : public GLVersion_Widget {
     };
 
     void render(const Model& m, const Vec3f &pos, float rot_y);
+    virtual QVector3D get_camera_focus(QVector3D /*forward*/) override {
+        auto cur = pos_for_cell(cursor_pos_);
+        return QVector3D(cur.getX(), cur.getY(), cur.getZ());
+    }
+    virtual QVector3D get_camera_up(QVector3D /*right*/,
+                                    QVector3D /*forward*/) override {
+        return QVector3D(0.0f, 1.0f, 0.0f);
+    }
 
 private:
     // Reposition camera on cursor
-    void follow_cursor();
+    void camera_follow_cursor();
     // Take a slice of the world with 1 extra voxel around data. Generate new
     // model and update 'terrain_'
     void update_terrain_model();

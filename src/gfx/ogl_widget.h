@@ -38,6 +38,12 @@ protected:
     // Derived classes should override these to provide functionality.
     virtual void initialize() {}
     virtual void render_frame() {}
+    virtual QVector3D get_camera_focus(QVector3D forward) {
+        return cam_pos_ + forward;
+    }
+    virtual QVector3D get_camera_up(QVector3D right, QVector3D forward) {
+        return QVector3D::crossProduct(right, forward);
+    }
 
 public:
     // Getters for properties defined by this widget.

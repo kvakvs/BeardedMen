@@ -31,6 +31,7 @@ SET(SRC_FILES
     src/gfx/ogl_widget.h	src/gfx/ogl_widget.inl
     src/gfx/qb_file.cpp		src/gfx/qb_file.h
 
+    src/game/ai_goal.cpp	src/game/ai_goal.h
     src/game/block_id.h
     src/game/component.h
     src/game/co_body.cpp	src/game/co_body.h

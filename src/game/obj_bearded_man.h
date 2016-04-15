@@ -5,6 +5,7 @@
 #include "game/component.h"
 #include "game/co_body.h"
 #include "game/co_worker.h"
+#include "game/co_brains.h"
 
 namespace bm {
 

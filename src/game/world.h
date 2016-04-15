@@ -2,7 +2,7 @@
 
 #include <set>
 
-#include "game/entity.h"
+#include "game/co_entity.h"
 #include "game/order.h"
 
 #include "world_pager.h"

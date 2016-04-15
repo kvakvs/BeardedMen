@@ -42,7 +42,7 @@ void GameWidget::initialize() {
     xyz->mesh_->scale_ *= 2.0f;
     xyz->mesh_->translation_ = QVector3D(-1.0f, -1.0f, -1.0f); // pivot
 
-    follow_cursor();
+    camera_follow_cursor();
     update_terrain_model();
 
     // Keyboard input mode
@@ -182,11 +182,12 @@ void GameWidget::render_overlay_xyz() {
     glEnable(GL_DEPTH_TEST);
 }
 
-void GameWidget::follow_cursor()
+void GameWidget::camera_follow_cursor()
 {
-    QVector3D cam_pos(cursor_pos_.getX() * CELL_SIZE,
+    QVector3D cam_pos((cursor_pos_.getX() + 5) * CELL_SIZE,
                       (15.0f - cursor_pos_.getY()) * WALL_HEIGHT, // up
-                      (cursor_pos_.getZ() + 7) * CELL_SIZE);
+                      (cursor_pos_.getZ() + 5) * CELL_SIZE);
+
     set_camera_transform(cam_pos,
                        -7.0 * M_PI / 18.0, //pitch (minus - look down)
                        M_PI); // yaw
@@ -223,32 +224,32 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
     case Qt::Key_Right:
         if (cursor_pos_.getX() < WORLDSZ_X - 1) {
             cursor_pos_ += Vec3i(1, 0, 0);
-            follow_cursor();
+            camera_follow_cursor();
         }
         break;
     case Qt::Key_Left:
         if (cursor_pos_.getX() > 0) {
             cursor_pos_ += Vec3i(-1, 0, 0);
-            follow_cursor();
+            camera_follow_cursor();
         }
         break;
     case Qt::Key_Down:
         if (cursor_pos_.getZ() < WORLDSZ_Z - 1) {
             cursor_pos_ += Vec3i(0, 0, 1);
-            follow_cursor();
+            camera_follow_cursor();
         }
         break;
     case Qt::Key_Up:
         if (cursor_pos_.getZ() > 0) {
             cursor_pos_ += Vec3i(0, 0, -1);
-            follow_cursor();
+            camera_follow_cursor();
         }
         break;
     case Qt::Key_Minus:
         if (cursor_pos_.getY() > 0) {
             cursor_pos_ += Vec3i(0, -1, 0);
             // this is to emit ui update, camera doesn't really move
-            follow_cursor();
+            camera_follow_cursor();
 //            on_cursor_changed();
             update_terrain_model();
         }
@@ -257,7 +258,7 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
         if (cursor_pos_.getY() < WORLDSZ_Y - 1) {
             cursor_pos_ += Vec3i(0, 1, 0);
             // this is to emit ui update, camera doesn't really move
-            follow_cursor();
+            camera_follow_cursor();
 //            on_cursor_changed();
             update_terrain_model();
         }

@@ -1,5 +1,6 @@
 #include "game/world.h"
 #include "game/co_worker.h"
+#include "game/co_brains.h"
 
 #include <QDebug>
 
