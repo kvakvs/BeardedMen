@@ -14,6 +14,10 @@ if(APPLE)
 endif(APPLE)
 
 set(CMAKE_CXX_FLAGS -std=c++14 ${CMAKE_CXX_FLAGS})
+set(PV_DIR deps/polyvox/include/PolyVox )
+set(LUA_DIR deps/lua-5.3.2 )
+set(ASTAR_DIR deps/astar/cpp )
+set(SELENE_DIR deps/selene/include )
 
 #Projects source files
 SET(SRC_FILES
@@ -48,102 +52,77 @@ SET(SRC_FILES
     src/ui/main_window.cpp	src/ui/main_window.h
     src/ui/dock.cpp		src/ui/dock.h
 
-    polyvox/include/PolyVox/AStarPathfinder.h
-    polyvox/include/PolyVox/AStarPathfinder.inl
-    polyvox/include/PolyVox/AmbientOcclusionCalculator.h
-    polyvox/include/PolyVox/AmbientOcclusionCalculator.inl
-    polyvox/include/PolyVox/Array.h
-    polyvox/include/PolyVox/BaseVolume.h
-    polyvox/include/PolyVox/BaseVolume.inl
-    polyvox/include/PolyVox/BaseVolumeSampler.inl
-    polyvox/include/PolyVox/Config.h
-    polyvox/include/PolyVox/CubicSurfaceExtractor.h
-    polyvox/include/PolyVox/CubicSurfaceExtractor.inl
-    polyvox/include/PolyVox/DefaultIsQuadNeeded.h
-    polyvox/include/PolyVox/DefaultMarchingCubesController.h
-    polyvox/include/PolyVox/Density.h
-    polyvox/include/PolyVox/Exceptions.h
-    polyvox/include/PolyVox/FilePager.h
-    polyvox/include/PolyVox/Logging.h
-    polyvox/include/PolyVox/LowPassFilter.h
-    polyvox/include/PolyVox/LowPassFilter.inl
-    polyvox/include/PolyVox/MarchingCubesSurfaceExtractor.h
-    polyvox/include/PolyVox/MarchingCubesSurfaceExtractor.inl
-    polyvox/include/PolyVox/Material.h
-    polyvox/include/PolyVox/MaterialDensityPair.h
-    polyvox/include/PolyVox/Mesh.h
-    polyvox/include/PolyVox/Mesh.inl
-    polyvox/include/PolyVox/PagedVolume.h
-    polyvox/include/PolyVox/PagedVolume.inl
-    polyvox/include/PolyVox/PagedVolumeChunk.inl
-    polyvox/include/PolyVox/PagedVolumeSampler.inl
-    polyvox/include/PolyVox/Picking.h
-    polyvox/include/PolyVox/Picking.inl
-    polyvox/include/PolyVox/RawVolume.h
-    polyvox/include/PolyVox/RawVolume.inl
-    polyvox/include/PolyVox/RawVolumeSampler.inl
-    polyvox/include/PolyVox/Raycast.h
-    polyvox/include/PolyVox/Raycast.inl
-    polyvox/include/PolyVox/Region.h
-    polyvox/include/PolyVox/Region.inl
-    polyvox/include/PolyVox/Vector.h
-    polyvox/include/PolyVox/Vector.inl
-    polyvox/include/PolyVox/Vertex.h
-    polyvox/include/PolyVox/VolumeResampler.h
-    polyvox/include/PolyVox/VolumeResampler.inl
+    ${ASTAR_DIR}/stlastar.h		${ASTAR_DIR}/fsa.h
 
-    polyvox/include/PolyVox/Impl/AStarPathfinderImpl.h
-    polyvox/include/PolyVox/Impl/Assertions.h
-    polyvox/include/PolyVox/Impl/ErrorHandling.h
-    polyvox/include/PolyVox/Impl/ExceptionsImpl.h
-    polyvox/include/PolyVox/Impl/Interpolation.h
-    polyvox/include/PolyVox/Impl/IteratorController.h
-    polyvox/include/PolyVox/Impl/IteratorController.inl
-    polyvox/include/PolyVox/Impl/LoggingImpl.h
-    polyvox/include/PolyVox/Impl/MarchingCubesTables.h
-    polyvox/include/PolyVox/Impl/Morton.h
-    polyvox/include/PolyVox/Impl/PlatformDefinitions.h
-    polyvox/include/PolyVox/Impl/RandomUnitVectors.h
-    polyvox/include/PolyVox/Impl/RandomVectors.h
-    polyvox/include/PolyVox/Impl/Timer.h
-    polyvox/include/PolyVox/Impl/Utility.h
+    ${PV_DIR}/AStarPathfinder.h			${PV_DIR}/AStarPathfinder.inl
+    ${PV_DIR}/AmbientOcclusionCalculator.h	${PV_DIR}/AmbientOcclusionCalculator.inl
+    ${PV_DIR}/Array.h
+    ${PV_DIR}/BaseVolume.h			${PV_DIR}/BaseVolume.inl
+    ${PV_DIR}/BaseVolumeSampler.inl		${PV_DIR}/Config.h
+    ${PV_DIR}/CubicSurfaceExtractor.h		${PV_DIR}/CubicSurfaceExtractor.inl
+    ${PV_DIR}/DefaultIsQuadNeeded.h		${PV_DIR}/DefaultMarchingCubesController.h
+    ${PV_DIR}/Density.h				${PV_DIR}/Exceptions.h
+    ${PV_DIR}/FilePager.h			${PV_DIR}/Logging.h
+    ${PV_DIR}/LowPassFilter.h			${PV_DIR}/LowPassFilter.inl
+    ${PV_DIR}/MarchingCubesSurfaceExtractor.h	${PV_DIR}/MarchingCubesSurfaceExtractor.inl
+    ${PV_DIR}/Material.h			${PV_DIR}/MaterialDensityPair.h
+    ${PV_DIR}/Mesh.h				${PV_DIR}/Mesh.inl
+    ${PV_DIR}/PagedVolume.h			${PV_DIR}/PagedVolume.inl
+    ${PV_DIR}/PagedVolumeChunk.inl		${PV_DIR}/PagedVolumeSampler.inl
+    ${PV_DIR}/Picking.h				${PV_DIR}/Picking.inl
+    ${PV_DIR}/RawVolume.h			${PV_DIR}/RawVolume.inl
+    ${PV_DIR}/RawVolumeSampler.inl
+    ${PV_DIR}/Raycast.h				${PV_DIR}/Raycast.inl
+    ${PV_DIR}/Region.h				${PV_DIR}/Region.inl
+    ${PV_DIR}/Vector.h				${PV_DIR}/Vector.inl
+    ${PV_DIR}/Vertex.h
+    ${PV_DIR}/VolumeResampler.h			${PV_DIR}/VolumeResampler.inl
 
-    #lua-5.3.2/lua.c
-    #lua-5.3.2/luac.c
-    lua-5.3.2/lapi.c	lua-5.3.2/ldebug.c	lua-5.3.2/llex.h
-    lua-5.3.2/lparser.h	lua-5.3.2/lapi.h
-    lua-5.3.2/ldebug.h	lua-5.3.2/llimits.h	lua-5.3.2/lprefix.h
-    lua-5.3.2/lua.h     lua-5.3.2/lauxlib.c	lua-5.3.2/ldo.c
-    lua-5.3.2/lmathlib.c  lua-5.3.2/lstate.c
-    lua-5.3.2/lauxlib.h	lua-5.3.2/ldo.h		lua-5.3.2/lmem.c
-    lua-5.3.2/lstate.h	lua-5.3.2/luaconf.h     lua-5.3.2/lbaselib.c
-    lua-5.3.2/ldump.c	lua-5.3.2/lmem.h        lua-5.3.2/lstring.c
-    lua-5.3.2/lualib.h  lua-5.3.2/lbitlib.c	lua-5.3.2/lfunc.c
-    lua-5.3.2/loadlib.c lua-5.3.2/lstring.h	lua-5.3.2/lundump.c
-    lua-5.3.2/lcode.c	lua-5.3.2/lfunc.h	lua-5.3.2/lobject.c
-    lua-5.3.2/lstrlib.c	lua-5.3.2/lundump.h     lua-5.3.2/lcode.h
-    lua-5.3.2/lgc.c	lua-5.3.2/lobject.h     lua-5.3.2/ltable.c
-    lua-5.3.2/lutf8lib.c lua-5.3.2/lcorolib.c	lua-5.3.2/lgc.h
-    lua-5.3.2/lopcodes.c lua-5.3.2/ltable.h	lua-5.3.2/lvm.c
-    lua-5.3.2/lctype.c	lua-5.3.2/linit.c	lua-5.3.2/lopcodes.h
-    lua-5.3.2/ltablib.c	lua-5.3.2/lvm.h         lua-5.3.2/lctype.h
-    lua-5.3.2/liolib.c	lua-5.3.2/loslib.c      lua-5.3.2/ltm.c
-    lua-5.3.2/lzio.c    lua-5.3.2/ldblib.c	lua-5.3.2/llex.c
-    lua-5.3.2/lparser.c lua-5.3.2/ltm.h		lua-5.3.2/lzio.h
+    ${PV_DIR}/Impl/AStarPathfinderImpl.h	${PV_DIR}/Impl/Assertions.h
+    ${PV_DIR}/Impl/ErrorHandling.h		${PV_DIR}/Impl/ExceptionsImpl.h
+    ${PV_DIR}/Impl/Interpolation.h
+    ${PV_DIR}/Impl/IteratorController.h		${PV_DIR}/Impl/IteratorController.inl
+    ${PV_DIR}/Impl/LoggingImpl.h		${PV_DIR}/Impl/MarchingCubesTables.h
+    ${PV_DIR}/Impl/Morton.h			${PV_DIR}/Impl/PlatformDefinitions.h
+    ${PV_DIR}/Impl/RandomUnitVectors.h		${PV_DIR}/Impl/RandomVectors.h
+    ${PV_DIR}/Impl/Timer.h			${PV_DIR}/Impl/Utility.h
 
-    selene/include/selene/BaseFun.h     selene/include/selene/Class.h
-    selene/include/selene/ClassFun.h    selene/include/selene/Ctor.h
-    selene/include/selene/Dtor.h        selene/include/selene/ExceptionHandler.h
-    selene/include/selene/ExceptionTypes.h
-    selene/include/selene/Fun.h         selene/include/selene/function.h
-    selene/include/selene/LuaName.h     selene/include/selene/LuaRef.h
-    selene/include/selene/MetatableRegistry.h
-    selene/include/selene/Obj.h         selene/include/selene/ObjFun.h
-    selene/include/selene/primitives.h  selene/include/selene/references.h
-    selene/include/selene/Registry.h    selene/include/selene/ResourceHandler.h
-    selene/include/selene/Selector.h    selene/include/selene/State.h
-    selene/include/selene/traits.h      selene/include/selene/Tuple.h
-    selene/include/selene/util.h        selene/include/selene.h
+    #${LUA_DIR}/lua.c
+    #${LUA_DIR}/luac.c
+    ${LUA_DIR}/lapi.c	${LUA_DIR}/ldebug.c	${LUA_DIR}/llex.h
+    ${LUA_DIR}/lparser.h	${LUA_DIR}/lapi.h
+    ${LUA_DIR}/ldebug.h	${LUA_DIR}/llimits.h	${LUA_DIR}/lprefix.h
+    ${LUA_DIR}/lua.h     ${LUA_DIR}/lauxlib.c	${LUA_DIR}/ldo.c
+    ${LUA_DIR}/lmathlib.c  ${LUA_DIR}/lstate.c
+    ${LUA_DIR}/lauxlib.h	${LUA_DIR}/ldo.h		${LUA_DIR}/lmem.c
+    ${LUA_DIR}/lstate.h	${LUA_DIR}/luaconf.h     ${LUA_DIR}/lbaselib.c
+    ${LUA_DIR}/ldump.c	${LUA_DIR}/lmem.h        ${LUA_DIR}/lstring.c
+    ${LUA_DIR}/lualib.h  ${LUA_DIR}/lbitlib.c	${LUA_DIR}/lfunc.c
+    ${LUA_DIR}/loadlib.c ${LUA_DIR}/lstring.h	${LUA_DIR}/lundump.c
+    ${LUA_DIR}/lcode.c	${LUA_DIR}/lfunc.h	${LUA_DIR}/lobject.c
+    ${LUA_DIR}/lstrlib.c	${LUA_DIR}/lundump.h     ${LUA_DIR}/lcode.h
+    ${LUA_DIR}/lgc.c	${LUA_DIR}/lobject.h     ${LUA_DIR}/ltable.c
+    ${LUA_DIR}/lutf8lib.c ${LUA_DIR}/lcorolib.c	${LUA_DIR}/lgc.h
+    ${LUA_DIR}/lopcodes.c ${LUA_DIR}/ltable.h	${LUA_DIR}/lvm.c
+    ${LUA_DIR}/lctype.c	${LUA_DIR}/linit.c	${LUA_DIR}/lopcodes.h
+    ${LUA_DIR}/ltablib.c	${LUA_DIR}/lvm.h         ${LUA_DIR}/lctype.h
+    ${LUA_DIR}/liolib.c	${LUA_DIR}/loslib.c      ${LUA_DIR}/ltm.c
+    ${LUA_DIR}/lzio.c    ${LUA_DIR}/ldblib.c	${LUA_DIR}/llex.c
+    ${LUA_DIR}/lparser.c ${LUA_DIR}/ltm.h		${LUA_DIR}/lzio.h
+
+    ${SELENE_DIR}/selene/BaseFun.h		${SELENE_DIR}/selene/Class.h
+    ${SELENE_DIR}/selene/ClassFun.h		${SELENE_DIR}/selene/Ctor.h
+    ${SELENE_DIR}/selene/Dtor.h			${SELENE_DIR}/selene/ExceptionHandler.h
+    ${SELENE_DIR}/selene/ExceptionTypes.h
+    ${SELENE_DIR}/selene/Fun.h			${SELENE_DIR}/selene/function.h
+    ${SELENE_DIR}/selene/LuaName.h		${SELENE_DIR}/selene/LuaRef.h
+    ${SELENE_DIR}/selene/MetatableRegistry.h
+    ${SELENE_DIR}/selene/Obj.h			${SELENE_DIR}/selene/ObjFun.h
+    ${SELENE_DIR}/selene/primitives.h		${SELENE_DIR}/selene/references.h
+    ${SELENE_DIR}/selene/Registry.h		${SELENE_DIR}/selene/ResourceHandler.h
+    ${SELENE_DIR}/selene/Selector.h		${SELENE_DIR}/selene/State.h
+    ${SELENE_DIR}/selene/traits.h		${SELENE_DIR}/selene/Tuple.h
+    ${SELENE_DIR}/selene/util.h			${SELENE_DIR}/selene.h
 )
 
 #SET(INC_FILES .......)
@@ -156,9 +135,10 @@ SET(SRC_FILES
 #Tell CMake the paths for OpenGL and for PolyVox (which is just relative to our current location)
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/polyvox/include
-    ${CMAKE_SOURCE_DIR}/lua-5.3.2
-    ${CMAKE_SOURCE_DIR}/selene/include
+    ${CMAKE_SOURCE_DIR}/deps/polyvox/include
+    ${CMAKE_SOURCE_DIR}/${LUA_DIR}
+    ${CMAKE_SOURCE_DIR}/deps/selene/include
+    ${CMAKE_SOURCE_DIR}/deps/astar/cpp
     ${OPENGL_INCLUDE_DIR}
 #    ${PolyVoxHeaders_SOURCE_DIR}
 )

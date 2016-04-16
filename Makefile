@@ -1,8 +1,16 @@
-all: polyvox selene
+all: deps
+
+.PHONY: deps
+deps: deps/polyvox deps/selene
+# deps/astar
 
 #vl:
 #	git clone https://github.com/MicBosi/visualizationlibrary.git vl
-polyvox:
-	git clone https://bitbucket.org/volumesoffun/polyvox.git polyvox
-selene:
-	git clone https://github.com/jeremyong/Selene.git selene
+deps/polyvox:
+	git clone https://bitbucket.org/volumesoffun/polyvox.git deps/polyvox
+
+deps/selene:
+	git clone https://github.com/jeremyong/Selene.git deps/selene
+
+#deps/astar:
+#	git clone https://github.com/justinhj/astar-algorithm-cpp.git deps/astar
