@@ -1,4 +1,4 @@
-#include "ai_goal.h"
+#include "ai/goal.h"
 
 #include <QDebug>
 
@@ -10,13 +10,18 @@ namespace bm {namespace ai {
 Tribool Condition::is_fulfilled_glob(const World &wo) const {
     switch (cond_) {
     case CondType::NearPosition:
+    case CondType::HaveHand:
+    case CondType::HaveLeg:
+    case CondType::HaveMiningPick:
         // Check for near_position requires entity
         return Tribool::N_A;
+
     case CondType::BlockMined:
         // air or liquid will satisfy the condition
         return Tribool(
                     not bm::is_solid(wo.get_voxel(arg_.get_pos()))
                 );
+
     case CondType::AlwaysTrue:
         return Tribool(true);
     }

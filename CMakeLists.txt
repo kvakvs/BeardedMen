@@ -31,14 +31,16 @@ SET(SRC_FILES
     src/gfx/ogl_widget.h	src/gfx/ogl_widget.inl
     src/gfx/qb_file.cpp		src/gfx/qb_file.h
 
-    src/game/ai_goal.cpp	src/game/ai_goal.h
+    src/ai/action.cpp		src/ai/action.h
+    src/ai/goal.cpp		src/ai/goal.h
+
     src/game/block_id.h
-    src/game/component.h
+    src/game/component.cpp	src/game/component.h
     src/game/co_body.cpp	src/game/co_body.h
     src/game/co_brains.cpp	src/game/co_brains.h
     src/game/co_entity.cpp	src/game/co_entity.h
     src/game/co_worker.cpp	src/game/co_worker.h
-    src/game/obj_bearded_man.h	
+    src/game/obj_bearded_man.cpp src/game/obj_bearded_man.h
     src/game/order.cpp          src/game/order.h
     src/game/settlement.cpp	src/game/settlement.h
     src/game/world.cpp		src/game/world.h

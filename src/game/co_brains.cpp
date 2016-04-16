@@ -3,11 +3,12 @@
 
 namespace bm {
 
-void BrainsComponent::think(const World &wo) {
+void BrainsComponent::think(const World &wo, ComponentObject *co) {
     if (ai_goals_.empty()) {
         return;
     }
     ai::Goal& goal = ai_goals_.front();
+    auto actions = co->ai_choose_actions(goal);
 }
 
 void BrainsComponent::want(const ai::Goal &desire) {

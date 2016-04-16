@@ -30,7 +30,7 @@ void World::think() {
     each_obj([this](auto id, auto co) {
         BrainsComponent* brains = co->as_brains();
         if (brains) {
-            brains->think(*this);
+            brains->think(*this, co);
 
             ai::Goal g = get_some_goal();
             // Now he wants to do the order

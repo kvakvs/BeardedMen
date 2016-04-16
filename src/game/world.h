@@ -5,7 +5,7 @@
 
 #include "game/co_entity.h"
 #include "game/order.h"
-#include "game/ai_goal.h"
+#include "ai/goal.h"
 
 #include "world_pager.h"
 

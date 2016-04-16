@@ -36,6 +36,9 @@ enum class CondType: uint16_t {
     AlwaysTrue,
     NearPosition,   // Creature moved to be in reach
     BlockMined,     // A rock block was extracted using tools
+    HaveLeg,        // at least one leg
+    HaveHand,       // at least one hand
+    HaveMiningPick, // a tool
 };
 
 enum class Check: uint8_t {
@@ -104,8 +107,8 @@ public:
 
     static Goal make_empty() { return Goal(); }
     explicit Goal(): desired_(Condition::make_always_true()) {}
-    explicit Goal(std::initializer_list<Condition> conds, Condition want)
-        : precond_(conds), desired_(want) {}
+    explicit Goal(std::initializer_list<Condition> conds,
+                  Condition want): precond_(conds), desired_(want) {}
 
     bool has_preconditions_glob(const World& wo) const;
     bool is_fulfilled_glob(const World& wo) const {
