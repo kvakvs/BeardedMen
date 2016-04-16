@@ -101,7 +101,8 @@ ai::MetricVec World::get_random_desire() {
 
 void World::add_mining_goal(const Vec3i &pos)
 {
-    ai::MetricVec g { ai::Metric(ai::MetricType::BlockIsNotSolid, pos) };
+    ai::MetricVec g { ai::Metric(ai::MetricType::BlockIsNotSolid,
+                                 ai::Value(pos)) };
     if (add_goal(g)) {
         qDebug() << "Player wishes to mine out a block";
     } else {
@@ -141,31 +142,31 @@ ai::Metric World::read_metric(const ai::Metric &metric,
             auto ent = subject->as_entity();
             if (not ent) { return ai::Metric(mt); }
             auto pos = ent->get_pos();
-            return ai::Metric(mt, pos);
+            return ai::Metric(mt, ai::Value(pos));
         } break;
 
     case ai::MetricType::HaveHand: {
             auto bo = subject->as_body();
             if (not bo) { return ai::Metric(mt); }
             auto has_hand = bo->has_body_part(BodyComponent::PartType::Hand);
-            return ai::Metric(mt, has_hand);
+            return ai::Metric(mt, ai::Value(has_hand));
         } break;
 
     case ai::MetricType::HaveLeg: {
             auto bo = subject->as_body();
             if (not bo) { return ai::Metric(mt); }
             auto has_leg = bo->has_body_part(BodyComponent::PartType::Leg);
-            return ai::Metric(mt, has_leg);
+            return ai::Metric(mt, ai::Value(has_leg));
         } break;
 
     case ai::MetricType::HaveMiningPick: {
-            return ai::Metric(mt, true);
+            return ai::Metric(mt, ai::Value(true));
         } break;
 
     case ai::MetricType::BlockIsNotSolid: {
             // air or liquid will satisfy the condition
             auto vox = get_voxel(metric.arg_.get_pos());
-            return ai::Metric(mt, not bm::is_solid(vox));
+            return ai::Metric(mt, ai::Value(not bm::is_solid(vox)));
         } break;
     }
 }

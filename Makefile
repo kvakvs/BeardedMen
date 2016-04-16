@@ -14,3 +14,7 @@ deps/selene:
 
 #deps/astar:
 #	git clone https://github.com/justinhj/astar-algorithm-cpp.git deps/astar
+
+.PHONY: vg
+vg:
+	valgrind --leak-check=yes --log-file="valgrind.txt" _build/BeardedMen

@@ -78,7 +78,8 @@ ActionVec propose_plan(const MetricVec& from_c0,
                        const MetricVec& to_c0,
                        const World& wo, ComponentObject* co)
 {
-    AStarSearch<AstarNode> astarsearch;
+    using AstarEngine = AStarSearch<AstarNode>;
+    AstarEngine search_engine;
 
     // For each actiondef in all actions - and for each requirement in each
     // actiondef - see if we need to add another metric from the world.
@@ -96,43 +97,44 @@ ActionVec propose_plan(const MetricVec& from_c0,
             }
         }
     }
+    qDebug() << "from_c" << from_c;
+    qDebug() << "to_c" << to_c;
 
     AstarNode from(from_c, &glob_state);
     AstarNode to(to_c, &glob_state);
-    astarsearch.SetStartAndGoalStates(from, to);
+    search_engine.SetStartAndGoalStates(from, to);
 
     unsigned int search_state;
     unsigned int search_steps = 0;
 
     do {
-        search_state = astarsearch.SearchStep();
+        search_state = search_engine.SearchStep();
         search_steps++;
-    } while (search_state == AStarSearch<AstarNode>::SEARCH_STATE_SEARCHING);
+    } while (search_state == AstarEngine::SEARCH_STATE_SEARCHING);
 
-    if (search_state == AStarSearch<AstarNode>::SEARCH_STATE_SUCCEEDED) {
+    ActionVec plan;
+
+    if (search_state == AstarEngine::SEARCH_STATE_SUCCEEDED) {
         cout << "Search found goal state\n";
 
-        for (AstarNode* node = astarsearch.GetSolutionStart();
-             node;
-             node = astarsearch.GetSolutionNext())
+        plan.reserve(search_steps);
+        for (AstarNode* node = search_engine.GetSolutionStart();
+             node; node = search_engine.GetSolutionNext())
         {
+            plan.push_back(node->action_);
             cout << "Solution step " << (int)node->action_ << endl;
         }
 
         // Once you're done with the solution you can free the nodes up
-        astarsearch.FreeSolutionNodes();
-
+        search_engine.FreeSolutionNodes();
     } else {
-        if (search_state == AStarSearch<AstarNode>::SEARCH_STATE_FAILED) {
+        if (search_state == AstarEngine::SEARCH_STATE_FAILED) {
             cout << "Search terminated. Did not find goal state\n";
         }
     }
 
-    // Display the number of loops the search went through
-    cout << "SearchSteps : " << search_steps << "\n";
-    astarsearch.EnsureMemoryFreed();
-
-    return {};
+    search_engine.EnsureMemoryFreed();
+    return plan;
 }
 
 bool impl::check_requirements(const MetricVec &required, const MetricVec &have)

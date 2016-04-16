@@ -5,11 +5,19 @@
 namespace bm {
 
 void BrainsComponent::think(const World &wo, ComponentObject *co) {
+    while (not desires_.empty()
+           && wo.conditions_stand_true(desires_.back(), co))
+    {
+        // we do not desire anymore that which came true
+        desires_.pop_back();
+    }
     if (desires_.empty()) {
         // Idle, no desires. Wait. Loiter. Drink alcohol.
         return;
     }
+
     ai::MetricVec& one_desire = desires_.front();
+    qDebug() << one_desire;
 
     auto actions = ai::propose_plan(
                 wo.get_current_situation(one_desire, co), // have now
