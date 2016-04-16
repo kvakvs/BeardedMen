@@ -44,20 +44,20 @@ public:
     //
 
     // Check if any orders are available
-    bool have_orders() const { return desired_changes_.empty() == false; }
-    bool add_goal(const ai::MetricVec& desired);
+    bool have_orders() const { return desires_.empty() == false; }
+    bool add_goal(const ai::MetricContextPair& desired);
     // Get a random order. See if it is not completed.
-    ai::MetricVec get_random_desire();
+    ai::MetricContextPair get_random_desire();
     void add_mining_goal(const Vec3i& pos);
 
     // For every metric, read current situation and compare
     bool conditions_stand_true(const ai::MetricVec& cond,
-                               const ComponentObject* subject) const;
+                               const ai::Context& ctx) const;
     // For every condition type in desired, reads current situation
     ai::MetricVec get_current_situation(const ai::MetricVec& desired,
-                                        const ComponentObject* co) const;
+                                        const ai::Context& ctx) const;
     ai::Metric read_metric(const ai::Metric& metric,
-                           const ComponentObject* subject) const;
+                           const ai::Context& ctx) const;
 
 public:
     bool any_voxel_changed_ = false;
@@ -72,7 +72,7 @@ private:
 
     // What player desires (goals of sort, without preconditions) - will
     // propagate to workers and they will see how to fulfill master's wish.
-    std::vector<ai::MetricVec> desired_changes_;
+    std::vector<ai::MetricContextPair> desires_;
 };
 
 

@@ -12,8 +12,7 @@ namespace ai {
 
 ActionVec propose_plan(const MetricVec& from,
                        const MetricVec& to,
-                       const World &wo,
-                       ComponentObject *co);
+                       const ai::Context& ctx);
 
 namespace impl {
     bool check_requirements(const MetricVec& required,

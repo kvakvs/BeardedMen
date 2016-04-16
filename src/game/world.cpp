@@ -31,28 +31,14 @@ void World::think() {
     each_obj([this](auto id, auto co) {
         BrainsComponent* brains = co->as_brains();
         if (brains) {
-            brains->think(*this, co);
+            brains->think();
 
-            ai::MetricVec g = get_random_desire();
-            // Now he wants to do the order, unless it's impossible
-            brains->want(g);
+            if (not desires_.empty()) {
+                auto dsr = get_random_desire();
+                // Now he wants to do the order, unless it's impossible
+                brains->want(dsr);
+            }
         } // if brains
-
-//        WorkerComponent* worker = co->as_worker();
-//            if (co->is_idle()) {
-//                for (Order::Ptr order: orders_)
-//                {
-//                    if (worker->take_order(co, order)) {
-//                        qDebug() << "Order accepted (removed from queue)";
-//                        orders_.erase(order);
-//                        break;
-//                    } // if order taken
-//                } // for each order
-//            } else {
-//                // not idle, have order
-//                worker->perform(*this, co);
-//            }
-//        } // if worker
     });
 }
 
@@ -71,40 +57,32 @@ void World::mine_voxel(const Vec3i &pos) {
     }
 }
 
-bool World::add_goal(const ai::MetricVec& desired) {
-    //if (not conditions_stand_true(goal, subject)) {
-        // World goals don't check preconditions, so you can wish all you want
-        // Actual workers DO check preconditions, so there may be no 1 to do it
-    desired_changes_.push_back(desired);
+bool World::add_goal(const ai::MetricContextPair& desired) {
+    desires_.push_back(desired);
     return true;
-//    }
-//    return false;
 }
 
-ai::MetricVec World::get_random_desire() {
+ai::MetricContextPair World::get_random_desire() {
     // Pick a random order. Check if it is not fulfilled yet. Give out.
-    while (not desired_changes_.empty()) {
+    while (not desires_.empty()) {
         std::uniform_int_distribution<size_t>
-                rand_id(0, desired_changes_.size()-1);
+                rand_id(0, desires_.size()-1);
         size_t oid = rand_id(rand_);
 
-        ai::MetricVec some_desire = desired_changes_[oid];
-
-//        if (some_desire.is_fulfilled(*this)) {
-//            // definitely fulfilled - forget it
-//            desired_changes_.erase(desired_changes_.begin() + oid);
-//        }
-        // not fulfilled or probably not fulfilled
+        auto some_desire = desires_[oid];
         return some_desire;
     }
-    return ai::MetricVec();
+    Q_ASSERT(false);
 }
 
 void World::add_mining_goal(const Vec3i &pos)
 {
-    ai::MetricVec g { ai::Metric(ai::MetricType::BlockIsNotSolid,
-                                 ai::Value(pos)) };
-    if (add_goal(g)) {
+    ai::MetricVec m { ai::Metric(ai::MetricType::BlockIsNotSolid,
+                                 ai::Value(true)) };
+    ai::Context ctx(this, nullptr, pos);
+    auto mcp = std::make_pair(m, ctx);
+
+    if (add_goal(mcp)) {
         qDebug() << "Player wishes to mine out a block";
     } else {
         qDebug() << "Can't mine - there is no rock";
@@ -112,11 +90,11 @@ void World::add_mining_goal(const Vec3i &pos)
 }
 
 bool World::conditions_stand_true(const ai::MetricVec &cond,
-                                  const ComponentObject* subject) const
+                                  const ai::Context& ctx) const
 {
     for (auto& mtr: cond) {
         // not ==, don't have operator!=
-        if (not (read_metric(mtr, subject) == mtr)) {
+        if (not (read_metric(mtr, ctx) == mtr)) {
             return false;
         }
     }
@@ -124,37 +102,40 @@ bool World::conditions_stand_true(const ai::MetricVec &cond,
 }
 
 ai::MetricVec World::get_current_situation(const ai::MetricVec &desired,
-                                           const ComponentObject* subject) const
+                                           const ai::Context& ctx) const
 {
     ai::MetricVec result;
     for (auto &mtr: desired) {
-        result.push_back(read_metric(mtr, subject));
+        result.push_back(read_metric(mtr, ctx));
     }
     return result;
 }
 
-ai::Metric World::read_metric(const ai::Metric &metric,
-                              const ComponentObject* subject) const
+ai::Metric World::read_metric(const ai::Metric& metric,
+                              const ai::Context& ctx) const
 {
     auto mt = metric.type_;
 
     switch (mt) {
-    case ai::MetricType::NearPosition: {
-            auto ent = subject->as_entity();
+    case ai::MetricType::MeleeRange: {
+            Q_ASSERT(ctx.actor_);
+            auto ent = ctx.actor_->as_entity();
             if (not ent) { return ai::Metric(mt); }
             auto pos = ent->get_pos();
             return ai::Metric(mt, ai::Value(pos));
         } break;
 
     case ai::MetricType::HaveHand: {
-            auto bo = subject->as_body();
+            Q_ASSERT(ctx.actor_);
+            auto bo = ctx.actor_->as_body();
             if (not bo) { return ai::Metric(mt); }
             auto has_hand = bo->has_body_part(BodyComponent::PartType::Hand);
             return ai::Metric(mt, ai::Value(has_hand));
         } break;
 
     case ai::MetricType::HaveLeg: {
-            auto bo = subject->as_body();
+            Q_ASSERT(ctx.actor_);
+            auto bo = ctx.actor_->as_body();
             if (not bo) { return ai::Metric(mt); }
             auto has_leg = bo->has_body_part(BodyComponent::PartType::Leg);
             return ai::Metric(mt, ai::Value(has_leg));
@@ -166,7 +147,7 @@ ai::Metric World::read_metric(const ai::Metric &metric,
 
     case ai::MetricType::BlockIsNotSolid: {
             // air or liquid will satisfy the condition
-            auto vox = get_voxel(metric.arg_.get_pos());
+            auto vox = get_voxel(metric.value_.get_pos());
             return ai::Metric(mt, ai::Value(not bm::is_solid(vox)));
         } break;
     }

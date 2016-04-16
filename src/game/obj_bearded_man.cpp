@@ -14,10 +14,14 @@ const ai::ActionDefVec &BeardedMan::ai_get_all_actions() const
         using CT   = ai::MetricType;
 
         bm_actions.push_back(ai::ActionDef(
-            AT::Walk, { Mtrc(CT::HaveLeg) }, { Mtrc(CT::NearPosition) }));
+            AT::Walk,
+            { Mtrc(CT::HaveLeg, ai::Value(true)) },
+            { Mtrc(CT::MeleeRange) }));
         bm_actions.push_back(ai::ActionDef(
-            AT::Mine, { Mtrc(CT::HaveHand), Mtrc(CT::HaveMiningPick) },
-            { Mtrc(CT::BlockIsNotSolid) }));
+            AT::Mine,
+            { Mtrc(CT::HaveHand, ai::Value(true)),
+              Mtrc(CT::HaveMiningPick, ai::Value(true)) },
+            { Mtrc(CT::BlockIsNotSolid, ai::Value(true)) }));
 
         is_initialized = true;
     }

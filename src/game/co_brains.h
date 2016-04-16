@@ -22,14 +22,14 @@ class World;
 class BrainsComponent {
 public:
     // -- Intelligent --
-    void think(const World &w, ComponentObject *co);
+    void think();
 
     // Set a goal. AI will try and find a way to reach the goal.
-    void want(const ai::MetricVec &desire);
+    void want(const ai::MetricContextPair &desire);
 
 private:
     // List of all things we want done
-    std::vector<ai::MetricVec> desires_;
+    std::vector<ai::MetricContextPair> desires_;
 };
 
 } // namespace bm

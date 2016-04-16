@@ -76,7 +76,7 @@ public:
 
 ActionVec propose_plan(const MetricVec& from_c0,
                        const MetricVec& to_c0,
-                       const World& wo, ComponentObject* co)
+                       const ai::Context& ctx)
 {
     using AstarEngine = AStarSearch<AstarNode>;
     AstarEngine search_engine;
@@ -85,12 +85,12 @@ ActionVec propose_plan(const MetricVec& from_c0,
     // actiondef - see if we need to add another metric from the world.
     MetricVec from_c(from_c0);
     MetricVec to_c(to_c0);
-    AstarGlobalState glob_state { to_c, co->ai_get_all_actions() };
+    AstarGlobalState glob_state { to_c, ctx.actor_->ai_get_all_actions() };
 
     for (auto& adef: glob_state.available_actions_) {
         for (auto& req: adef.requires_) {
             if (not impl::have_metric(from_c, req.type_)) {
-                auto current = wo.read_metric(req, co);
+                auto current = ctx.world_->read_metric(req, ctx);
                 from_c.push_back(current);
                 to_c.push_back(current);
                 break;

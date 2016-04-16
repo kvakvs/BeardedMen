@@ -30,11 +30,15 @@ private:
 
 // Desired effects
 enum class MetricType: uint16_t {
-    NearPosition,   // Creature moved to be in reach
-    BlockIsNotSolid, // Block was extracted using tools or blasted in some way
-    HaveLeg,        // at least one leg
-    HaveHand,       // at least one hand
-    HaveMiningPick, // a tool
+    // Creature is in hand's reach. Position is in the context, passed
+    // separately
+    MeleeRange,
+    // Block was extracted using tools or blasted in some way. Position is in
+    // the context, passed separately
+    BlockIsNotSolid,
+    HaveLeg,        // Creature has at least one leg
+    HaveHand,       // Creature has at least one hand
+    HaveMiningPick, // Creature has a tool
 };
 
 QDebug operator<< (QDebug d, MetricType mt);
@@ -101,14 +105,19 @@ QDebug operator<< (QDebug d, const Value& v);
 class Metric {
 public:
     MetricType  type_;
-    Value       arg_;
+    Value       arg_;   // optional argument for metric
+    Value       value_;
 
-    explicit Metric(MetricType ct): type_(ct), arg_() {}
-    explicit Metric(MetricType ct, Value arg): type_(ct), arg_(arg) {}
+    explicit Metric(MetricType ct): type_(ct) {}
+    explicit Metric(MetricType ct, Value value)
+        : type_(ct), value_(value) {}
+    explicit Metric(MetricType ct, Value value, Value arg)
+        : type_(ct), value_(value), arg_(arg) {}
 
     bool operator== (const Metric& other) const {
         Q_ASSERT(type_ == other.type_);
-        return arg_ == other.arg_;
+        Q_ASSERT(arg_ == other.arg_);
+        return value_ == other.value_;
     }
 };
 
@@ -119,9 +128,16 @@ using MetricVec = std::vector<Metric>;
 
 QDebug operator<< (QDebug d, const MetricVec &metrics);
 
-// List of metrics but with an argument
-//class Desire {
-//public:
-//};
+// Context for metric (who is acting, and what is the target)
+class Context {
+public:
+    const World* world_;
+    const ComponentObject* actor_;
+    Vec3i pos_;
+    Context(const World *w, const ComponentObject *act, const Vec3i &p)
+        : world_(w), actor_(act), pos_(p) {}
+};
+
+using MetricContextPair = std::pair<MetricVec, Context>;
 
 }} // ns ai::bm
