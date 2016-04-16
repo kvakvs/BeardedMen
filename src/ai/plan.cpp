@@ -8,24 +8,32 @@
 namespace bm {
 namespace ai {
 
+// Single copy of global search state. Used in one search for all nodes.
+class AstarGlobalState {
+public:
+    MetricVec goal_;
+    const ActionDefVec& available_actions_;
+};
+
 // Decision search node, represents a step in solution
 // Distance is a metric of how many conditions are still not satisfied
 class AstarNode {
 public:
-    MetricVec state_;
-    const MetricVec* goal_ = nullptr;
+    ActionType action_;
+    MetricVec metrics_;
+    const AstarGlobalState *state_;
 
     AstarNode() = default;
-    AstarNode(const MetricVec& state, const MetricVec* goal)
-        : state_(state), goal_(goal) {}
+    AstarNode(const MetricVec& m, const AstarGlobalState* st)
+        : metrics_(m), state_(st) {}
 
     float GoalDistanceEstimate(AstarNode& goal) {
         // Assume goal.state_ and our state_ are same size, same metrics
-        Q_ASSERT(state_.size() == goal.state_.size());
+        Q_ASSERT(metrics_.size() == goal.metrics_.size());
         int result = 0;
-        for (int i = 0; i < state_.size(); ++i) {
+        for (int i = 0; i < metrics_.size(); ++i) {
             // not== because there is no !=
-            if (not (state_[i] == goal.state_[i])) {
+            if (not (metrics_[i] == goal.metrics_[i])) {
                 result++;
             }
         }
@@ -33,15 +41,26 @@ public:
     }
 
     bool IsGoal(AstarNode& goal) {
-        return goal.state_ == state_;
+        return goal.metrics_ == metrics_;
     }
 
     bool GetSuccessors(AStarSearch<AstarNode>* astarsearch,
-                       AstarNode* parent_node)
+                       AstarNode* /*parent_node*/)
     {
         // For each action we have try model new state, and push it to search
-        for (auto& metric: state_) {
+        for (const ActionDef &adef: state_->available_actions_) {
+            // if action precondition on current state_ is fulfilled
+            if (not impl::check_requirements(adef.requires_, metrics_)) {
+                continue;
+            }
 
+            // (todo: missing metrics should be prepared before search)
+            MetricVec new_metrics(metrics_);
+            adef.apply_to(new_metrics);
+
+            // create new state with this action effects
+            AstarNode next_n(new_metrics, state_);
+            astarsearch->AddSuccessor(next_n);
         }
         return true;
     }
@@ -49,19 +68,37 @@ public:
     float GetCost(AstarNode& successor) { return 1.0f; }
 
     bool IsSameState(AstarNode& rhs) {
-        return state_ == rhs.state_;
+        return metrics_ == rhs.metrics_;
     }
 
     //void PrintNodeInfo() {}
 };
 
-ActionVec propose_plan(const MetricVec& from_c,
-                       const MetricVec& to_c,
+ActionVec propose_plan(const MetricVec& from_c0,
+                       const MetricVec& to_c0,
                        const World& wo, ComponentObject* co)
 {
     AStarSearch<AstarNode> astarsearch;
-    AstarNode from(from_c, &to_c);
-    AstarNode to(to_c, &to_c);
+
+    // For each actiondef in all actions - and for each requirement in each
+    // actiondef - see if we need to add another metric from the world.
+    MetricVec from_c(from_c0);
+    MetricVec to_c(to_c0);
+    AstarGlobalState glob_state { to_c, co->ai_get_all_actions() };
+
+    for (auto& adef: glob_state.available_actions_) {
+        for (auto& req: adef.requires_) {
+            if (not impl::have_metric(from_c, req.type_)) {
+                auto current = wo.read_metric(req, co);
+                from_c.push_back(current);
+                to_c.push_back(current);
+                break;
+            }
+        }
+    }
+
+    AstarNode from(from_c, &glob_state);
+    AstarNode to(to_c, &glob_state);
     astarsearch.SetStartAndGoalStates(from, to);
 
     unsigned int search_state;
@@ -75,15 +112,12 @@ ActionVec propose_plan(const MetricVec& from_c,
     if (search_state == AStarSearch<AstarNode>::SEARCH_STATE_SUCCEEDED) {
         cout << "Search found goal state\n";
 
-        int steps = 0;
-
         for (AstarNode* node = astarsearch.GetSolutionStart();
              node;
              node = astarsearch.GetSolutionNext())
         {
+            cout << "Solution step " << (int)node->action_ << endl;
         }
-
-        cout << "Solution steps " << steps << endl;
 
         // Once you're done with the solution you can free the nodes up
         astarsearch.FreeSolutionNodes();
@@ -99,6 +133,37 @@ ActionVec propose_plan(const MetricVec& from_c,
     astarsearch.EnsureMemoryFreed();
 
     return {};
+}
+
+bool impl::check_requirements(const MetricVec &required, const MetricVec &have)
+{
+    for (auto& mtr: required) {
+        // not ==, don't have operator!=
+        if (not (get_metric(have, mtr.type_) == mtr)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+Metric impl::get_metric(const MetricVec &v, MetricType mt)
+{
+    for (auto& mtr: v) {
+        if (mtr.type_ == mt) {
+            return mtr;
+        }
+    }
+    Q_ASSERT(false);
+}
+
+bool impl::have_metric(const MetricVec &v, MetricType mt)
+{
+    for (auto& mtr: v) {
+        if (mtr.type_ == mt) {
+            return true;
+        }
+    }
+    return false;
 }
 
 }  // ns bm::ai

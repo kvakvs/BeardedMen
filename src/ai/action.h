@@ -17,14 +17,17 @@ class ActionDef {
 public:
     ActionType type_;
     // Preconditions
-    ai::MetricVec requires_;
+    MetricVec requires_;
     // Effect that you get using this command
-    ai::MetricVec gives_;
+    MetricVec gives_;
 
     explicit ActionDef(ActionType t,
-                       const ai::MetricVec& requires,
-                       const ai::MetricVec& gives)
+                       const MetricVec& requires,
+                       const MetricVec& gives)
         : type_(t), requires_(requires), gives_(gives) {}
+
+    // Overwrites metrics from gives_ in state_
+    void apply_to(MetricVec& state) const;
 };
 
 using ActionVec = std::vector<ai::ActionType>;

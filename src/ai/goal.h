@@ -96,8 +96,8 @@ public:
 // A value which is desired by some plan, or which is currently present.
 class Metric {
 public:
-    MetricType type_;
-    Value    arg_;
+    MetricType  type_;
+    Value       arg_;
 
     explicit Metric(MetricType ct): type_(ct), arg_() {}
     explicit Metric(MetricType ct, Value arg): type_(ct), arg_(arg) {}
@@ -108,6 +108,7 @@ public:
     }
 };
 
+// TODO: a fixed-position array or a bitmap+metricvec combination maybe?
 using MetricVec = std::vector<Metric>;
 
 }} // ns ai::bm
