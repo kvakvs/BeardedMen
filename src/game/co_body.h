@@ -28,13 +28,19 @@ public:
         uint32_t    hit_points_:23;
     };
 
-    bool can_perform_job(JobType) const {
+    /*bool can_perform_job(JobType) const {
         // Here check if worker has enough limbs. So far all types of work
         // require one hand
         for (Part part: parts_) {
             if (part.type_ == PartType::Hand) {
                 return true;
             }
+        }
+        return false;
+    }*/
+    bool has_body_part(PartType t) const {
+        for (Part part: parts_) {
+            if (part.type_ == t) { return true; }
         }
         return false;
     }

@@ -5,7 +5,8 @@
 
 namespace bm {
 
-ai::ActionVec ComponentObject::ai_choose_actions(const ai::Goal &g) const
+/*
+ai::ActionVec ComponentObject::ai_choose_actions(const ai::MetricVec &g) const
 {
     // From static list of actions available for this class
     // (TODO: boot action list from a script)
@@ -16,11 +17,12 @@ ai::ActionVec ComponentObject::ai_choose_actions(const ai::Goal &g) const
 
     return plan;
 }
+*/
 
+/*
 ai::ActionVec ComponentObject::ai_load_actions(const char* script)
 {
     ai::ActionVec result;
-#if 0
     static QSettings afile("data/actions.txt", QSettings::IniFormat);
 
     afile.beginReadArray(script);
@@ -31,8 +33,8 @@ ai::ActionVec ComponentObject::ai_load_actions(const char* script)
         qDebug() << k << afile.value(k).toString();
         //result.push_back(ai::Action::from_conf_string(v));
     }
-#endif//0
     return result;
 }
+*/
 
 } // ns bm

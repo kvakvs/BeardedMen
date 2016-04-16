@@ -21,6 +21,9 @@ class WorkerComponent;
 #define AS_COMPONENT(Lowercase, Capitalized) \
     virtual Capitalized##Component* as_##Lowercase() { \
         return nullptr;  \
+    } \
+    virtual const Capitalized##Component* as_##Lowercase() const { \
+        return nullptr;  \
     }
 
 // Inherit this
@@ -32,10 +35,10 @@ public:
     AS_COMPONENT(worker, Worker)
 
     // Filter list of available actions which make goal closer
-    ai::ActionVec ai_choose_actions(const ai::Goal &g) const;
+    //ai::ActionVec ai_choose_actions(const ai::MetricVec &g) const;
     // Initializes static vector of actions and returns constref
-    virtual const ai::ActionVec& ai_get_all_actions() const = 0;
-    static ai::ActionVec ai_load_actions(const char* script);
+    virtual const ai::ActionDefVec& ai_get_all_actions() const = 0;
+    //static ai::ActionVec ai_load_actions(const char* script);
 };
 
 

@@ -37,6 +37,7 @@ SET(SRC_FILES
 
     src/ai/action.cpp		src/ai/action.h
     src/ai/goal.cpp		src/ai/goal.h
+    src/ai/plan.cpp		src/ai/plan.h
 
     src/game/block_id.h
     src/game/component.cpp	src/game/component.h

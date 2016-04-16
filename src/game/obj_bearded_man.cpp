@@ -2,30 +2,22 @@
 
 namespace bm {
 
-const ai::ActionVec &BeardedMan::ai_get_all_actions() const
+const ai::ActionDefVec &BeardedMan::ai_get_all_actions() const
 {
     static bool is_initialized = false;
-    static ai::ActionVec bm_actions;
+    static ai::ActionDefVec bm_actions;
 
     if (not is_initialized) {
         //bm_actions = ai_load_actions("bearded_man");
         using AT   = ai::ActionType;
-        using G    = ai::Goal;
-        using Cond = ai::Condition;
-        using CT   = ai::CondType;
+        using Mtrc = ai::Metric;
+        using CT   = ai::MetricType;
 
-        ai::Action a1(AT::Walk,                // id
-                     G({ Cond(CT::HaveLeg) }, // requires
-                       Cond(CT::NearPosition)) //gives
-                     );
-        bm_actions.push_back(a1);
-
-        ai::Action a2(AT::Mine,                // id
-                     G({ Cond(CT::HaveHand),
-                         Cond(CT::HaveMiningPick) }, // req
-                       Cond(CT::BlockMined)) //gives
-                     );
-        bm_actions.push_back(a2);
+        bm_actions.push_back(ai::ActionDef(
+            AT::Walk, { Mtrc(CT::HaveLeg) }, { Mtrc(CT::NearPosition) }));
+        bm_actions.push_back(ai::ActionDef(
+            AT::Mine, { Mtrc(CT::HaveHand), Mtrc(CT::HaveMiningPick) },
+            { Mtrc(CT::BlockIsNotSolid) }));
 
         is_initialized = true;
     }

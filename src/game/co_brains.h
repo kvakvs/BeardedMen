@@ -25,12 +25,11 @@ public:
     void think(const World &w, ComponentObject *co);
 
     // Set a goal. AI will try and find a way to reach the goal.
-    void want(const ai::Goal &desire);
+    void want(const ai::MetricVec &desire);
 
 private:
-
     // List of all things we want done
-    std::vector<ai::Goal> ai_goals_;
+    std::vector<ai::MetricVec> desires_;
 };
 
 } // namespace bm

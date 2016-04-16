@@ -1,12 +1,15 @@
 #pragma once
 
+#include <QDebug>
 #include <vector>
 #include <initializer_list>
 
 #include "vector.h"
 
 namespace bm {
+
 class World;
+class ComponentObject;
 
 namespace ai {
 
@@ -26,109 +29,85 @@ private:
     Value val_;
 };
 
-enum class State: uint8_t {
-    Moving,
-    Using,
-};
+//enum class State: uint8_t {
+//    Moving,
+//    Using,
+//};
 
 // Desired effects
-enum class CondType: uint16_t {
-    AlwaysTrue,
+enum class MetricType: uint16_t {
     NearPosition,   // Creature moved to be in reach
-    BlockMined,     // A rock block was extracted using tools
+    BlockIsNotSolid, // Block was extracted using tools or blasted in some way
     HaveLeg,        // at least one leg
     HaveHand,       // at least one hand
     HaveMiningPick, // a tool
 };
 
-enum class Check: uint8_t {
-    IsFalse,
-    IsTrue,
-    Equal,
-    //Greater,
-};
+//enum class Check: uint8_t {
+//    IsFalse,
+//    IsTrue,
+//    Equal,
+//    //Greater,
+//};
 
 // A 3d vector with trivial ctor (unlike Vec3i)
 class Pos3i {
 public:
     int32_t x, y, z;
     Pos3i(const Vec3i &v): x(v.getX()), y(v.getY()), z(v.getZ()) {}
+    bool operator== (const Pos3i& other) const {
+        return x == other.x && y == other.y && z == other.z;
+    }
 };
 
 class Value {
 private:
     enum class Type: uint8_t {
         NoValue,
+        Boolean,
         Position
     };
     union {
+        bool  b_;
         Pos3i pos_;
     };
     Type type_;
 public:
-    Value(): type_(Type::NoValue) {}
     Value(const Value &) = default;
+    explicit Value(): type_(Type::NoValue) {}
     Value(const Vec3i &p): pos_(p), type_(Type::Position) {}
+    Value(bool b): b_(b), type_(Type::Boolean) {}
 
     bool is_position() const { return type_ == Type::Position; }
     Vec3i get_pos() const;
+
+    bool operator== (const Value& other) const {
+        if (type_ != other.type_) {
+            return false;
+        }
+        switch (type_) {
+        case Type::NoValue:     return true;
+        case Type::Position:    return pos_ == other.pos_;
+        case Type::Boolean:     return b_ == other.b_;
+        }
+    }
 };
 
-// Condition represents some check. Value of eff_ must pass the check_(arg_)
-// Conditions can also represent orders and desires of player and creatures
-class Condition {
+// A value which is desired by some plan, or which is currently present.
+class Metric {
 public:
-    CondType cond_;
-    Check    check_;
+    MetricType type_;
     Value    arg_;
 
-    static Condition make_always_true() {
-        return Condition(CondType::AlwaysTrue);
-    }
+    explicit Metric(MetricType ct): type_(ct), arg_() {}
+    explicit Metric(MetricType ct, Value arg): type_(ct), arg_(arg) {}
 
-    explicit Condition(CondType ef): cond_(ef), arg_() {}
-    Condition(CondType ef, Check chk, Value arg)
-        : cond_(ef), check_(chk), arg_(arg) {}
-
-    // Using world's state (read-only) check if condition stands true
-    // This is global world check without entity reference, and it will fail
-    // for all entity conditions like their position or state.
-    Tribool is_fulfilled_glob(const World &wo) const;
-};
-
-// Goal is what we want done (in desired_). Preconditions are to be checked
-// before and after attempting the action.
-class Goal {
-public:
-    // Precondition, what must be present
-    std::vector<Condition> precond_;
-    // Desired effect: what we must do
-    Condition desired_;
-
-    static Goal make_empty() { return Goal(); }
-    explicit Goal(): desired_(Condition::make_always_true()) {}
-    explicit Goal(std::initializer_list<Condition> conds,
-                  Condition want): precond_(conds), desired_(want) {}
-
-    bool has_preconditions_glob(const World& wo) const;
-    bool is_fulfilled_glob(const World& wo) const {
-        return not desired_.is_fulfilled_glob(wo).is_false();
+    bool operator== (const Metric& other) const {
+        Q_ASSERT(type_ == other.type_);
+        return arg_ == other.arg_;
     }
 };
 
-enum class GoalType: uint16_t {
-    PerformMining,
-};
-
-// Have list of goals
-// Select one goal
-// Think list of actions from available actions list
-
-//class Plan {
-//public:
-//    std::vector<GoalType> goals_;
-    //std::vector<Step> steps_;
-    //virtual bool is_goal_reached() const = 0;
-//};
+using MetricVec = std::vector<Metric>;
 
 }} // ns ai::bm

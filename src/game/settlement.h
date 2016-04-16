@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "game/entity.h"
+#include "game/co_entity.h"
 #include "game/order.h"
 
 namespace bm {
@@ -25,7 +25,7 @@ class Settlement {
     //std::vector<Region>   storage_rooms; // TODO: storage per type of goods
 
     // Current orders from the player. Some settlers may take them now or later
-    std::list<IOrder::Ptr> orders_;
+    //std::list<IOrder::Ptr> orders_;
 public:
 };
 

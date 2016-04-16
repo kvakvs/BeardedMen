@@ -20,15 +20,20 @@ public:
     {
     }
     virtual EntityComponent* as_entity() override { return &entity_; }
+    virtual const EntityComponent* as_entity() const override {return &entity_;}
+
     virtual BrainsComponent* as_brains() override { return &brains_; }
-    virtual BodyComponent*   as_body()   override { return &body_;   }
+    virtual const BrainsComponent* as_brains() const override {return &brains_;}
+
+    virtual BodyComponent* as_body() override { return &body_;   }
+    virtual const BodyComponent* as_body() const override { return &body_;   }
     //virtual WorkerComponent* as_worker() override { return &worker_; }
 
     // Filter list of available actions which satisfy one of conditions
     //virtual ai::ActionVec ai_choose_actions(const ai::Goal& g) const override;
 
     // Initializes static vector of actions and returns constref
-    virtual const std::vector<ai::Action>& ai_get_all_actions() const override;
+    virtual const ai::ActionDefVec& ai_get_all_actions() const override;
 
 private:
     EntityComponent entity_;

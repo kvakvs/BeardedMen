@@ -1,6 +1,7 @@
 #include "game/world.h"
 #include "game/co_worker.h"
 #include "game/co_brains.h"
+#include "game/co_body.h"
 
 #include <QDebug>
 
@@ -32,8 +33,8 @@ void World::think() {
         if (brains) {
             brains->think(*this, co);
 
-            ai::Goal g = get_some_goal();
-            // Now he wants to do the order
+            ai::MetricVec g = get_random_desire();
+            // Now he wants to do the order, unless it's impossible
             brains->want(g);
         } // if brains
 
@@ -70,42 +71,102 @@ void World::mine_voxel(const Vec3i &pos) {
     }
 }
 
-bool World::add_goal(const ai::Goal& goal) {
-    if (goal.is_fulfilled_glob(*this)) {
+bool World::add_goal(const ai::MetricVec& desired) {
+    //if (not conditions_stand_true(goal, subject)) {
         // World goals don't check preconditions, so you can wish all you want
         // Actual workers DO check preconditions, so there may be no 1 to do it
-        goals_.push_back(goal);
-        return true;
-    }
-    return false;
+    desired_changes_.push_back(desired);
+    return true;
+//    }
+//    return false;
 }
 
-ai::Goal World::get_some_goal() {
+ai::MetricVec World::get_random_desire() {
     // Pick a random order. Check if it is not fulfilled yet. Give out.
-    while (not goals_.empty()) {
-        std::uniform_int_distribution<size_t> rand_id(0, goals_.size());
+    while (not desired_changes_.empty()) {
+        std::uniform_int_distribution<size_t> rand_id(0, desired_changes_.size());
         size_t oid = rand_id(rand_);
 
-        ai::Goal some_goal = goals_[oid];
-        if (not some_goal.is_fulfilled_glob(*this)) {
-            return some_goal;
-        }
-        goals_.erase(goals_.begin() + oid);
+        ai::MetricVec some_desire = desired_changes_[oid];
+
+//        if (some_desire.is_fulfilled(*this)) {
+//            // definitely fulfilled - forget it
+//            desired_changes_.erase(desired_changes_.begin() + oid);
+//        }
+        // not fulfilled or probably not fulfilled
+        return some_desire;
     }
-    return ai::Goal::make_empty();
+    return ai::MetricVec();
 }
 
 void World::add_mining_goal(const Vec3i &pos)
 {
-    ai::Condition is_mined(ai::CondType::BlockMined, ai::Check::IsTrue, pos);
-    // has tool;
-    // has one hand
-    // stands close
-    ai::Goal g({}, is_mined);
+    ai::MetricVec g { ai::Metric(ai::MetricType::BlockIsNotSolid, pos) };
     if (add_goal(g)) {
         qDebug() << "Player wishes to mine out a block";
     } else {
         qDebug() << "Can't mine - there is no rock";
+    }
+}
+
+bool World::conditions_stand_true(const ai::MetricVec &cond,
+                                  const ComponentObject* subject) const
+{
+    for (auto& mtr: cond) {
+        // not ==, don't have operator!=
+        if (not (read_metric(mtr, subject) == mtr)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+ai::MetricVec World::get_current_situation(const ai::MetricVec &desired,
+                                           const ComponentObject* subject) const
+{
+    ai::MetricVec result;
+    for (auto &mtr: desired) {
+        result.push_back(read_metric(mtr, subject));
+    }
+    return result;
+}
+
+ai::Metric World::read_metric(const ai::Metric &metric,
+                              const ComponentObject* subject) const
+{
+    auto mt = metric.type_;
+
+    switch (mt) {
+    case ai::MetricType::NearPosition: {
+            auto ent = subject->as_entity();
+            if (not ent) { return ai::Metric(mt); }
+            auto pos = ent->get_pos();
+            return ai::Metric(mt, pos);
+        } break;
+
+    case ai::MetricType::HaveHand: {
+            auto bo = subject->as_body();
+            if (not bo) { return ai::Metric(mt); }
+            auto has_hand = bo->has_body_part(BodyComponent::PartType::Hand);
+            return ai::Metric(mt, has_hand);
+        } break;
+
+    case ai::MetricType::HaveLeg: {
+            auto bo = subject->as_body();
+            if (not bo) { return ai::Metric(mt); }
+            auto has_leg = bo->has_body_part(BodyComponent::PartType::Leg);
+            return ai::Metric(mt, has_leg);
+        } break;
+
+    case ai::MetricType::HaveMiningPick: {
+            return ai::Metric(mt, true);
+        } break;
+
+    case ai::MetricType::BlockIsNotSolid: {
+            // air or liquid will satisfy the condition
+            auto vox = get_voxel(metric.arg_.get_pos());
+            return ai::Metric(mt, not bm::is_solid(vox));
+        } break;
     }
 }
 
