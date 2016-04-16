@@ -1,4 +1,6 @@
 _build/*
+deps/polyvox
 deps/polyvox/*
+deps/selene
 deps/selene/*
 CMakeLists.txt.user
