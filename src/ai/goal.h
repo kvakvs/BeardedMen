@@ -1,5 +1,4 @@
 #pragma once
-
 #include <QDebug>
 #include <vector>
 #include <initializer_list>
@@ -29,11 +28,6 @@ private:
     Value val_;
 };
 
-//enum class State: uint8_t {
-//    Moving,
-//    Using,
-//};
-
 // Desired effects
 enum class MetricType: uint16_t {
     NearPosition,   // Creature moved to be in reach
@@ -43,17 +37,7 @@ enum class MetricType: uint16_t {
     HaveMiningPick, // a tool
 };
 
-inline QDebug operator<< (QDebug d, MetricType mt) {
-    d.nospace() << "Type=";
-    switch (mt) {
-    case MetricType::NearPosition: d << "NearPosition"; break;
-    case MetricType::BlockIsNotSolid: d << "BlockIsNotSolid"; break;
-    case MetricType::HaveLeg: d << "HaveLeg"; break;
-    case MetricType::HaveHand: d << "HaveHand"; break;
-    case MetricType::HaveMiningPick: d << "HaveMiningPick"; break;
-    }
-    return d;
-}
+QDebug operator<< (QDebug d, MetricType mt);
 
 // A 3d vector with trivial ctor (unlike Vec3i)
 class Pos3i {
@@ -111,15 +95,7 @@ public:
     }
 };
 
-inline QDebug operator<< (QDebug d, const Value& v) {
-    d.nospace() << "Val=";
-    switch (v.get_type()) {
-    case Value::Type::NoValue: d << "NoValue"; break;
-    case Value::Type::Boolean: d << "Bool(" << v.get_boolean() << ")"; break;
-    case Value::Type::Position: d << v.get_pos(); break;
-    }
-    return d;
-}
+QDebug operator<< (QDebug d, const Value& v);
 
 // A value which is desired by some plan, or which is currently present.
 class Metric {
@@ -136,22 +112,16 @@ public:
     }
 };
 
-inline QDebug operator<< (QDebug d, const Metric &m) {
-    d.nospace() << "Metric(";
-    d << m.type_ << "; " << m.arg_ << ")";
-    return d;
-}
+QDebug operator<< (QDebug d, const Metric &m);
 
 // TODO: a fixed-position array or a bitmap+metricvec combination maybe?
 using MetricVec = std::vector<Metric>;
 
-inline QDebug operator<< (QDebug d, const MetricVec &metrics) {
-    d.nospace() << "Vector[";
-    for(auto &m: metrics) {
-        d << m << "; ";
-    }
-    d << "]";
-    return d;
-}
+QDebug operator<< (QDebug d, const MetricVec &metrics);
+
+// List of metrics but with an argument
+//class Desire {
+//public:
+//};
 
 }} // ns ai::bm

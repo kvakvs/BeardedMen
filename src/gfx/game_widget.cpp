@@ -79,7 +79,7 @@ void GameWidget::update_terrain_model() {
 // Returns pointer for temporary use and modification, do not store permanently
 GameWidget::GameWidget(QWidget *parent)
     : GLVersion_Widget(parent), lua_(true) {
-    lua_.Load("scripts/game.lua");
+    //lua_.Load("scripts/game.lua");
 }
 
 Model *GameWidget::load_model(ModelId register_as,
@@ -116,9 +116,9 @@ void GameWidget::render_frame() {
         if (ent) {
             auto model_id = ent->get_model_id();
             if (model_id != ModelId::NIL) {
-                auto m = find_model(model_id);
+                auto m = this->find_model(model_id);
                 Q_ASSERT(m);
-                render(*m, pos_for_cell(ent->get_pos()), 0.0f);
+                this->render(*m, pos_for_cell(ent->get_pos()), 0.0f);
             }
         }
     });
@@ -128,7 +128,7 @@ void GameWidget::render_frame() {
     auto cursor = models_.find(ModelId::Cursor);
     render(cursor->second, pos_for_cell(cursor_pos_), 0.f);
 
-    render_overlay_xyz();
+    //render_overlay_xyz();
 }
 
 void GameWidget::render(const Model& m, const Vec3f &pos, float rot_y)
@@ -168,6 +168,7 @@ void GameWidget::render(const Model& m, const Vec3f &pos, float rot_y)
 
 void GameWidget::render_overlay_xyz() {
     glDisable(GL_DEPTH_TEST);
+    glPushAttrib(GL_VIEWPORT_BIT);
     glViewport(0, 0,
                this->geometry().width() * 0.25f,
                this->geometry().height() * 0.25f);
@@ -184,6 +185,8 @@ void GameWidget::render_overlay_xyz() {
     auto xyz = find_model(ModelId::Xyz);
     Q_ASSERT(xyz);
     render(*xyz, Vec3f(0.f, 0.f, 0.f), -cam_yaw_);
+
+    glPopAttrib();
     glEnable(GL_DEPTH_TEST);
 }
 

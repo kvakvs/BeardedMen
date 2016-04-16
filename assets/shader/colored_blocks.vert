@@ -1,4 +1,4 @@
-#version 150
+#version 130
 
 in vec4 position; // This will be the position of the vertex in model-space
 in vec4 normal; // The normal data may not have been set

@@ -115,21 +115,21 @@ ActionVec propose_plan(const MetricVec& from_c0,
     ActionVec plan;
 
     if (search_state == AstarEngine::SEARCH_STATE_SUCCEEDED) {
-        cout << "Search found goal state\n";
+        qDebug() << "Search found goal state\n";
 
         plan.reserve(search_steps);
         for (AstarNode* node = search_engine.GetSolutionStart();
              node; node = search_engine.GetSolutionNext())
         {
             plan.push_back(node->action_);
-            cout << "Solution step " << (int)node->action_ << endl;
+            qDebug() << "Solution step " << (int)node->action_ << endl;
         }
 
         // Once you're done with the solution you can free the nodes up
         search_engine.FreeSolutionNodes();
     } else {
         if (search_state == AstarEngine::SEARCH_STATE_FAILED) {
-            cout << "Search terminated. Did not find goal state\n";
+            qDebug() << "Search terminated. Did not find goal state\n";
         }
     }
 

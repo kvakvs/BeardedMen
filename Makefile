@@ -18,3 +18,7 @@ deps/selene:
 .PHONY: vg
 vg:
 	valgrind --leak-check=yes --log-file="valgrind.txt" _build/BeardedMen
+
+.PHONY: debug
+debug:
+	gdb _build/BeardedMen

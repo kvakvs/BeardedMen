@@ -7,7 +7,8 @@
 
 #include "world_pager.h"
 
-namespace bm {namespace ai {
+namespace bm {
+namespace ai {
 
 Vec3i Value::get_pos() const
 {
@@ -15,14 +16,42 @@ Vec3i Value::get_pos() const
     return Vec3i(pos_.x, pos_.y, pos_.z);
 }
 
-//bool Goal::are_precond_fulfilled(const World& wo,
-//                                 const ComponentObject* subject) const {
-//    return wo.conditions_stand_true(precond_, subject);
-//}
+QDebug operator<<(QDebug d, MetricType mt) {
+    d.nospace();
+    switch (mt) {
+    case MetricType::NearPosition: d << "NearPosition"; break;
+    case MetricType::BlockIsNotSolid: d << "BlockIsNotSolid"; break;
+    case MetricType::HaveLeg: d << "HaveLeg"; break;
+    case MetricType::HaveHand: d << "HaveHand"; break;
+    case MetricType::HaveMiningPick: d << "HaveMiningPick"; break;
+    }
+    return d;
+}
 
-//bool Goal::is_fulfilled(const World &wo,
-//                             const ComponentObject* subject) const {
-//    return wo.conditions_stand_true(desired_, subject);
-//}
+QDebug operator<<(QDebug d, const Value &v) {
+    d.nospace();
+    switch (v.get_type()) {
+    case Value::Type::NoValue: d << "NoValue"; break;
+    case Value::Type::Boolean: d << v.get_boolean(); break;
+    case Value::Type::Position: d << v.get_pos(); break;
+    }
+    return d;
+}
 
-}} // ns ai::bm
+QDebug operator<<(QDebug d, const MetricVec &metrics) {
+    d.nospace() << "Vec[";
+    for(auto &m: metrics) {
+        d << m << "; ";
+    }
+    d << "]";
+    return d;
+}
+
+QDebug operator<<(QDebug d, const Metric &m) {
+    d.nospace() << "Mtr(";
+    d << m.type_ << "; " << m.arg_ << ")";
+    return d;
+}
+
+} // ns ai::bm
+} // ns bm

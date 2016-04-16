@@ -1,6 +1,6 @@
 #include "game/component.h"
 
-#include <qDebug>
+#include <QDebug>
 #include <QSettings>
 
 namespace bm {

@@ -1,4 +1,4 @@
-#version 150
+#version 130
 
 in vec4 worldPosition;
 //in vec3 normalFromVS;
@@ -46,5 +46,5 @@ void main()
         float ambient = 0.3; // Add some ambient
         float lightIntensity = diffuse + ambient; // Compute the final light intensity
 
-        outputColor = surfaceColor * lightIntensity; //Compute final rendered color
+        gl_FragColor = surfaceColor * lightIntensity; //Compute final rendered color
 }

@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Perlin.h"
+#include "perlin.h"
 
 #define B SAMPLE_SIZE
 #define BM (SAMPLE_SIZE - 1)

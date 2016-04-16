@@ -84,7 +84,8 @@ bool World::add_goal(const ai::MetricVec& desired) {
 ai::MetricVec World::get_random_desire() {
     // Pick a random order. Check if it is not fulfilled yet. Give out.
     while (not desired_changes_.empty()) {
-        std::uniform_int_distribution<size_t> rand_id(0, desired_changes_.size());
+        std::uniform_int_distribution<size_t>
+                rand_id(0, desired_changes_.size()-1);
         size_t oid = rand_id(rand_);
 
         ai::MetricVec some_desire = desired_changes_[oid];

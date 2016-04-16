@@ -36,6 +36,8 @@ So...
     (shaders v150). On OSX this will also force you to have XCode, so get
     it too.
 2. Get CMake (`brew install cmake` on OSX).
-3. Open the CMakeLists file in QtCreator as a project
+3. Open the CMakeLists file in QtCreator as a project (if you have error that CMAKE_MODULE_DIR
+    something something not found - add `-DCMAKE_PREFIX_PATH=~/Qt/5.6/gcc_64/` to your
+    command line field, adjust path as necessary)
 4. Change in Project settings to run from project root directory (there are
     loadable assets).
