@@ -1,6 +1,7 @@
 #pragma once
 
-#include <set>
+//#include <set>
+#include <random>
 
 #include "game/co_entity.h"
 #include "game/order.h"
@@ -38,18 +39,18 @@ public:
     }
 
     // Check if any orders are available
-    bool have_orders() const { return orders_.empty() == false; }
-    bool add_order(const ai::Condition &order) {
-        if (order.is_fulfilled_glob(*this) == false) {
-            orders_.push_back(order);
-            return true;
-        }
-        return false;
-    }
+    bool have_orders() const { return goals_.empty() == false; }
+    bool add_goal(const ai::Goal& goal);
+    // Get a random order. See if it is not completed.
+    ai::Goal get_some_goal();
+    void add_mining_goal(const Vec3i& pos);
 
 public:
     bool any_voxel_changed_ = false;
+
 private:
+    std::mt19937 rand_;
+
     uint64_t ent_id_ = 0;
     std::map<EntityId, ComponentObject *> objects_;
     // Visible piece of world + some nearby
@@ -57,7 +58,7 @@ private:
 
     // What player desires - will propagate to workers and they will see how
     // to fulfill master's wish
-    std::vector<ai::Condition> orders_;
+    std::vector<ai::Goal> goals_;
 };
 
 

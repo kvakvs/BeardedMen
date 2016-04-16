@@ -133,7 +133,7 @@ void GameWidget::render_frame() {
 
 void GameWidget::render(const Model& m, const Vec3f &pos, float rot_y)
 {
-    if (!m.mesh_->is_valid()) {
+    if (not m.mesh_->is_valid()) {
         return;
     }
 
@@ -322,14 +322,7 @@ void GameWidget::fsm_keypress_digging(QKeyEvent *event)
     case Qt::Key_D: {
         // {D}esignations -> {D} mine
         // Records player's wish to have current cell mined out
-        ai::Condition desire(ai::CondType::BlockMined,
-                             ai::Check::IsTrue,
-                             cursor_pos_);
-        if (world_->add_order(desire)) {
-            qDebug() << "Player wishes to mine out a block";
-        } else {
-            qDebug() << "Can't mine - there is no rock";
-        }
+        world_->add_mining_goal(cursor_pos_);
         // Order accepted, return to default
         change_keyboard_fsm(KeyFSM::Default);
     } break;

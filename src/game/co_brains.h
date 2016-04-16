@@ -11,6 +11,13 @@ namespace bm {
 
 class World;
 
+//enum class Strategy: uint8_t {
+//    Neutral,
+//    Aggressive,
+//    Defensive,
+//    Panic
+//};
+
 // TODO: evict from this file, make own file
 class BrainsComponent {
 public:
@@ -18,18 +25,12 @@ public:
     void think(const World &w);
 
     // Set a goal. AI will try and find a way to reach the goal.
-    void want(const ai::Condition &desire) {
-        ai_want_.push_back(desire);
-    }
+    void want(const ai::Goal &desire);
 
 private:
-    //int ai_goal_; // goal index or -1
 
     // List of all things we want done
-    std::vector<ai::Condition> ai_want_;
-
-    //std::vector<ai::Step> ai_steps_;
-    //ai::State ai_state_;
+    std::vector<ai::Goal> ai_goals_;
 };
 
 } // namespace bm

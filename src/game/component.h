@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <vector>
 
+#include "game/ai_goal.h"
+
 namespace bm {
 
 //enum class ComponentId: uint32_t {
@@ -27,7 +29,6 @@ public:
     AS_COMPONENT(brains, Brains)
     AS_COMPONENT(body,   Body)
     AS_COMPONENT(worker, Worker)
-
 };
 
 

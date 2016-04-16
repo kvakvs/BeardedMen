@@ -6,6 +6,7 @@
 #include "game/co_body.h"
 #include "game/co_worker.h"
 #include "game/co_brains.h"
+//#include "game/ai_action.h"
 
 namespace bm {
 

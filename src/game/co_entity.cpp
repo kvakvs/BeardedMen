@@ -16,7 +16,7 @@ void EntityComponent::step(const World &wo) {
 
 bool EntityComponent::attempt_move(const World &wo, const Vec3i &new_pos)
 {
-    if (!is_solid(wo.get_voxel(new_pos))) {
+    if (not is_solid(wo.get_voxel(new_pos))) {
         set_pos(new_pos);
         return true;
     }

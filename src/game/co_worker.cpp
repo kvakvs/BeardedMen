@@ -24,7 +24,7 @@ bool WorkerComponent::take_order(ComponentObject* co,
     // Now all jobs require one hand at least (to hold tool or weapon)
     BodyComponent* body = co->as_body();
     Q_ASSERT(body);
-    if (! body->can_perform_job(order->get_job_type())) {
+    if (not body->can_perform_job(order->get_job_type())) {
         qDebug() << "Body cannot perform job";
         return false;
     }
@@ -74,7 +74,7 @@ void WorkerComponent::perform_position_order(World& wo,
     EntityComponent* ent = co->as_entity();
     bool is_adjacent = adjacent_or_same(ent->get_pos(), po->get_pos());
 
-    if (ent->has_planned_route() == false && ! is_adjacent)
+    if (ent->has_planned_route() == false && not is_adjacent)
     {
         plan_path_to(wo, po, ent);
     }

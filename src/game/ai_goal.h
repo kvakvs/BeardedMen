@@ -1,12 +1,30 @@
 #pragma once
 
 #include <vector>
+#include <initializer_list>
+
 #include "vector.h"
 
 namespace bm {
 class World;
 
 namespace ai {
+
+class Tribool {
+public:
+    typedef enum { False = 0, True = 1, N_A = 2 } Value;
+
+    explicit Tribool(): val_(False) {}
+    explicit Tribool(bool x): val_(x ? True : False) {}
+    Tribool(Value v): val_(v) {}
+
+    bool is_false() const { return val_ == False; }
+    bool is_true() const { return val_ == True; }
+    bool is_NA() const { return val_ == N_A; }
+
+private:
+    Value val_;
+};
 
 enum class State: uint8_t {
     Moving,
@@ -15,6 +33,7 @@ enum class State: uint8_t {
 
 // Desired effects
 enum class CondType: uint16_t {
+    AlwaysTrue,
     NearPosition,   // Creature moved to be in reach
     BlockMined,     // A rock block was extracted using tools
 };
@@ -36,6 +55,7 @@ public:
 class Value {
 private:
     enum class Type: uint8_t {
+        NoValue,
         Position
     };
     union {
@@ -43,6 +63,7 @@ private:
     };
     Type type_;
 public:
+    Value(): type_(Type::NoValue) {}
     Value(const Value &) = default;
     Value(const Vec3i &p): pos_(p), type_(Type::Position) {}
 
@@ -50,28 +71,46 @@ public:
     Vec3i get_pos() const;
 };
 
-// Condition represents some check. Value of eff_ must be pass the check_(arg_)
+// Condition represents some check. Value of eff_ must pass the check_(arg_)
+// Conditions can also represent orders and desires of player and creatures
 class Condition {
 public:
-    CondType eff_;
+    CondType cond_;
     Check    check_;
     Value    arg_;
 
-    Condition(CondType ef, Check chk, Value arg)
-        : eff_(ef), check_(chk), arg_(arg) {
+    static Condition make_always_true() {
+        return Condition(CondType::AlwaysTrue);
     }
+
+    explicit Condition(CondType ef): cond_(ef), arg_() {}
+    Condition(CondType ef, Check chk, Value arg)
+        : cond_(ef), check_(chk), arg_(arg) {}
+
     // Using world's state (read-only) check if condition stands true
     // This is global world check without entity reference, and it will fail
     // for all entity conditions like their position or state.
-    bool is_fulfilled_glob(const World &wo) const;
+    Tribool is_fulfilled_glob(const World &wo) const;
 };
 
-class Step {
+// Goal is what we want done (in desired_). Preconditions are to be checked
+// before and after attempting the action.
+class Goal {
 public:
     // Precondition, what must be present
     std::vector<Condition> precond_;
     // Desired effect: what we must do
-    CondType desired_;
+    Condition desired_;
+
+    static Goal make_empty() { return Goal(); }
+    explicit Goal(): desired_(Condition::make_always_true()) {}
+    explicit Goal(std::initializer_list<Condition> conds, Condition want)
+        : precond_(conds), desired_(want) {}
+
+    bool has_preconditions_glob(const World& wo) const;
+    bool is_fulfilled_glob(const World& wo) const {
+        return not desired_.is_fulfilled_glob(wo).is_false();
+    }
 };
 
 enum class GoalType: uint16_t {

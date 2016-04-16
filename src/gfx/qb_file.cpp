@@ -4,7 +4,7 @@ namespace bm {
 
 QBFile::QBFile(const char* filename) {
     FILE* f = fopen(filename, "rb");
-    if (!f) {
+    if (not f) {
         throw "no-qb-file";
     }
     read(f);

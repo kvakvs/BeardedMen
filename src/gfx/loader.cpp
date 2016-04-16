@@ -108,12 +108,12 @@ ShaderPtr Loader::load_shader(const char *name)
     std::string v_name = std::string(":/shader/") + name + ".vert";
     std::string f_name = std::string(":/shader/") + name + ".frag";
 
-    if (!shad->addShaderFromSourceFile(QGLShader::Vertex,
+    if (not shad->addShaderFromSourceFile(QGLShader::Vertex,
                                        v_name.c_str())) {
         std::cerr << shad->log().toStdString() << std::endl;
         exit(EXIT_FAILURE);
     }
-    if (!shad->addShaderFromSourceFile(QGLShader::Fragment,
+    if (not shad->addShaderFromSourceFile(QGLShader::Fragment,
                                        f_name.c_str())) {
         std::cerr << shad->log().toStdString() << std::endl;
         exit(EXIT_FAILURE);
@@ -129,7 +129,7 @@ ShaderPtr Loader::load_shader(const char *name)
     shad->bindAttributeLocation("normal", 1);
     shad->bindAttributeLocation("material", 2);
 
-    if (!shad->link()) {
+    if (not shad->link()) {
         std::cerr << shad->log().toStdString() << std::endl;
         exit(EXIT_FAILURE);
     }

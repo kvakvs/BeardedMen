@@ -31,6 +31,10 @@ void World::think() {
         BrainsComponent* brains = co->as_brains();
         if (brains) {
             brains->think(*this);
+
+            ai::Goal g = get_some_goal();
+            // Now he wants to do the order
+            brains->want(g);
         } // if brains
 
 //        WorkerComponent* worker = co->as_worker();
@@ -63,6 +67,45 @@ void World::mine_voxel(const Vec3i &pos) {
         // TODO: Produce a drop with mined rock
     } else {
         qDebug() << "can't mine - not solid";
+    }
+}
+
+bool World::add_goal(const ai::Goal& goal) {
+    if (goal.is_fulfilled_glob(*this)) {
+        // World goals don't check preconditions, so you can wish all you want
+        // Actual workers DO check preconditions, so there may be no 1 to do it
+        goals_.push_back(goal);
+        return true;
+    }
+    return false;
+}
+
+ai::Goal World::get_some_goal() {
+    // Pick a random order. Check if it is not fulfilled yet. Give out.
+    while (not goals_.empty()) {
+        std::uniform_int_distribution<size_t> rand_id(0, goals_.size());
+        size_t oid = rand_id(rand_);
+
+        ai::Goal some_goal = goals_[oid];
+        if (not some_goal.is_fulfilled_glob(*this)) {
+            return some_goal;
+        }
+        goals_.erase(goals_.begin() + oid);
+    }
+    return ai::Goal::make_empty();
+}
+
+void World::add_mining_goal(const Vec3i &pos)
+{
+    ai::Condition is_mined(ai::CondType::BlockMined, ai::Check::IsTrue, pos);
+    // has tool;
+    // has one hand
+    // stands close
+    ai::Goal g({}, is_mined);
+    if (add_goal(g)) {
+        qDebug() << "Player wishes to mine out a block";
+    } else {
+        qDebug() << "Can't mine - there is no rock";
     }
 }
 
