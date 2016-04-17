@@ -26,6 +26,7 @@ SET(SRC_FILES
     src/model_id.h
     src/world_volume.cpp	src/world_volume.h
 
+    src/util/optional.h
     src/util/str.h
     src/util/vec.cpp		src/util/vec.h
 

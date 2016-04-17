@@ -48,8 +48,9 @@ QDebug operator<<(QDebug d, const MetricVec &metrics) {
 }
 
 QDebug operator<<(QDebug d, const Metric &m) {
-    d.nospace() << "Mtr(";
-    d << m.type_ << "; " << m.arg_ << ")";
+    d.nospace() << "Mtr{";
+    d << m.type_ << "; arg=" << m.arg_ << "; rd=" << m.reading_
+      << "}";
     return d;
 }
 

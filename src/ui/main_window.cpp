@@ -3,7 +3,7 @@
 namespace bm {
 
 GameMainWindow::GameMainWindow(): QMainWindow(nullptr) {
-    setGeometry(0, 0, 800, 600);
+    setGeometry(0, 0, 800, 450);
 
     gl_widget_ = new bm::GameWidget(this);
     gl_widget_->setGeometry(geometry());

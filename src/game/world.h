@@ -5,9 +5,8 @@
 
 #include "game/co_entity.h"
 #include "game/order.h"
-
 #include "ai/goal.h"
-
+#include "util/optional.h"
 #include "world_volume.h"
 
 namespace bm {
@@ -47,7 +46,7 @@ public:
     bool have_orders() const { return desires_.empty() == false; }
     bool add_goal(const ai::MetricContextPair& desired);
     // Get a random order. See if it is not completed.
-    ai::MetricContextPair get_random_desire();
+    Optional<ai::MetricContextPair> get_random_desire(ComponentObject *actor);
     void add_mining_goal(const Vec3i& pos);
 
     //

@@ -26,7 +26,7 @@ void GameWidget::initialize() {
                          "assets/model/cursor.qb", rgb_vox_shader_);
     load_model(ModelId::CursorRed,
                              "assets/model/cursor_red.qb", rgb_vox_shader_);
-    cursor_pos_ = Vec3i(VIEWSZ_X / 2, 5, VIEWSZ_Z / 2);
+    cursor_pos_ = Vec3i(VIEWSZ_X / 2, 4, VIEWSZ_Z / 2);
 
     world_ = std::make_unique<World>(*volume_);
 

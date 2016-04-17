@@ -12,10 +12,15 @@ enum class ActionType: uint16_t {
     Mine,
 };
 
+// Actions cost for Astar planning
+float get_action_cost(ActionType at);
+
+QDebug operator<< (QDebug d, ActionType at);
+
 // Defines an action and its effects. Use only ActionType for planning
 class ActionDef {
 public:
-    ActionType type_;
+    ActionType action_;
     // Preconditions
     MetricVec requires_;
     // Effect that you get using this command
@@ -24,13 +29,16 @@ public:
     explicit ActionDef(ActionType t,
                        const MetricVec& requires,
                        const MetricVec& gives)
-        : type_(t), requires_(requires), gives_(gives) {}
+        : action_(t), requires_(requires), gives_(gives) {}
 
-    // Overwrites metrics from gives_ in state_
-    void apply_to(MetricVec& state) const;
+    // Overwrites readings of metrics from gives_ to state_
+    void copy_readings(MetricVec& state) const;
 };
+
+QDebug operator<< (QDebug d, const ActionDef& ad);
 
 using ActionVec = std::vector<ai::ActionType>;
 using ActionDefVec = std::vector<ai::ActionDef>;
+
 
 }} // ns bm::ai

@@ -20,10 +20,13 @@ void BrainsComponent::think() {
         return;
     }
 
+    qDebug() << "Picking up one own desire to plan";
+
     auto one_desire = desires_.front();
     auto &want = one_desire.first;
-    auto &ctx = one_desire.second;
-    //qDebug() << one_desire;
+
+    ai::Context ctx = one_desire.second; // copy
+    ctx.actor_ = get_parent();
 
     auto actions = ai::propose_plan(
                 ctx.world_->get_current_situation(want, ctx),

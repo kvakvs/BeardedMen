@@ -16,7 +16,8 @@ class BeardedMan: public ComponentObject
 public:
     BeardedMan(const Vec3i &pos)
         : entity_(pos, ModelId::BeardedMan),
-          body_(BodyType::BeardedMan) //, worker_()
+          body_(BodyType::BeardedMan),
+          brains_(this)
     {
     }
     virtual EntityComponent* as_entity() override { return &entity_; }

@@ -133,8 +133,8 @@ class AStarSearch {
 
         assert((m_Start != NULL && m_Goal != NULL));
 
-        m_Start->m_UserState = Start;
-        m_Goal->m_UserState  = Goal;
+        m_Start->m_UserState = std::move(Start);
+        m_Goal->m_UserState  = std::move(Goal);
 
         m_State = SEARCH_STATE_SEARCHING;
 
@@ -337,7 +337,6 @@ class AStarSearch {
                     // Greg Douglas <gregdouglasmail@gmail.com>
                     // who noticed that this code path was incorrect
                     // Here we have found a new state which is already CLOSED
-                    // anus
                 }
 
                 // Update old version of this node
@@ -378,10 +377,8 @@ class AStarSearch {
         Node* node = AllocateNode();
 
         if (node) {
-            node->m_UserState = State;
-
+            node->m_UserState = std::move(State);
             m_Successors.push_back(node);
-
             return true;
         }
 

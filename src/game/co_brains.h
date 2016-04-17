@@ -21,6 +21,9 @@ class World;
 // TODO: evict from this file, make own file
 class BrainsComponent {
 public:
+    BrainsComponent(ComponentObject *p): parent_(p) {}
+    ComponentObject* get_parent() const { return parent_; }
+
     // -- Intelligent --
     void think();
 
@@ -28,6 +31,7 @@ public:
     void want(const ai::MetricContextPair &desire);
 
 private:
+    ComponentObject *parent_;
     // List of all things we want done
     std::vector<ai::MetricContextPair> desires_;
 };

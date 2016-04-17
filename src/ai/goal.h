@@ -78,6 +78,8 @@ public:
     explicit Value(const Vec3i &p): pos_(p), type_(Type::Position) {}
     explicit Value(bool b): b_(b), type_(Type::Boolean) {}
 
+    bool has_value() const { return type_ != Type::NoValue; }
+
     bool is_position() const { return type_ == Type::Position; }
     Vec3i get_pos() const;
 
@@ -105,15 +107,26 @@ QDebug operator<< (QDebug d, const Value& v);
 class Metric {
 public:
     MetricType  type_;
-    Value       arg_;   // optional argument for metric
+    Value       arg_;       // optional argument for metric
+    Value       reading_;   // metric reading (actual or desired value)
 
     explicit Metric(MetricType ct): type_(ct) {}
     explicit Metric(MetricType ct, Value arg)
         : type_(ct), arg_(arg) {}
+    explicit Metric(MetricType ct, Value arg, Value reading)
+        : type_(ct), arg_(arg), reading_(reading) {}
+
+    template <typename SomeValue>
+    Metric set_reading(const SomeValue &v) const {
+        Metric m(*this);
+        m.reading_ = ai::Value(v);
+        return m;
+    }
 
     bool operator== (const Metric& other) const {
         Q_ASSERT(type_ == other.type_);
-        return arg_ == other.arg_;
+        Q_ASSERT(arg_ == other.arg_);
+        return reading_ == other.reading_;
     }
 };
 
@@ -127,10 +140,11 @@ QDebug operator<< (QDebug d, const MetricVec &metrics);
 // Context for metric (who is acting)
 class Context {
 public:
-    const World* world_;
-    const ComponentObject* actor_;
+    const World* world_ = nullptr;
+    const ComponentObject* actor_ = nullptr;
     //const Value pos_; // may be NoValue
 
+    Context() {}
     Context(const World *w, const ComponentObject *act)
         : world_(w), actor_(act) {}
 };

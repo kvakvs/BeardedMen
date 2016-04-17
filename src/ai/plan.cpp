@@ -13,6 +13,9 @@ class AstarGlobalState {
 public:
     MetricVec goal_;
     const ActionDefVec& available_actions_;
+    // Astar will stop if path has one step without creating any solution nodes.
+    // We need to record that single step here so it is not lost.
+    std::vector<ActionType> single_step_;
 };
 
 // Decision search node, represents a step in solution
@@ -21,11 +24,15 @@ class AstarNode {
 public:
     ActionType action_;     // What to do in this step
     MetricVec metrics_;     // What the world will become
-    const AstarGlobalState *state_;
+    AstarGlobalState *state_;
 
     AstarNode() = default;
-    AstarNode(const MetricVec& m, const AstarGlobalState* st)
-        : metrics_(m), state_(st) {}
+    AstarNode(const AstarNode &) = delete;
+    AstarNode(AstarNode &&) = default;
+    AstarNode(const MetricVec& m, AstarGlobalState* st, ActionType at)
+        : metrics_(m), state_(st), action_(at) {}
+
+    AstarNode& operator= (AstarNode &&) = default;
 
     float GoalDistanceEstimate(AstarNode& goal) {
         // Assume goal.state_ and our state_ are same size, same metrics
@@ -37,6 +44,7 @@ public:
                 result++;
             }
         }
+        //qDebug() << "Goal distance estimate" << result;
         return result;
     }
 
@@ -44,7 +52,7 @@ public:
         return goal.metrics_ == metrics_;
     }
 
-    bool GetSuccessors(AStarSearch<AstarNode>* astarsearch,
+    bool GetSuccessors(AStarSearch<AstarNode>* engine,
                        AstarNode* /*parent_node*/)
     {
         // For each action we have try model new state, and push it to search
@@ -56,16 +64,25 @@ public:
 
             // (todo: missing metrics should be prepared before search)
             MetricVec new_metrics(metrics_);
-            adef.apply_to(new_metrics);
+            adef.copy_readings(new_metrics);
+            //qDebug() << "Propose action" << adef.action_ << new_metrics;
+
+            // Astar will stop if solution has only one step. If this is the
+            // case - we record this proposed step in the state
+            if (new_metrics == state_->goal_) {
+                state_->single_step_.push_back(adef.action_);
+            }
 
             // create new state with this action effects
-            AstarNode next_n(new_metrics, state_);
-            astarsearch->AddSuccessor(next_n);
+            AstarNode next_n(new_metrics, state_, adef.action_);
+            engine->AddSuccessor(next_n);
         }
         return true;
     }
 
-    float GetCost(AstarNode& successor) { return 1.0f; }
+    float GetCost(AstarNode& successor) {
+        return get_action_cost(successor.action_);
+    }
 
     bool IsSameState(AstarNode& rhs) {
         return metrics_ == rhs.metrics_;
@@ -79,61 +96,70 @@ ActionVec propose_plan(const MetricVec& from_c0,
                        const ai::Context& ctx)
 {
     using AstarEngine = AStarSearch<AstarNode>;
-    AstarEngine search_engine;
+    AstarEngine engine;
 
     // For each actiondef in all actions - and for each requirement in each
     // actiondef - see if we need to add another metric from the world.
     MetricVec from_c(from_c0);
     MetricVec to_c(to_c0);
-    AstarGlobalState glob_state { to_c, ctx.actor_->ai_get_all_actions() };
+
+    Q_ASSERT(ctx.actor_);
+    AstarGlobalState glob_state { {}, ctx.actor_->ai_get_all_actions() };
 
     for (auto& adef: glob_state.available_actions_) {
+        //qDebug() << "Each avail action:" << adef;
         for (auto& req: adef.requires_) {
             if (not impl::have_metric(from_c, req.type_)) {
-                auto current = ctx.world_->read_metric(req, ctx);
-                from_c.push_back(current);
-                to_c.push_back(current);
-                break;
+                auto extra_mtr = ctx.world_->read_metric(req, ctx);
+                //qDebug() << "Extra metric:" << extra_mtr;
+                from_c.push_back(extra_mtr);
+                to_c.push_back(extra_mtr);
             }
         }
     }
-    qDebug() << "from_c" << from_c;
-    qDebug() << "to_c" << to_c;
+//    qDebug() << "HAVE" << from_c;
+//    qDebug() << "WANT" << to_c;
 
-    AstarNode from(from_c, &glob_state);
-    AstarNode to(to_c, &glob_state);
-    search_engine.SetStartAndGoalStates(from, to);
+    glob_state.goal_ = to_c; // to_c is probably changed - update
+    AstarNode from(from_c, &glob_state, ActionType::None);
+    AstarNode to(to_c, &glob_state, ActionType::None);
+    engine.SetStartAndGoalStates(from, to);
 
     unsigned int search_state;
     unsigned int search_steps = 0;
 
     do {
-        search_state = search_engine.SearchStep();
+        search_state = engine.SearchStep();
         search_steps++;
     } while (search_state == AstarEngine::SEARCH_STATE_SEARCHING);
 
     ActionVec plan;
 
     if (search_state == AstarEngine::SEARCH_STATE_SUCCEEDED) {
-        qDebug() << "Search found goal state\n";
+        qDebug() << "plan: Found a plan";
 
         plan.reserve(search_steps);
-        for (AstarNode* node = search_engine.GetSolutionStart();
-             node; node = search_engine.GetSolutionNext())
+        for (AstarNode* node = engine.GetSolutionStart();
+             node; node = engine.GetSolutionNext())
         {
-            plan.push_back(node->action_);
-            qDebug() << "Solution step " << (int)node->action_ << endl;
+            if (node->action_ != ActionType::None) {
+                qDebug() << "plan: Step=" << node->action_;
+                plan.push_back(node->action_);
+            }
         }
-
+        for (auto a: glob_state.single_step_) {
+            qDebug() << "plan: [extra] Step=" << a;
+            plan.push_back(a);
+        }
         // Once you're done with the solution you can free the nodes up
-        search_engine.FreeSolutionNodes();
+        engine.FreeSolutionNodes();
     } else {
         if (search_state == AstarEngine::SEARCH_STATE_FAILED) {
-            qDebug() << "Search terminated. Did not find goal state\n";
+            qDebug() << "plan: Did not find a plan";
         }
     }
 
-    search_engine.EnsureMemoryFreed();
+    engine.EnsureMemoryFreed();
     return plan;
 }
 

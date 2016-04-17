@@ -28,15 +28,17 @@ void World::think() {
     });
 
     // Entities think for themselves
-    each_obj([this](auto id, auto co) {
+    each_obj([this](auto /*id*/, auto co) {
         BrainsComponent* brains = co->as_brains();
         if (brains) {
             brains->think();
 
             if (not desires_.empty()) {
-                auto dsr = get_random_desire();
-                // Now he wants to do the order, unless it's impossible
-                brains->want(dsr);
+                auto dsr = get_random_desire(co);
+                if (dsr.has_value()) {
+                    // Now he wants to do the order, unless it's impossible
+                    brains->want(dsr.get_value());
+                }
             }
         } // if brains
     });
@@ -62,7 +64,7 @@ bool World::add_goal(const ai::MetricContextPair& desired) {
     return true;
 }
 
-ai::MetricContextPair World::get_random_desire() {
+Optional<ai::MetricContextPair> World::get_random_desire(ComponentObject *actor) {
     // Pick a random order. Check if it is not fulfilled yet. Give out.
     while (not desires_.empty()) {
         std::uniform_int_distribution<size_t>
@@ -70,22 +72,31 @@ ai::MetricContextPair World::get_random_desire() {
         size_t oid = rand_id(rand_);
 
         auto some_desire = desires_[oid];
+        ai::Context ctx(some_desire.second);
+        ctx.actor_ = actor;
+        if (conditions_stand_true(some_desire.first, ctx)) {
+            // Desire is fulfilled, we do not share it with actors anymore
+            qDebug() << "world: Wish is true, deleting";
+            desires_.erase(desires_.begin() + oid);
+            return {};
+        }
+
+        //qDebug() << "world: get_random_desire" << some_desire.first;
         return some_desire;
     }
-    Q_ASSERT(false);
+    return {};
 }
 
 void World::add_mining_goal(const Vec3i &pos)
 {
     ai::MetricVec m { ai::Metric(ai::MetricType::BlockIsNotSolid,
-                                 ai::Value(pos)) };
+                                 ai::Value(pos),
+                                 ai::Value(true)) };
     ai::Context ctx(this, nullptr);
     auto mc_pair = std::make_pair(m, ctx);
 
     if (add_goal(mc_pair)) {
         qDebug() << "Player wishes to mine out a block" << pos;
-    } else {
-        qDebug() << "Can't mine - there is no rock";
     }
 }
 
@@ -122,7 +133,8 @@ ai::Metric World::read_metric(const ai::Metric& metric,
             auto ent = ctx.actor_->as_entity();
             if (not ent) { return ai::Metric(mt); }
             auto pos = ent->get_pos();
-            return ai::Metric(mt, ai::Value(pos));
+            auto in_melee = adjacent_or_same(pos, metric.arg_.get_pos()) <= 1;
+            return metric.set_reading(in_melee);
         } break;
 
     case ai::MetricType::HaveHand: {
@@ -130,7 +142,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
             auto bo = ctx.actor_->as_body();
             if (not bo) { return ai::Metric(mt); }
             auto has_hand = bo->has_body_part(BodyComponent::PartType::Hand);
-            return ai::Metric(mt, ai::Value(has_hand));
+            return metric.set_reading(has_hand);
         } break;
 
     case ai::MetricType::HaveLeg: {
@@ -138,17 +150,17 @@ ai::Metric World::read_metric(const ai::Metric& metric,
             auto bo = ctx.actor_->as_body();
             if (not bo) { return ai::Metric(mt); }
             auto has_leg = bo->has_body_part(BodyComponent::PartType::Leg);
-            return ai::Metric(mt, ai::Value(has_leg));
+            return metric.set_reading(has_leg);
         } break;
 
     case ai::MetricType::HaveMiningPick: {
-            return ai::Metric(mt, ai::Value(true));
+            return metric.set_reading(true);
         } break;
 
     case ai::MetricType::BlockIsNotSolid: {
             // air or liquid will satisfy the condition
             auto vox = get_voxel(metric.arg_.get_pos());
-            return ai::Metric(mt, ai::Value(not bm::is_solid(vox)));
+            return metric.set_reading(not bm::is_solid(vox));
         } break;
     }
 }
