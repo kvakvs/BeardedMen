@@ -92,7 +92,7 @@ void World::add_mining_goal(const Vec3i &pos)
     ai::MetricVec m { ai::Metric(ai::MetricType::BlockIsNotSolid,
                                  ai::Value(pos),
                                  ai::Value(true)) };
-    ai::Context ctx(this, nullptr);
+    ai::Context ctx(nullptr);
     ctx.pos_ = pos;
 
     auto mc_pair = std::make_pair(m, ctx);
@@ -135,9 +135,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
             auto ent = ctx.actor_->as_entity();
             if (not ent) { return ai::Metric(mt); }
             auto pos = ent->get_pos();
-            //auto in_melee = adjacent_or_same(pos, metric.arg_.get_pos()) <= 1;
             auto in_melee = adjacent_or_same(pos, ctx.pos_);
-            qDebug() << "melee_range check" << pos << ctx.pos_ << in_melee;
             return metric.set_reading(in_melee);
         } break;
 

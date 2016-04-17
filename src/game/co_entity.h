@@ -13,6 +13,8 @@ class World;
 using EntityId = uint64_t;
 using Route = std::list<Vec3i>;
 
+QDebug operator<< (QDebug d, const Route& r);
+
 // Entity is anything which has a position in the world and is visible in
 // some way (has model or a sprite etc).
 // This includes both animate and inanimate objects (dropped resources,
@@ -57,17 +59,16 @@ public:
     bool is_moving() const {
         return movement.planned_route_.empty() == false;
     }
-    void set_planned_route(const Vec3i& dst, Route &r) {
-        movement.dst_ = dst;
-        movement.planned_route_ = std::move(r);
-    }
+    void set_planned_route(const Vec3i& dst, Route &r);
     Vec3i get_move_destination() const { return movement.dst_; }
+
+private:
+    // Find route ignoring walls only respecting ground
+    Route find_relaxed_route(const Vec3i& dst);
+    // Find strict route using ground
+    Route find_route(const Vec3i& dst);
 };
 
-class Entity: public ComponentObject {
-    EntityComponent entity_;
-public:
-    EntityComponent* as_entity() override { return &entity_; }
-};
+QDebug operator<< (QDebug d, const EntityComponent& ent);
 
 } // namespace bm

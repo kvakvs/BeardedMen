@@ -15,12 +15,14 @@ void BrainsComponent::think() {
 }
 
 void BrainsComponent::pick_and_plan() {
+    auto wo = ComponentObject::get_world();
+
     while (not wish_.desires.empty()) {
         auto &pair = wish_.desires.back();
 
         ai::Context ctx = pair.second;
         ctx.actor_ = get_parent();
-        if (ctx.world_->conditions_stand_true(pair.first, ctx)) {
+        if (wo->conditions_stand_true(pair.first, ctx)) {
             // we do not desire anymore that which came true
             wish_.desires.pop_back();
         } else {
@@ -39,7 +41,7 @@ void BrainsComponent::pick_and_plan() {
     ctx.actor_ = get_parent();
 
     auto actions = ai::propose_plan(
-                ctx.world_->get_current_situation(want, ctx),
+                wo->get_current_situation(want, ctx),
                 want,   // want
                 ctx);   // context
 
@@ -53,6 +55,7 @@ void BrainsComponent::pick_and_plan() {
 
     qDebug() << "brains: have plan!";
     wish_.current = one_desire;
+    wish_.desires.erase(wish_.desires.begin()); // consumed a plan
 
     // High level action plan only contains actions. Now try and use context
     // to plan actual activities with destination objects and positions
@@ -61,13 +64,27 @@ void BrainsComponent::pick_and_plan() {
 
 void BrainsComponent::follow_the_plan()
 {
-    if (wish_.plan.empty()) {
+    if (not wish_.current.has_value()) {
         return; // nothing to do
     }
 
-    qDebug() << "brains: follow plan";
+    // if plan is fulfilled
+    auto         wo = ComponentObject::get_world();
+    auto       pair = wish_.current.get_value();
+    ai::Context ctx = pair.second;
+    ctx.actor_      = get_parent();
+    if (wo->conditions_stand_true(pair.first, ctx)) {
+        // we do not desire anymore that which came true
+        qDebug() << "brains: Plan fulfilled, dropping";
+        wish_.current = {};
+        wish_.plan.clear();
+        return;
+    }
 
     auto& step = wish_.plan.front();
+    qDebug() << "brains: follow plan" << *get_parent()
+             << " step=" << step.action_;
+
     switch (step.action_) {
     case ai::ActionType::None: // no action (this should not be in plan either)
         wish_.plan.erase(wish_.plan.begin());
@@ -77,6 +94,9 @@ void BrainsComponent::follow_the_plan()
             auto ent = get_parent()->as_entity();
             if (adjacent_or_same(ent->get_pos(), dst)) {
                 ComponentObject::get_world()->mine_voxel(dst);
+                qDebug() << "brains: Mining: done";
+            } else {
+                qDebug() << "brains: Mining: failed";
             }
             // Finish step even if mining failed
             wish_.plan.erase(wish_.plan.begin());
@@ -84,14 +104,30 @@ void BrainsComponent::follow_the_plan()
     case ai::ActionType::Move: {
             auto dst = step.arg_.get_pos();
             auto ent = get_parent()->as_entity();
-            if (not ent->is_moving() || ent->get_move_destination() != dst) {
+            if (not ent->is_moving() && ent->get_move_destination() != dst)
+            {
                 ent->move_to(dst);
-            } else if (adjacent_or_same(ent->get_pos(), dst)) {
+                qDebug() << "brains: Move: will move to" << dst;
+                break;
+            } else {
                 // Move finished
-                wish_.plan.erase(wish_.plan.begin());
+                if (adjacent_or_same(ent->get_pos(), dst)) {
+                    qDebug() << "brains: Move: finished";
+                    wish_.plan.erase(wish_.plan.begin());
+                    break;
+                }
+                // not moving, but destination is correct - means can't move
+                if (not ent->is_moving()) {
+                    qDebug() << "brains: Move: failed";
+                    wish_.plan.erase(wish_.plan.begin());
+                    break;
+                }
             }
-            // else keep trying to replan move until this wish is dropped
         } break;
+    }
+    if (wish_.plan.empty()) {
+        qDebug() << "brains: plan done";
+        wish_.current = {};
     }
 }
 

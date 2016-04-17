@@ -44,5 +44,6 @@ private:
     static World *world_;
 };
 
+QDebug operator<< (QDebug d, const ComponentObject& co);
 
 } // ns bm

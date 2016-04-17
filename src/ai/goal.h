@@ -140,13 +140,13 @@ QDebug operator<< (QDebug d, const MetricVec &metrics);
 // Context for metric (who is acting)
 class Context {
 public:
-    const World* world_ = nullptr;
+    //const World* world_ = nullptr;
     const ComponentObject* actor_ = nullptr;
     Vec3i pos_;
 
     Context() {}
-    Context(const World *w, const ComponentObject *act)
-        : world_(w), actor_(act) {}
+    Context(const ComponentObject *act)
+        : actor_(act) {}
 };
 
 using MetricContextPair = std::pair<MetricVec, Context>;

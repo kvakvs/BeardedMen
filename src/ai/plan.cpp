@@ -113,12 +113,13 @@ ActionVec propose_plan(const MetricVec& from_c0,
 
     Q_ASSERT(ctx.actor_);
     AstarGlobalState glob_state { {}, ctx.actor_->ai_get_all_actions() };
+    auto wo = ComponentObject::get_world();
 
     for (auto& adef: glob_state.available_actions_) {
         //qDebug() << "Each avail action:" << adef;
         for (auto& req: adef.requires_) {
             if (not impl::have_metric(from_c, req.type_)) {
-                auto extra_mtr = ctx.world_->read_metric(req, ctx);
+                auto extra_mtr = wo->read_metric(req, ctx);
                 //qDebug() << "Extra metric:" << extra_mtr;
                 from_c.push_back(extra_mtr);
                 //to_c.push_back(extra_mtr);
