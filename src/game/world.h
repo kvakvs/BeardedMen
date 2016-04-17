@@ -46,11 +46,17 @@ public:
     //
 
     // Check if any orders are available
-    bool have_orders() const { return orders_.empty() == false; }
-    bool add_goal(ai::Order::Ptr desired);
+    bool have_orders() const;
+    bool add_order(ai::Order::Ptr desired);
+    void remove_order(ai::OrderId id);
     // Get a random order. See if it is not completed.
     ai::Order::Ptr get_random_desire(ComponentObject *actor);
     void add_mining_goal(const Vec3i& pos);
+    // Report from actors if order is completed
+    void report_fulfilled(ai::OrderId id);
+    // Report from actors if order is failed
+    void report_failed(ai::OrderId id);
+    void report_impossible(ai::OrderId id);
 
     //
     // Sensors and metrics system
@@ -63,6 +69,11 @@ public:
                                         const ai::Context& ctx) const;
     ai::Metric read_metric(const ai::Metric& metric,
                            const ai::Context& ctx) const;
+
+private:
+    ai::Order::Ptr get_random_desire(ComponentObject *actor,
+                                     ai::OrderMap& registry);
+    void lower_prio(ai::OrderId id);
 
 public:
     bool force_update_terrain_mesh_ = false;
@@ -79,7 +90,14 @@ private:
 
     // What player desires (goals of sort, without preconditions) - will
     // propagate to workers and they will see how to fulfill master's wish.
-    std::vector<ai::Order::Ptr> orders_;
+    ai::OrderMap orders_;
+    ai::OrderMap orders_low_; // lower prio
+    ai::OrderMap orders_verylow_; // even lower prio
+    constexpr static uint64_t LOW_PRIO_ORDERS_EVERY = 5;
+    constexpr static uint64_t VERY_LOW_PRIO_ORDERS_EVERY = 25;
+
+    // Simulation step (equivalent of time)
+    uint64_t sim_step_ = 0;
 };
 
 

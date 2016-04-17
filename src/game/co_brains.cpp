@@ -6,10 +6,10 @@
 namespace bm {
 
 void BrainsComponent::think() {
-    if (not wish_.current.has_value()) {
+    if (not wish_.current) {
         pick_and_plan();
     }
-    if (wish_.current.has_value()) {
+    if (wish_.current) {
         follow_the_plan();
     }
 }
@@ -34,10 +34,10 @@ void BrainsComponent::pick_and_plan() {
         return;
     }
 
-    ai::Order::Ptr one_ord = wish_.orders.front();
-    auto &want = one_ord->desired_;
+    ai::Order::Ptr try_order = wish_.orders.front();
+    auto &want = try_order->desired_;
 
-    ai::Context ctx = one_ord->ctx_; // copy
+    ai::Context ctx = try_order->ctx_; // copy
     ctx.actor_ = get_parent();
 
     auto actions = ai::propose_plan(
@@ -48,13 +48,14 @@ void BrainsComponent::pick_and_plan() {
     // if there is no plan of actions, we don't want it anymore
     if (actions.empty()) {
         // forget this one
+        wo->report_impossible(try_order->id_);
         wish_.orders.erase(wish_.orders.begin());
         wish_.current = {};
         return;
     }
 
 //    qDebug() << "brains: have plan!";
-    wish_.current = one_ord;
+    wish_.current = try_order;
     wish_.orders.erase(wish_.orders.begin()); // consumed a plan
 
     // High level action plan only contains actions. Now try and use context
@@ -64,18 +65,18 @@ void BrainsComponent::pick_and_plan() {
 
 void BrainsComponent::follow_the_plan()
 {
-    if (not wish_.current.has_value()) {
+    if (not wish_.current) {
         return; // nothing to do
     }
 
     // if plan is fulfilled
-    auto wo             = ComponentObject::get_world();
-    ai::Order::Ptr ord = wish_.current.get_value();
-    ai::Context ctx     = ord->ctx_; // copy
-    ctx.actor_          = get_parent();
+    auto wo            = ComponentObject::get_world();
+    ai::Order::Ptr ord = wish_.current;
+    ai::Context ctx    = ord->ctx_; // copy
+    ctx.actor_         = get_parent();
     if (wo->conditions_stand_true(ord->desired_, ctx)) {
         // we do not desire anymore that which came true
-//        qDebug() << "brains: Plan fulfilled, dropping";
+        wo->report_fulfilled(ord->id_);
         wish_.current = {};
         wish_.plan.clear();
         return;
@@ -125,8 +126,14 @@ void BrainsComponent::follow_the_plan()
             }
         } break;
     }
+
     if (wish_.plan.empty()) {
 //        qDebug() << "brains: plan done";
+        if (wo->conditions_stand_true(ord->desired_, ctx)) {
+            wo->report_fulfilled(ord->id_);
+        } else {
+            wo->report_failed(ord->id_);
+        }
         wish_.current = {};
     }
 }

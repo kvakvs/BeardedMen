@@ -40,7 +40,7 @@ private:
     // specific actions
     struct {
         std::vector<ai::Order::Ptr> orders;
-        Optional<ai::Order::Ptr> current;
+        ai::Order::Ptr current;
         // steps with arguments
         ai::Activities plan;
     } wish_;

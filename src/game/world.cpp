@@ -13,6 +13,8 @@ void World::add(ComponentObject *co) {
 }
 
 void World::think() {
+    sim_step_++;
+
     // Here we think for entities (passive things like gravity)
     each_obj([this](auto /*id*/, auto co) {
         auto ent         = co->as_entity();
@@ -33,7 +35,7 @@ void World::think() {
         if (brains) {
             brains->think();
 
-            if (not orders_.empty()) {
+            if (have_orders()) {
                 auto dsr = get_random_desire(co);
                 if (dsr) {
                     // Now he wants to do the order, unless it's impossible
@@ -59,32 +61,42 @@ void World::mine_voxel(const Vec3i &pos) {
     }
 }
 
-bool World::add_goal(ai::Order::Ptr desired) {
-    orders_.push_back(desired);
+bool World::have_orders() const {
+    return not orders_.empty()
+            || not orders_low_.empty()
+            || not orders_verylow_.empty();
+}
+
+bool World::add_order(ai::Order::Ptr desired) {
+    orders_[desired->id_] = desired;
     return true;
 }
 
+void World::remove_order(ai::OrderId id)
+{
+    orders_.erase(id);
+    orders_low_.erase(id);
+    orders_verylow_.erase(id);
+}
+
+// Order scheduler
 ai::Order::Ptr World::get_random_desire(ComponentObject *actor) {
-    // Pick a random order. Check if it is not fulfilled yet. Give out.
-    while (not orders_.empty()) {
-        std::uniform_int_distribution<size_t>
-                rand_id(0, orders_.size()-1);
-        size_t oid = rand_id(rand_);
-
-        ai::Order::Ptr some_order = orders_[oid];
-        ai::Context ctx(some_order->ctx_); // copy
-        ctx.actor_ = actor;
-        if (conditions_stand_true(some_order->desired_, ctx)) {
-            // Desire is fulfilled, we do not share it with actors anymore
-            qDebug() << "world: Wish is true, deleting";
-            orders_.erase(orders_.begin() + oid);
-            return nullptr;
+    if (sim_step_ % VERY_LOW_PRIO_ORDERS_EVERY == 0) {
+        qDebug() << sim_step_ << "very low prio";
+        ai::Order::Ptr result = get_random_desire(actor, orders_verylow_);
+        if (result) {
+            return result;
         }
-
-        //qDebug() << "world: get_random_desire" << some_desire.first;
-        return some_order;
     }
-    return nullptr;
+    // Every N=5 steps try low prio orders, else return normal order if any
+    if (sim_step_ % LOW_PRIO_ORDERS_EVERY == 0) {
+        qDebug() << sim_step_ << "low prio";
+        ai::Order::Ptr result = get_random_desire(actor, orders_low_);
+        if (result) {
+            return result;
+        }
+    }
+    return get_random_desire(actor, orders_);
 }
 
 void World::add_mining_goal(const Vec3i &pos)
@@ -97,9 +109,25 @@ void World::add_mining_goal(const Vec3i &pos)
 
     auto o = std::make_shared<ai::Order>(m, ctx);
 
-    if (add_goal(o)) {
+    if (add_order(o)) {
         qDebug() << "Player wishes to mine out a block" << pos;
     }
+}
+
+void World::report_fulfilled(ai::OrderId id) {
+    qDebug() << "world: Order" << id << "fulfilled";
+    remove_order(id);
+}
+
+void World::report_failed(ai::OrderId id)
+{
+    lower_prio(id);
+    qDebug() << "world: Order" << id << "failed";
+}
+
+void World::report_impossible(ai::OrderId id) {
+    lower_prio(id);
+    qDebug() << "world: Order" << id << "impossible";
 }
 
 bool World::conditions_stand_true(const ai::MetricVec &cond,
@@ -164,6 +192,45 @@ ai::Metric World::read_metric(const ai::Metric& metric,
             auto vox = get_voxel(metric.arg_.get_pos());
             return metric.set_reading(not bm::is_solid(vox));
         } break;
+    }
+}
+
+ai::Order::Ptr World::get_random_desire(ComponentObject *actor,
+                                        ai::OrderMap &registry)
+{
+    // Pick a random order. Check if it is not fulfilled yet. Give out.
+    while (not registry.empty()) {
+        std::uniform_int_distribution<size_t> rand_id(0, registry.size()-1);
+
+        auto iter = registry.begin();
+        std::advance(iter, rand_id(rand_));
+
+        ai::Order::Ptr rnd_order = iter->second;
+        ai::Context ctx(rnd_order->ctx_); // copy
+        ctx.actor_ = actor;
+        if (conditions_stand_true(rnd_order->desired_, ctx)) {
+            // Desire is fulfilled, we do not share it with actors anymore
+            qDebug() << "world: Order conditions stand true, deleting";
+            registry.erase(iter);
+            continue;
+        }
+        return rnd_order;
+    }
+    return nullptr;
+}
+
+void World::lower_prio(ai::OrderId id)
+{
+    auto low_iter = orders_low_.find(id);
+    if (low_iter != orders_low_.end()) {
+        orders_verylow_[id] = low_iter->second;
+        orders_low_.erase(id);
+        return;
+    }
+    auto iter = orders_.find(id);
+    if (iter != orders_.end()) {
+        orders_low_[id] = iter->second;
+        orders_.erase(id);
     }
 }
 

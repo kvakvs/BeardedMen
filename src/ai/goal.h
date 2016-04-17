@@ -171,4 +171,6 @@ public:
     }
 };
 
+using OrderMap = std::map<OrderId, Order::Ptr>;
+
 }} // ns ai::bm
