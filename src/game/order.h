@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "game/co_entity.h"
-#include "vector.h"
+#include "util/vec.h"
 
 namespace bm {
 

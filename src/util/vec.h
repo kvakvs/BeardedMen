@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QDebug>
+
 #include <PolyVox/Vector.h>
 #include <PolyVox/Region.h>
 namespace pv = PolyVox;
@@ -10,6 +12,8 @@ using Vec3u = pv::Vector3DUint32;
 using Vec3i = pv::Vector3DInt32;
 using Vec3d = pv::Vector3DDouble;
 using Vec3f = pv::Vector3DFloat;
+
+QDebug operator<< (QDebug d, const Vec3i &v);
 
 using Region = pv::Region;
 

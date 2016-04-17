@@ -5,7 +5,7 @@
 #include "game/world.h"
 #include "game/component.h"
 
-#include "world_pager.h"
+#include "world_volume.h"
 
 namespace bm {
 namespace ai {

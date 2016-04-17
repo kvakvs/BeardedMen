@@ -281,9 +281,9 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
     }
     case Qt::Key_Period: {
         world_->think();
-        if (world_->any_voxel_changed_) {
+        if (world_->force_update_terrain_mesh_) {
             update_terrain_model();
-            world_->any_voxel_changed_ = false;
+            world_->force_update_terrain_mesh_ = false;
         }
         this->update();
     } break;

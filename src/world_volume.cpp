@@ -1,4 +1,4 @@
-#include "world_pager.h"
+#include "world_volume.h"
 #include "perlin.h"
 
 namespace bm {

@@ -8,7 +8,7 @@
 
 #include "ai/goal.h"
 
-#include "world_pager.h"
+#include "world_volume.h"
 
 namespace bm {
 
@@ -50,6 +50,9 @@ public:
     ai::MetricContextPair get_random_desire();
     void add_mining_goal(const Vec3i& pos);
 
+    //
+    // Sensors and metrics system
+    //
     // For every metric, read current situation and compare
     bool conditions_stand_true(const ai::MetricVec& cond,
                                const ai::Context& ctx) const;
@@ -60,7 +63,7 @@ public:
                            const ai::Context& ctx) const;
 
 public:
-    bool any_voxel_changed_ = false;
+    bool force_update_terrain_mesh_ = false;
 
 private:
     std::mt19937 rand_;

@@ -11,8 +11,8 @@ namespace pv = PolyVox;
 
 #include "gfx/loader.h"
 #include "gfx/qb_file.h"
-#include "vector.h"
-#include "world_pager.h"
+#include "util/vec.h"
+#include "world_volume.h"
 
 #include "game/world.h"
 #include "game/co_entity.h"

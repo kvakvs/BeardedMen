@@ -15,13 +15,13 @@ const ai::ActionDefVec &BeardedMan::ai_get_all_actions() const
 
         bm_actions.push_back(ai::ActionDef(
             AT::Walk,
-            { Mtrc(CT::HaveLeg, ai::Value(true)) },
-            { Mtrc(CT::MeleeRange) }));
+            { Mtrc(CT::HaveLeg /* needs subject */) },
+            { Mtrc(CT::MeleeRange) /* needs pos */ }));
         bm_actions.push_back(ai::ActionDef(
             AT::Mine,
-            { Mtrc(CT::HaveHand, ai::Value(true)),
-              Mtrc(CT::HaveMiningPick, ai::Value(true)) },
-            { Mtrc(CT::BlockIsNotSolid, ai::Value(true)) }));
+            { Mtrc(CT::HaveHand /* needs subject */),
+              Mtrc(CT::HaveMiningPick /* needs subject */) },
+            { Mtrc(CT::BlockIsNotSolid /* needs pos */) }));
 
         is_initialized = true;
     }

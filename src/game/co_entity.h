@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "vector.h"
+#include "util/vec.h"
 #include "gfx/model.h"
 #include "model_id.h"
 #include "game/component.h"

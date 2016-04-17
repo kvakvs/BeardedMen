@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 
-#include "vector.h"
+#include "util/vec.h"
 #include "gfx/gl_version.h"
 #include "model_id.h"
 

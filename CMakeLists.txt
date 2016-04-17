@@ -24,9 +24,10 @@ SET(SRC_FILES
     src/main.cpp
     src/perlin.cpp
     src/model_id.h
-    src/util_str.h
-    src/vector.h
-    src/world_pager.cpp		src/world_pager.h
+    src/world_volume.cpp	src/world_volume.h
+
+    src/util/str.h
+    src/util/vec.cpp		src/util/vec.h
 
     src/gfx/game_widget.cpp	src/gfx/game_widget.h
     src/gfx/gl_version.h

@@ -50,7 +50,7 @@ bool World::is_mineable(const Vec3i &pos) const {
 void World::mine_voxel(const Vec3i &pos) {
     if (is_solid(volume_.getVoxel(pos))) {
         volume_.setVoxel(pos, VoxelType());
-        any_voxel_changed_ = true;
+        force_update_terrain_mesh_ = true;
         // TODO: Produce a drop with mined rock
     } else {
         qDebug() << "can't mine - not solid";
@@ -78,12 +78,12 @@ ai::MetricContextPair World::get_random_desire() {
 void World::add_mining_goal(const Vec3i &pos)
 {
     ai::MetricVec m { ai::Metric(ai::MetricType::BlockIsNotSolid,
-                                 ai::Value(true)) };
-    ai::Context ctx(this, nullptr, pos);
-    auto mcp = std::make_pair(m, ctx);
+                                 ai::Value(pos)) };
+    ai::Context ctx(this, nullptr);
+    auto mc_pair = std::make_pair(m, ctx);
 
-    if (add_goal(mcp)) {
-        qDebug() << "Player wishes to mine out a block";
+    if (add_goal(mc_pair)) {
+        qDebug() << "Player wishes to mine out a block" << pos;
     } else {
         qDebug() << "Can't mine - there is no rock";
     }
@@ -147,7 +147,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
 
     case ai::MetricType::BlockIsNotSolid: {
             // air or liquid will satisfy the condition
-            auto vox = get_voxel(metric.value_.get_pos());
+            auto vox = get_voxel(metric.arg_.get_pos());
             return ai::Metric(mt, ai::Value(not bm::is_solid(vox)));
         } break;
     }

@@ -1,5 +1,5 @@
 #include "dock.h"
-#include "util_str.h"
+#include "util/str.h"
 
 #define bmKEY(T) "<font color='#66f'><u>" T "</></font>"
 

@@ -3,7 +3,7 @@
 #include <vector>
 #include <initializer_list>
 
-#include "vector.h"
+#include "util/vec.h"
 
 namespace bm {
 
@@ -106,18 +106,14 @@ class Metric {
 public:
     MetricType  type_;
     Value       arg_;   // optional argument for metric
-    Value       value_;
 
     explicit Metric(MetricType ct): type_(ct) {}
-    explicit Metric(MetricType ct, Value value)
-        : type_(ct), value_(value) {}
-    explicit Metric(MetricType ct, Value value, Value arg)
-        : type_(ct), value_(value), arg_(arg) {}
+    explicit Metric(MetricType ct, Value arg)
+        : type_(ct), arg_(arg) {}
 
     bool operator== (const Metric& other) const {
         Q_ASSERT(type_ == other.type_);
-        Q_ASSERT(arg_ == other.arg_);
-        return value_ == other.value_;
+        return arg_ == other.arg_;
     }
 };
 
@@ -128,14 +124,15 @@ using MetricVec = std::vector<Metric>;
 
 QDebug operator<< (QDebug d, const MetricVec &metrics);
 
-// Context for metric (who is acting, and what is the target)
+// Context for metric (who is acting)
 class Context {
 public:
     const World* world_;
     const ComponentObject* actor_;
-    Vec3i pos_;
-    Context(const World *w, const ComponentObject *act, const Vec3i &p)
-        : world_(w), actor_(act), pos_(p) {}
+    //const Value pos_; // may be NoValue
+
+    Context(const World *w, const ComponentObject *act)
+        : world_(w), actor_(act) {}
 };
 
 using MetricContextPair = std::pair<MetricVec, Context>;

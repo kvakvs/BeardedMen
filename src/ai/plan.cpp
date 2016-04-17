@@ -19,8 +19,8 @@ public:
 // Distance is a metric of how many conditions are still not satisfied
 class AstarNode {
 public:
-    ActionType action_;
-    MetricVec metrics_;
+    ActionType action_;     // What to do in this step
+    MetricVec metrics_;     // What the world will become
     const AstarGlobalState *state_;
 
     AstarNode() = default;

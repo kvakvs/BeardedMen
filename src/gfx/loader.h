@@ -8,7 +8,7 @@
 #include <cmath>
 
 #include "gfx/gl_version.h"
-#include "vector.h"
+#include "util/vec.h"
 #include "gfx/model.h"
 
 namespace pv = PolyVox;

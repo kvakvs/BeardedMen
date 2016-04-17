@@ -2,7 +2,7 @@
 
 #include <QMatrix4x4>
 
-#include "vector.h"
+#include "util/vec.h"
 #include <PolyVox/RawVolume.h>
 #include "PolyVox/MaterialDensityPair.h"
 #include "PolyVox/CubicSurfaceExtractor.h"
