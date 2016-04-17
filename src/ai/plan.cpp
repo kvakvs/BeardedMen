@@ -36,11 +36,12 @@ public:
 
     float GoalDistanceEstimate(AstarNode& goal) {
         // Assume goal.state_ and our state_ are same size, same metrics
-        Q_ASSERT(metrics_.size() == goal.metrics_.size());
         int result = 0;
-        for (int i = 0; i < metrics_.size(); ++i) {
+        for (int i = 0; i < goal.metrics_.size(); ++i) {
+            auto current = impl::get_metric(metrics_, goal.metrics_[i].type_);
+
             // not== because there is no !=
-            if (not (metrics_[i] == goal.metrics_[i])) {
+            if (not (current == goal.metrics_[i])) {
                 result++;
             }
         }
@@ -49,7 +50,14 @@ public:
     }
 
     bool IsGoal(AstarNode& goal) {
-        return goal.metrics_ == metrics_;
+//        for(auto &goal_mtr: goal.metrics_) {
+//            auto current = impl::get_metric(metrics_, goal_mtr.type_);
+//            if (not (goal_mtr == current)) { // do not have operator!=
+//                return false;
+//            }
+//        }
+//        return true;
+        return impl::check_requirements(goal.metrics_, metrics_);
     }
 
     bool GetSuccessors(AStarSearch<AstarNode>* engine,
@@ -65,11 +73,11 @@ public:
             // (todo: missing metrics should be prepared before search)
             MetricVec new_metrics(metrics_);
             adef.copy_readings(new_metrics);
-            qDebug() << "Propose action" << adef.action_ << ": " << new_metrics;
+            //qDebug() << "Propose action" << adef.action_ << ": " << new_metrics;
 
             // Astar will stop if solution has only one step. If this is the
             // case - we record this proposed step in the state
-            if (new_metrics == state_->goal_) {
+            if (impl::check_requirements(state_->goal_, new_metrics)) {
                 state_->single_step_.push_back(adef.action_);
             }
 
@@ -113,7 +121,7 @@ ActionVec propose_plan(const MetricVec& from_c0,
                 auto extra_mtr = ctx.world_->read_metric(req, ctx);
                 //qDebug() << "Extra metric:" << extra_mtr;
                 from_c.push_back(extra_mtr);
-                to_c.push_back(extra_mtr);
+                //to_c.push_back(extra_mtr);
             }
         }
     }
@@ -142,13 +150,13 @@ ActionVec propose_plan(const MetricVec& from_c0,
              node; node = engine.GetSolutionNext())
         {
             if (node->action_ != ActionType::None) {
-                //qDebug() << "plan: Step=" << node->action_;
+//                qDebug() << "plan: Step=" << node->action_;
                 plan.push_back(node->action_);
             }
         }
         if (not glob_state.single_step_.empty()) {
             auto extra_action = glob_state.single_step_.front();
-            //qDebug() << "plan: [extra] Step=" << extra_action;
+//            qDebug() << "plan: [extra] Step=" << extra_action;
             plan.push_back(extra_action);
         }
         // Once you're done with the solution you can free the nodes up
