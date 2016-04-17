@@ -89,10 +89,19 @@ Optional<ai::MetricContextPair> World::get_random_desire(ComponentObject *actor)
 
 void World::add_mining_goal(const Vec3i &pos)
 {
+    // TODO: Remove melee range requirement
+    // This affects planning (i.e. planning is stupid enough to not find out
+    // a requirement to move into melee range, or possibly a bug)
     ai::MetricVec m { ai::Metric(ai::MetricType::BlockIsNotSolid,
                                  ai::Value(pos),
-                                 ai::Value(true)) };
+                                 ai::Value(true)),
+                      ai::Metric(ai::MetricType::MeleeRange,
+                                 ai::Value(),
+                                 ai::Value(true))
+                    };
     ai::Context ctx(this, nullptr);
+    ctx.pos_ = pos;
+
     auto mc_pair = std::make_pair(m, ctx);
 
     if (add_goal(mc_pair)) {
@@ -133,7 +142,9 @@ ai::Metric World::read_metric(const ai::Metric& metric,
             auto ent = ctx.actor_->as_entity();
             if (not ent) { return ai::Metric(mt); }
             auto pos = ent->get_pos();
-            auto in_melee = adjacent_or_same(pos, metric.arg_.get_pos()) <= 1;
+            //auto in_melee = adjacent_or_same(pos, metric.arg_.get_pos()) <= 1;
+            auto in_melee = adjacent_or_same(pos, ctx.pos_);
+            qDebug() << "melee_range check" << pos << ctx.pos_ << in_melee;
             return metric.set_reading(in_melee);
         } break;
 

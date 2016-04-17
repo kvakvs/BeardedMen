@@ -65,7 +65,7 @@ public:
             // (todo: missing metrics should be prepared before search)
             MetricVec new_metrics(metrics_);
             adef.copy_readings(new_metrics);
-            //qDebug() << "Propose action" << adef.action_ << new_metrics;
+            qDebug() << "Propose action" << adef.action_ << ": " << new_metrics;
 
             // Astar will stop if solution has only one step. If this is the
             // case - we record this proposed step in the state
@@ -136,20 +136,20 @@ ActionVec propose_plan(const MetricVec& from_c0,
     ActionVec plan;
 
     if (search_state == AstarEngine::SEARCH_STATE_SUCCEEDED) {
-        qDebug() << "plan: Found a plan";
-
+        //qDebug() << "plan: Found a plan";
         plan.reserve(search_steps);
         for (AstarNode* node = engine.GetSolutionStart();
              node; node = engine.GetSolutionNext())
         {
             if (node->action_ != ActionType::None) {
-                qDebug() << "plan: Step=" << node->action_;
+                //qDebug() << "plan: Step=" << node->action_;
                 plan.push_back(node->action_);
             }
         }
-        for (auto a: glob_state.single_step_) {
-            qDebug() << "plan: [extra] Step=" << a;
-            plan.push_back(a);
+        if (not glob_state.single_step_.empty()) {
+            auto extra_action = glob_state.single_step_.front();
+            //qDebug() << "plan: [extra] Step=" << extra_action;
+            plan.push_back(extra_action);
         }
         // Once you're done with the solution you can free the nodes up
         engine.FreeSolutionNodes();

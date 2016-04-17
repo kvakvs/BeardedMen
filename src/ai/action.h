@@ -8,7 +8,7 @@ namespace bm {namespace ai {
 
 enum class ActionType: uint16_t {
     None,
-    Walk,
+    Move,
     Mine,
 };
 

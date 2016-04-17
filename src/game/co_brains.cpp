@@ -7,7 +7,9 @@ namespace bm {
 void BrainsComponent::think() {
     while (not desires_.empty()) {
         auto &pair = desires_.back();
-        auto &ctx = pair.second;
+
+        ai::Context ctx = pair.second;
+        ctx.actor_ = get_parent();
         if (ctx.world_->conditions_stand_true(pair.first, ctx)) {
             // we do not desire anymore that which came true
             desires_.pop_back();

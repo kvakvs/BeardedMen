@@ -142,7 +142,7 @@ class Context {
 public:
     const World* world_ = nullptr;
     const ComponentObject* actor_ = nullptr;
-    //const Value pos_; // may be NoValue
+    Vec3i pos_;
 
     Context() {}
     Context(const World *w, const ComponentObject *act)
