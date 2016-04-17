@@ -75,6 +75,8 @@ private:
     // Visible piece of world + some nearby
     bm::VolumeType& volume_;
 
+    // TODO: Move desires that failed too many times to low priority list
+
     // What player desires (goals of sort, without preconditions) - will
     // propagate to workers and they will see how to fulfill master's wish.
     std::vector<ai::MetricContextPair> desires_;

@@ -32,7 +32,7 @@ void GameWidget::initialize() {
 
     // Spawn 7 bearded men
     load_model(ModelId::BeardedMan, "assets/model/dorf.qb", rgb_vox_shader_);
-    const int MANY_BEARDED_MEN = 1;
+    const int MANY_BEARDED_MEN = 2;
     for (auto bm = 0; bm < MANY_BEARDED_MEN; ++bm) {
         world_->add(new BeardedMan(world_.get(),
                                    cursor_pos_ + Vec3i(bm, -1, bm))

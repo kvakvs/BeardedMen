@@ -45,28 +45,28 @@ void EntityComponent::move_to(const Vec3i &dst)
     Route relaxed_path = find_relaxed_route(dst);
 
     if (relaxed_path.empty()) {
-        qDebug() << "relaxed path empty";
+//        qDebug() << "relaxed path empty";
         // No route, even ignoring walls
         return;
     } else {
-        qDebug() << "relaxed path" << relaxed_path;
+//        qDebug() << "relaxed path" << relaxed_path;
         Route strict_path = find_route(dst);
         if (strict_path.empty()) {
             if (relaxed_path.size() > 1) {
                 // Try one step back
                 relaxed_path.pop_back();
                 strict_path = find_route(relaxed_path.back());
-                qDebug() << "set route(2)" << strict_path;
+//                qDebug() << "set route(2)" << strict_path;
                 set_planned_route(dst, strict_path);
                 return;
             }
             if (strict_path.empty()) {
-                qDebug() << "strict path(2) empty";
+//                qDebug() << "strict path(2) empty";
                 clear_planned_route();
                 return;
             }
         }
-        qDebug() << "set route(1)" << strict_path;
+//        qDebug() << "set route(1)" << strict_path;
         set_planned_route(dst, strict_path);
     }
 }
@@ -86,7 +86,7 @@ Route EntityComponent::find_relaxed_route(const Vec3i &dst)
                 const_cast<VolumeType*>(vol),
                 get_pos(), dst, & result,
                 1.1 /*bias*/, 1000 /*maxlength*/,
-                pv::EighteenConnected,
+                pv::SixConnected,
                 & voxel_validate_relaxed);
 
     pv::AStarPathfinder<VolumeType> pf(pfpar);
@@ -108,7 +108,7 @@ Route EntityComponent::find_route(const Vec3i &dst)
                 const_cast<VolumeType*>(vol),
                 get_pos(), dst, & result,
                 1.0 /*bias*/, 1000 /*maxlength*/,
-                pv::EighteenConnected,
+                pv::SixConnected,
                 & voxel_validate_strict);
 
     pv::AStarPathfinder<VolumeType> pf(pfpar);

@@ -53,7 +53,7 @@ void BrainsComponent::pick_and_plan() {
         return;
     }
 
-    qDebug() << "brains: have plan!";
+//    qDebug() << "brains: have plan!";
     wish_.current = one_desire;
     wish_.desires.erase(wish_.desires.begin()); // consumed a plan
 
@@ -75,15 +75,15 @@ void BrainsComponent::follow_the_plan()
     ctx.actor_      = get_parent();
     if (wo->conditions_stand_true(pair.first, ctx)) {
         // we do not desire anymore that which came true
-        qDebug() << "brains: Plan fulfilled, dropping";
+//        qDebug() << "brains: Plan fulfilled, dropping";
         wish_.current = {};
         wish_.plan.clear();
         return;
     }
 
     auto& step = wish_.plan.front();
-    qDebug() << "brains: follow plan" << *get_parent()
-             << " step=" << step.action_;
+//    qDebug() << "brains: follow plan" << *get_parent()
+//             << " step=" << step.action_;
 
     switch (step.action_) {
     case ai::ActionType::None: // no action (this should not be in plan either)
@@ -94,9 +94,9 @@ void BrainsComponent::follow_the_plan()
             auto ent = get_parent()->as_entity();
             if (adjacent_or_same(ent->get_pos(), dst)) {
                 ComponentObject::get_world()->mine_voxel(dst);
-                qDebug() << "brains: Mining: done";
+//                qDebug() << "brains: Mining: done";
             } else {
-                qDebug() << "brains: Mining: failed";
+//                qDebug() << "brains: Mining: failed";
             }
             // Finish step even if mining failed
             wish_.plan.erase(wish_.plan.begin());
@@ -107,18 +107,18 @@ void BrainsComponent::follow_the_plan()
             if (not ent->is_moving() && ent->get_move_destination() != dst)
             {
                 ent->move_to(dst);
-                qDebug() << "brains: Move: will move to" << dst;
+//                qDebug() << "brains: Move: will move to" << dst;
                 break;
             } else {
                 // Move finished
                 if (adjacent_or_same(ent->get_pos(), dst)) {
-                    qDebug() << "brains: Move: finished";
+//                    qDebug() << "brains: Move: finished";
                     wish_.plan.erase(wish_.plan.begin());
                     break;
                 }
                 // not moving, but destination is correct - means can't move
                 if (not ent->is_moving()) {
-                    qDebug() << "brains: Move: failed";
+//                    qDebug() << "brains: Move: failed";
                     wish_.plan.erase(wish_.plan.begin());
                     break;
                 }
@@ -126,12 +126,13 @@ void BrainsComponent::follow_the_plan()
         } break;
     }
     if (wish_.plan.empty()) {
-        qDebug() << "brains: plan done";
+//        qDebug() << "brains: plan done";
         wish_.current = {};
     }
 }
 
 void BrainsComponent::want(const ai::MetricContextPair &desire) {
+    wish_.desires.clear();
     wish_.desires.push_back(desire);
 }
 
