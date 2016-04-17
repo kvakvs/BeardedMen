@@ -36,7 +36,7 @@ void World::think() {
             brains->think();
 
             if (have_orders()) {
-                auto dsr = get_random_desire(co);
+                auto dsr = get_random_order(co);
                 if (dsr) {
                     // Now he wants to do the order, unless it's impossible
                     brains->want(dsr);
@@ -80,24 +80,24 @@ void World::remove_order(ai::OrderId id)
 }
 
 // Order scheduler
-ai::Order::Ptr World::get_random_desire(ComponentObject *actor) {
+ai::Order::Ptr World::get_random_order(ComponentObject *actor) {
     if (sim_step_ % VERY_LOW_PRIO_ORDERS_EVERY == 0) {
-        ai::Order::Ptr result = get_random_desire(actor, orders_verylow_);
+        ai::Order::Ptr result = get_random_order(actor, orders_verylow_);
         if (result) {
             return result;
         }
     }
     // Every N=5 steps try low prio orders, else return normal order if any
     if (sim_step_ % LOW_PRIO_ORDERS_EVERY == 0) {
-        ai::Order::Ptr result = get_random_desire(actor, orders_low_);
+        ai::Order::Ptr result = get_random_order(actor, orders_low_);
         if (result) {
             return result;
         }
     }
     // If normal orders is empty - look into lower priorities
-    auto n = get_random_desire(actor, orders_);
-    if (!n) { n = get_random_desire(actor, orders_low_); }
-    if (!n) { n = get_random_desire(actor, orders_verylow_); }
+    auto n = get_random_order(actor, orders_);
+    if (!n) { n = get_random_order(actor, orders_low_); }
+    if (!n) { n = get_random_order(actor, orders_verylow_); }
     return n;
 }
 
@@ -197,8 +197,9 @@ ai::Metric World::read_metric(const ai::Metric& metric,
     }
 }
 
-ai::Order::Ptr World::get_random_desire(ComponentObject *actor,
-                                        ai::OrderMap &registry)
+// TODO: Prefer tasks located closer
+ai::Order::Ptr World::get_random_order(ComponentObject *actor,
+                                       ai::OrderMap &registry)
 {
     // Pick a random order. Check if it is not fulfilled yet. Give out.
     while (not registry.empty()) {

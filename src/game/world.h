@@ -52,7 +52,7 @@ public:
     bool add_order(ai::Order::Ptr desired);
     void remove_order(ai::OrderId id);
     // Get a random order. See if it is not completed.
-    ai::Order::Ptr get_random_desire(ComponentObject *actor);
+    ai::Order::Ptr get_random_order(ComponentObject *actor);
     void add_mining_goal(const Vec3i& pos);
     // Report from actors if order is completed
     void report_fulfilled(ai::OrderId id);
@@ -79,7 +79,7 @@ public:
                            const ai::Context& ctx) const;
 
 private:
-    ai::Order::Ptr get_random_desire(ComponentObject *actor,
+    ai::Order::Ptr get_random_order(ComponentObject *actor,
                                      ai::OrderMap& registry);
     void lower_prio(ai::OrderId id);
 

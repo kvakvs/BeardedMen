@@ -3,7 +3,7 @@
 A voxel-based simulation management game. Where bearded men build and dig
 and defend and hunt, all that sort of thing.
 
-<img src="http://i.imgur.com/oOWkTRT.png" width="100%" />
+<img src="http://i.imgur.com/jY1fi5b.png" width="100%" />
 <img src="http://i.imgur.com/Tzjhfz1.png" width="100%" />
 
 ## Current features
@@ -20,6 +20,11 @@ and defend and hunt, all that sort of thing.
 * Game logic runs when you press Dot key. Objects with brain can
    think. Objects that are workers can take orders and try to path A-star to
    the order destination.
+* Astar AI goal solver. Workers have list of actions they can take with preconditions.
+    Player command sets a goal with postconditions. Astar solver navigates through
+    this graph of possible steps to find a list of actions.
+* Priority queuing of tasks (3 priorities). Failed tasks are lowered in priority
+    (for example can't reach rock to dig).
 
 TODO: everything else
 

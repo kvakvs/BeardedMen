@@ -42,6 +42,7 @@ static inline bool voxel_validate_strict(const VolumeType* vol,
 bool EntityComponent::move_to(const Vec3i &dst)
 {
     clear_planned_route();
+    // TODO: Try first sides closer to the worker
     return find_and_set_strict_route(dst)
             || find_and_set_strict_route(dst + Vec3i(1,0,0))
             || find_and_set_strict_route(dst + Vec3i(-1,0,0))
