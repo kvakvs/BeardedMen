@@ -39,4 +39,14 @@ float get_action_cost(ActionType at) {
     }
 }
 
+void flesh_out_a_plan(Activities& out_plan,
+                      const ActionVec &actions,
+                      const Context &ctx)
+{
+    out_plan.clear();
+    for (auto a: actions) {
+        out_plan.push_back(Activity { a, Value(ctx.pos_) });
+    }
+}
+
 }} // ns bm::ai

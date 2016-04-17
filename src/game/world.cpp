@@ -24,7 +24,7 @@ void World::think() {
             ent->set_pos(ent_pos);
         }
         // if entity has planned route
-        ent->step(*this);
+        ent->step();
     });
 
     // Entities think for themselves

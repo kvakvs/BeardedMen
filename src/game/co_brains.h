@@ -1,11 +1,8 @@
 #pragma once
 
-//#include <stdint.h>
-//#include "util/vec.h"
-//#include "gfx/model.h"
-//#include "model_id.h"
 #include "game/component.h"
 #include "ai/goal.h"
+#include "util/optional.h"
 
 namespace bm {
 
@@ -31,9 +28,22 @@ public:
     void want(const ai::MetricContextPair &desire);
 
 private:
+    // From our desires pick one (first) and try find a plan for it.
+    // If plan is not possible, the desire is dropped
+    void pick_and_plan();
+    void follow_the_plan();
+
+private:
     ComponentObject *parent_;
-    // List of all things we want done
-    std::vector<ai::MetricContextPair> desires_;
+
+    // List of all things we want done, plan how we want it done and list of
+    // specific actions
+    struct {
+        std::vector<ai::MetricContextPair> desires;
+        Optional<ai::MetricContextPair> current;
+        // steps with arguments
+        ai::Activities plan;
+    } wish_;
 };
 
 } // namespace bm

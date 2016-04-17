@@ -8,11 +8,6 @@
 
 namespace bm {
 
-//enum class ComponentId: uint32_t {
-//    Entity,         // Has world position
-//    Intelligent,    // can think()
-//};
-
 class EntityComponent;
 class BrainsComponent;
 class BodyComponent;
@@ -34,11 +29,19 @@ public:
     AS_COMPONENT(body,   Body)
     AS_COMPONENT(worker, Worker)
 
-    // Filter list of available actions which make goal closer
-    //ai::ActionVec ai_choose_actions(const ai::MetricVec &g) const;
-    // Initializes static vector of actions and returns constref
+    ComponentObject(World *wo) {
+        // No other world can get here
+        Q_ASSERT(world_ == nullptr || world_ == wo);
+        world_ = wo;
+    }
+    static World* get_world() { return world_; }
+
+    // Override this for descendants to change available actions (or script it)
     virtual const ai::ActionDefVec& ai_get_all_actions() const = 0;
-    //static ai::ActionVec ai_load_actions(const char* script);
+
+private:
+    // static?
+    static World *world_;
 };
 
 

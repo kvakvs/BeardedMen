@@ -18,14 +18,20 @@ using Route = std::list<Vec3i>;
 // This includes both animate and inanimate objects (dropped resources,
 // dead bodies etc)
 class EntityComponent {
+    ComponentObject *parent_;
     Vec3i pos_;
     EntityId id_;
     ModelId model_id_;
-    Route planned_route_;
+
+    struct {
+        //bool is_moving_ = false;
+        Route planned_route_;
+        Vec3i dst_;
+    } movement;
 
 public:
-    EntityComponent(const Vec3i &pos, ModelId mod)
-        : pos_(pos), model_id_(mod) {
+    EntityComponent(ComponentObject *p, const Vec3i &pos, ModelId mod)
+        : parent_(p), pos_(pos), model_id_(mod) {
     }
 
     // Each entity has a position in 3d world (cell)
@@ -39,16 +45,23 @@ public:
 
     // Draw me like one of your cubic models
     virtual ModelId get_model_id() { return model_id_; }
+    ComponentObject* get_parent() { return parent_; }
 
     // If route is planned, do a step. TODO: Respect movement speed
-    void step(const World &wo);
-    bool attempt_move(const World &wo, const Vec3i &new_pos);
+    void step();
+    bool attempt_move(const Vec3i &new_pos);
 
-    void clear_planned_route() { planned_route_.clear(); }
-    bool has_planned_route() const { return planned_route_.empty() == false; }
-    void set_planned_route(Route &r) {
-        planned_route_ = std::move(r);
+    // Routing
+    void move_to(const Vec3i& pos);
+    void clear_planned_route() { movement.planned_route_.clear(); }
+    bool is_moving() const {
+        return movement.planned_route_.empty() == false;
     }
+    void set_planned_route(const Vec3i& dst, Route &r) {
+        movement.dst_ = dst;
+        movement.planned_route_ = std::move(r);
+    }
+    Vec3i get_move_destination() const { return movement.dst_; }
 };
 
 class Entity: public ComponentObject {

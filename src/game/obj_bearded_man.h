@@ -14,8 +14,9 @@ namespace bm {
 class BeardedMan: public ComponentObject
 {
 public:
-    BeardedMan(const Vec3i &pos)
-        : entity_(pos, ModelId::BeardedMan),
+    BeardedMan(World *wo, const Vec3i &pos)
+        : ComponentObject(wo),
+          entity_(this, pos, ModelId::BeardedMan),
           body_(BodyType::BeardedMan),
           brains_(this)
     {

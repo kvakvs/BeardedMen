@@ -32,7 +32,10 @@ public:
 
 //    void add_position_order(const Vec3i &pos, JobType jt);
     bool is_mineable(const Vec3i &pos) const;
+
     bm::VolumeType* get_volume() { return &volume_; }
+    const bm::VolumeType* get_volume() const { return &volume_; }
+
     void mine_voxel(const Vec3i &pos);
     VoxelType get_voxel(const Vec3i& pos) const {
         return volume_.getVoxel(pos);
