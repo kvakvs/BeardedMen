@@ -27,9 +27,9 @@ class EntityComponent {
 
     struct {
         //bool is_moving_ = false;
-        Route planned_route_;
-        Vec3i dst_;
-    } movement;
+        Route planned_route;
+        Vec3i dst;
+    } movement_;
 
 public:
     EntityComponent(ComponentObject *p, const Vec3i &pos, ModelId mod)
@@ -54,19 +54,22 @@ public:
     bool attempt_move(const Vec3i &new_pos);
 
     // Routing
-    void move_to(const Vec3i& pos);
-    void clear_planned_route() { movement.planned_route_.clear(); }
+    const Route& get_route() const { return movement_.planned_route; }
+    bool move_to(const Vec3i& pos);
+    void clear_planned_route() { movement_.planned_route.clear(); }
     bool is_moving() const {
-        return movement.planned_route_.empty() == false;
+        return movement_.planned_route.empty() == false;
     }
     void set_planned_route(const Vec3i& dst, Route &r);
-    Vec3i get_move_destination() const { return movement.dst_; }
+    Vec3i get_move_destination() const { return movement_.dst; }
 
 private:
     // Find route ignoring walls only respecting ground
     Route find_relaxed_route(const Vec3i& dst);
     // Find strict route using ground
     Route find_route(const Vec3i& dst);
+    // This is called several times in attempt to find a path to a block
+    bool find_and_set_strict_route(const Vec3i &dst);
 };
 
 QDebug operator<< (QDebug d, const EntityComponent& ent);

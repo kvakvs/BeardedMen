@@ -1,5 +1,6 @@
- #include "gfx/game_widget.h"
+#include "gfx/game_widget.h"
 #include "game/obj_bearded_man.h"
+#include "game/world.h"
 
 #include <cmath>
 
@@ -22,13 +23,17 @@ void GameWidget::initialize() {
     //
     // Load models
     //
-    load_model(ModelId::Cursor,
-                         "assets/model/cursor.qb", rgb_vox_shader_);
-    load_model(ModelId::CursorRed,
-                             "assets/model/cursor_red.qb", rgb_vox_shader_);
+    load_model(ModelId::Cursor, "assets/model/cursor.qb", rgb_vox_shader_);
+    load_model(ModelId::CursorRed, "assets/model/cursor_red.qb",
+               rgb_vox_shader_);
     cursor_pos_ = Vec3i(VIEWSZ_X / 2, 4, VIEWSZ_Z / 2);
 
     world_ = std::make_unique<World>(*volume_);
+
+    load_model(ModelId::MarkPick, "assets/model/mark_pick.qb",
+               rgb_vox_shader_, false);
+    load_model(ModelId::MarkRoute, "assets/model/mark_route.qb",
+               rgb_vox_shader_, false);
 
     // Spawn 7 bearded men
     load_model(ModelId::BeardedMan, "assets/model/dorf.qb", rgb_vox_shader_);
@@ -86,7 +91,8 @@ GameWidget::GameWidget(QWidget *parent)
 
 Model *GameWidget::load_model(ModelId register_as,
                               const char *file,
-                             ShaderPtr shad) {
+                              ShaderPtr shad,
+                              bool re_scale) {
     auto qb_model = std::make_unique<QBFile>(file);
     auto raw_mesh = qb_model->get_mesh_for_volume(0);
     qb_model->free_voxels_for_volume(0);
@@ -95,7 +101,10 @@ Model *GameWidget::load_model(ModelId register_as,
                 this,
                 raw_mesh,
                 Vec3f(0.f, 0.f, 0.f),
-                qb_model->get_downscale(0)
+                // Rescale to fit in 1x1x1 cube or use typical 1/8=0.125
+                // shrink for 8x8x8 model
+                re_scale ? qb_model->get_downscale(0)
+                         : Vec3f(.125f, .125f, .125f)
                 );
 
     models_[register_as] = Model(opengl_mesh, shad);
@@ -110,7 +119,7 @@ const Model *GameWidget::find_model(ModelId id) const
 }
 
 void GameWidget::render_frame() {
-    render(*terrain_, Vec3f(0.f, 0.f, 0.f), 0.f);
+    render_model(*terrain_, Vec3f(0.f, 0.f, 0.f), 0.f);
     //dorf_.render(this, pos_for_cell(dorf_pos_), 0.f);
 
     world_->each_obj([this](auto /*id*/, auto co) {
@@ -120,7 +129,7 @@ void GameWidget::render_frame() {
             if (model_id != ModelId::NIL) {
                 auto m = this->find_model(model_id);
                 Q_ASSERT(m);
-                this->render(*m, pos_for_cell(ent->get_pos()), 0.0f);
+                this->render_model(*m, pos_for_cell(ent->get_pos()), 0.0f);
             }
         }
     });
@@ -128,12 +137,47 @@ void GameWidget::render_frame() {
     //wood_.render(this, pos_for_cell(dorf_pos_+Vec3i(0,0,2)), 0.f);
 
     auto cursor = models_.find(ModelId::Cursor);
-    render(cursor->second, pos_for_cell(cursor_pos_), 0.f);
+    render_model(cursor->second, pos_for_cell(cursor_pos_), 0.f);
 
-    //render_overlay_xyz();
+    render_orders();
+    render_debug_routes();
+    render_overlay_xyz();
 }
 
-void GameWidget::render(const Model& m, const Vec3f &pos, float rot_y)
+void GameWidget::render_orders() {
+    render_orders(world_->get_orders());
+    render_orders(world_->get_orders_low());
+    render_orders(world_->get_orders_verylow());
+}
+
+void GameWidget::render_orders(const ai::OrderMap& order_map)
+{
+    auto m_pick = models_.find(ModelId::MarkPick);
+    Vec3i oneup(0,-1,0);
+
+    for (auto o_iter: order_map) {
+        auto& o = o_iter.second;
+        auto pos = o->ctx_.pos_;
+        render_model(m_pick->second, pos_for_cell(pos + oneup), 0.f);
+    }
+}
+
+void GameWidget::render_debug_routes()
+{
+    auto m_flag = models_.find(ModelId::MarkRoute);
+    Vec3i oneup(0,-1,0);
+
+    for (auto o_iter: world_->get_objects()) {
+        const ComponentObject *o = o_iter.second;
+        auto ent = o->as_entity();
+        auto& route = ent->get_route();
+        for (auto step: route) {
+            render_model(m_flag->second, pos_for_cell(step + oneup), 0.f);
+        }
+    }
+}
+
+void GameWidget::render_model(const Model& m, const Vec3f &pos, float rot_y)
 {
     if (not m.mesh_->is_valid()) {
         return;
@@ -186,7 +230,7 @@ void GameWidget::render_overlay_xyz() {
 
     auto xyz = find_model(ModelId::Xyz);
     Q_ASSERT(xyz);
-    render(*xyz, Vec3f(0.f, 0.f, 0.f), -cam_yaw_);
+    render_model(*xyz, Vec3f(0.f, 0.f, 0.f), -cam_yaw_);
 
     glPopAttrib();
     glEnable(GL_DEPTH_TEST);

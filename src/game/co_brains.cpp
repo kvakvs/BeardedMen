@@ -107,7 +107,11 @@ void BrainsComponent::follow_the_plan()
             auto ent = get_parent()->as_entity();
             if (not ent->is_moving() && ent->get_move_destination() != dst)
             {
-                ent->move_to(dst);
+                if (not ent->move_to(dst)) {
+                    // no route
+                    finish_plan();
+                    return;
+                }
 //                qDebug() << "brains: Move: will move to" << dst;
                 break;
             } else {
@@ -119,26 +123,34 @@ void BrainsComponent::follow_the_plan()
                 }
                 // not moving, but destination is correct - means can't move
                 if (not ent->is_moving()) {
-//                    qDebug() << "brains: Move: failed";
-                    wish_.plan.erase(wish_.plan.begin());
-                    break;
+                    finish_plan();
+                    return;
                 }
             }
         } break;
     }
 
     if (wish_.plan.empty()) {
-//        qDebug() << "brains: plan done";
-        if (wo->conditions_stand_true(ord->desired_, ctx)) {
-            wo->report_fulfilled(ord->id_);
-        } else {
-            wo->report_failed(ord->id_);
-        }
-        wish_.current = {};
+        finish_plan();
     }
 }
 
+void BrainsComponent::finish_plan()
+{
+    auto wo            = ComponentObject::get_world();
+    ai::Order::Ptr ord = wish_.current;
+    ai::Context ctx    = ord->ctx_; // copy
+
+    if (wo->conditions_stand_true(ord->desired_, ctx)) {
+        wo->report_fulfilled(ord->id_);
+    } else {
+        wo->report_failed(ord->id_);
+    }
+    wish_.current = {};
+}
+
 void BrainsComponent::want(ai::Order::Ptr desire) {
+    wish_.plan.clear();
     wish_.orders.clear();
     wish_.orders.push_back(desire);
 }

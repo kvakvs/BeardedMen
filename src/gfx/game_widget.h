@@ -36,8 +36,9 @@ class GameWidget : public GLVersion_Widget {
 
     // Returns pointer for temporary use and modification, do not store permanently
     Model *load_model(ModelId register_as,
-                    const char *file,
-                    ShaderPtr shad);
+                      const char *file,
+                      ShaderPtr shad,
+                      bool re_scale = true);
     const Model *find_model(ModelId id) const;
 
     // QT override
@@ -83,7 +84,9 @@ class GameWidget : public GLVersion_Widget {
         }
     };
 
-    void render(const Model& m, const Vec3f &pos, float rot_y);
+    void render_model(const Model& m, const Vec3f &pos, float rot_y);
+
+    // These two camera control funs make camera always look at cursor
     virtual QVector3D get_camera_focus(QVector3D /*forward*/) override {
         auto cur = pos_for_cell(cursor_pos_);
         return QVector3D(cur.getX(), cur.getY(), cur.getZ());
@@ -119,6 +122,9 @@ private:
     void render_overlay_xyz();
 
     void on_cursor_changed();
+    void render_orders();
+    void render_orders(const ai::OrderMap &order_map);
+    void render_debug_routes();
 };
 
 }  // namespace bm

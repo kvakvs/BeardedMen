@@ -11,6 +11,8 @@
 
 namespace bm {
 
+using ObjectMap = std::map<EntityId, ComponentObject *>;
+
 class World {
 public:
     World(bm::RawVolume& vol): volume_(vol) {
@@ -58,6 +60,12 @@ public:
     void report_failed(ai::OrderId id);
     void report_impossible(ai::OrderId id);
 
+    // Rendering helpers allow to view some data
+    const ai::OrderMap& get_orders() const { return orders_; }
+    const ai::OrderMap& get_orders_low() const { return orders_low_; }
+    const ai::OrderMap& get_orders_verylow() const { return orders_verylow_; }
+    const ObjectMap& get_objects() const { return objects_; }
+
     //
     // Sensors and metrics system
     //
@@ -82,7 +90,7 @@ private:
     std::mt19937 rand_;
 
     uint64_t ent_id_ = 0;
-    std::map<EntityId, ComponentObject *> objects_;
+    ObjectMap objects_;
     // Visible piece of world + some nearby
     bm::VolumeType& volume_;
 
@@ -93,25 +101,25 @@ private:
     ai::OrderMap orders_;
     ai::OrderMap orders_low_; // lower prio
     ai::OrderMap orders_verylow_; // even lower prio
-    constexpr static uint64_t LOW_PRIO_ORDERS_EVERY = 5;
-    constexpr static uint64_t VERY_LOW_PRIO_ORDERS_EVERY = 25;
+    constexpr static uint64_t LOW_PRIO_ORDERS_EVERY = 3;
+    constexpr static uint64_t VERY_LOW_PRIO_ORDERS_EVERY = 6;
 
     // Simulation step (equivalent of time)
     uint64_t sim_step_ = 0;
 };
 
 
-inline uint64_t square_distance(const Vec3i& a, const Vec3i& b) {
-    auto dx = b.getX() - a.getX();
-    auto dy = b.getY() - a.getY();
-    auto dz = b.getZ() - a.getZ();
+inline int64_t square_distance(const Vec3i& a, const Vec3i& b) {
+    int64_t dx = b.getX() - a.getX();
+    int64_t dy = b.getY() - a.getY();
+    int64_t dz = b.getZ() - a.getZ();
     return dx*dx + dy*dy + dz*dz;
 }
 
 inline bool adjacent_or_same(const Vec3i& a, const Vec3i& b) {
-    auto dx = b.getX() - a.getX();
-    auto dy = b.getY() - a.getY();
-    auto dz = b.getZ() - a.getZ();
+    int dx = b.getX() - a.getX();
+    int dy = b.getY() - a.getY();
+    int dz = b.getZ() - a.getZ();
     return (dy == 0) && (
                 (std::abs(dx) <= 1 && dz == 0)
                 || (std::abs(dz) <= 1 && dx == 0)

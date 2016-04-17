@@ -32,6 +32,9 @@ private:
     // If plan is not possible, the desire is dropped
     void pick_and_plan();
     void follow_the_plan();
+    // We consider plan finished or interrupted. Check if its finished, and
+    // report back
+    void finish_plan();
 
 private:
     ComponentObject *parent_;

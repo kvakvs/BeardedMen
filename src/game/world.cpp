@@ -82,7 +82,6 @@ void World::remove_order(ai::OrderId id)
 // Order scheduler
 ai::Order::Ptr World::get_random_desire(ComponentObject *actor) {
     if (sim_step_ % VERY_LOW_PRIO_ORDERS_EVERY == 0) {
-        qDebug() << sim_step_ << "very low prio";
         ai::Order::Ptr result = get_random_desire(actor, orders_verylow_);
         if (result) {
             return result;
@@ -90,13 +89,16 @@ ai::Order::Ptr World::get_random_desire(ComponentObject *actor) {
     }
     // Every N=5 steps try low prio orders, else return normal order if any
     if (sim_step_ % LOW_PRIO_ORDERS_EVERY == 0) {
-        qDebug() << sim_step_ << "low prio";
         ai::Order::Ptr result = get_random_desire(actor, orders_low_);
         if (result) {
             return result;
         }
     }
-    return get_random_desire(actor, orders_);
+    // If normal orders is empty - look into lower priorities
+    auto n = get_random_desire(actor, orders_);
+    if (!n) { n = get_random_desire(actor, orders_low_); }
+    if (!n) { n = get_random_desire(actor, orders_verylow_); }
+    return n;
 }
 
 void World::add_mining_goal(const Vec3i &pos)
@@ -221,16 +223,18 @@ ai::Order::Ptr World::get_random_desire(ComponentObject *actor,
 
 void World::lower_prio(ai::OrderId id)
 {
+    // Find in low and move to very low
     auto low_iter = orders_low_.find(id);
     if (low_iter != orders_low_.end()) {
         orders_verylow_[id] = low_iter->second;
-        orders_low_.erase(id);
+        orders_low_.erase(low_iter);
         return;
     }
+    // Find in normal and move to low
     auto iter = orders_.find(id);
     if (iter != orders_.end()) {
         orders_low_[id] = iter->second;
-        orders_.erase(id);
+        orders_.erase(iter);
     }
 }
 

@@ -9,7 +9,9 @@ enum class ModelId: uint32_t {
     Cursor, CursorRed,
     Wood,
     BeardedMan,
-    Xyz,
+    Xyz,            // debug xyz axis
+    MarkPick,
+    MarkRoute,      // debug
 };
 
 } // ns bm

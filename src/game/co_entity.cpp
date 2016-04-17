@@ -7,11 +7,11 @@
 namespace bm {
 
 void EntityComponent::step() {
-    if (movement.planned_route_.empty() == false) {
-        if (attempt_move(movement.planned_route_.front())) {
-            movement.planned_route_.pop_front();
+    if (movement_.planned_route.empty() == false) {
+        if (attempt_move(movement_.planned_route.front())) {
+            movement_.planned_route.pop_front();
         } else {
-            movement.planned_route_.clear();
+            movement_.planned_route.clear();
         }
     }
 }
@@ -28,52 +28,77 @@ bool EntityComponent::attempt_move(const Vec3i &new_pos)
 
 // Relaxed validator which ignores walls for routing
 inline bool voxel_validate_relaxed(const VolumeType* vol,
-                                       const Vec3i &p) {
+                                   const Vec3i &p) {
     return is_solid(vol->getVoxel(p + Vec3i(0,1,0)));
 }
 
 // Stricter validator which respects walls
 static inline bool voxel_validate_strict(const VolumeType* vol,
-                                                       const Vec3i &p) {
-    return is_air(vol->getVoxel(p));
+                                         const Vec3i &p) {
+    return is_air(vol->getVoxel(p)) &&
            is_solid(vol->getVoxel(p + Vec3i(0,1,0)));
 }
 
+bool EntityComponent::move_to(const Vec3i &dst)
+{
+    clear_planned_route();
+    return find_and_set_strict_route(dst)
+            || find_and_set_strict_route(dst + Vec3i(1,0,0))
+            || find_and_set_strict_route(dst + Vec3i(-1,0,0))
+            || find_and_set_strict_route(dst + Vec3i(0,0,1))
+            || find_and_set_strict_route(dst + Vec3i(0,0,-1));
+}
+
+bool EntityComponent::find_and_set_strict_route(const Vec3i& dst)
+{
+    // You are not going into the rock
+    auto wo = ComponentObject::get_world();
+    if (not is_air(wo->get_voxel(dst))) {
+            return false;
+    }
+
+    Route path = find_route(dst);
+
+    if (path.empty()) {
+        return false;
+    } else {
+        set_planned_route(dst, path);
+        return true;
+    }
+}
+
+/*
 void EntityComponent::move_to(const Vec3i &dst)
 {
     clear_planned_route();
     Route relaxed_path = find_relaxed_route(dst);
 
     if (relaxed_path.empty()) {
-//        qDebug() << "relaxed path empty";
         // No route, even ignoring walls
         return;
     } else {
-//        qDebug() << "relaxed path" << relaxed_path;
         Route strict_path = find_route(dst);
         if (strict_path.empty()) {
             if (relaxed_path.size() > 1) {
                 // Try one step back
                 relaxed_path.pop_back();
                 strict_path = find_route(relaxed_path.back());
-//                qDebug() << "set route(2)" << strict_path;
                 set_planned_route(dst, strict_path);
                 return;
             }
             if (strict_path.empty()) {
-//                qDebug() << "strict path(2) empty";
                 clear_planned_route();
                 return;
             }
         }
-//        qDebug() << "set route(1)" << strict_path;
         set_planned_route(dst, strict_path);
     }
 }
+*/
 
 void EntityComponent::set_planned_route(const Vec3i &dst, Route &r) {
-    movement.dst_ = dst;
-    movement.planned_route_ = std::move(r);
+    movement_.dst = dst;
+    movement_.planned_route = std::move(r);
 }
 
 Route EntityComponent::find_relaxed_route(const Vec3i &dst)
@@ -107,7 +132,7 @@ Route EntityComponent::find_route(const Vec3i &dst)
     pv::AStarPathfinderParams<VolumeType> pfpar(
                 const_cast<VolumeType*>(vol),
                 get_pos(), dst, & result,
-                1.0 /*bias*/, 1000 /*maxlength*/,
+                1.0 /*bias*/, 50 /*maxlength*/,
                 pv::SixConnected,
                 & voxel_validate_strict);
 
