@@ -149,6 +149,26 @@ public:
         : actor_(act) {}
 };
 
-using MetricContextPair = std::pair<MetricVec, Context>;
+//using Order = std::pair<MetricVec, Context>;
+
+using OrderId = uint64_t;
+
+// Desired metrics paired with execution context
+class Order {
+    static uint64_t last_id_;
+public:
+    OrderId     id_;
+    MetricVec   desired_;
+    Context     ctx_;
+
+    using Ptr = std::shared_ptr<Order>;
+
+    Order() = delete;               // nocreate
+    Order(const Order&) = delete;   // nocopy
+    Order(const MetricVec& m, const Context& c)
+        : desired_(m), ctx_(c) {
+        id_ = last_id_++;
+    }
+};
 
 }} // ns ai::bm

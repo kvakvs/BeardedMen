@@ -25,7 +25,7 @@ public:
     void think();
 
     // Set a goal. AI will try and find a way to reach the goal.
-    void want(const ai::MetricContextPair &desire);
+    void want(ai::Order::Ptr desire);
 
 private:
     // From our desires pick one (first) and try find a plan for it.
@@ -39,8 +39,8 @@ private:
     // List of all things we want done, plan how we want it done and list of
     // specific actions
     struct {
-        std::vector<ai::MetricContextPair> desires;
-        Optional<ai::MetricContextPair> current;
+        std::vector<ai::Order::Ptr> orders;
+        Optional<ai::Order::Ptr> current;
         // steps with arguments
         ai::Activities plan;
     } wish_;

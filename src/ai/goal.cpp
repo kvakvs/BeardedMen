@@ -10,6 +10,8 @@
 namespace bm {
 namespace ai {
 
+uint64_t Order::last_id_ = 0;
+
 Vec3i Value::get_pos() const
 {
     Q_ASSERT(is_position());

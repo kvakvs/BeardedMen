@@ -8,6 +8,8 @@
 
 namespace bm {
 
+#if 0
+
 // Abstract order interface, that actors will adhere to.
 // Order can be an area order (i.e. dig these halls) a position order (i.e.
 // dig here, move here), target order (kill target).
@@ -62,5 +64,6 @@ public:
         : Order(OrderTargetType::Entity, jt) {
     }
 };
+#endif //0
 
 } // namespace bm

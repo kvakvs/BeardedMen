@@ -17,27 +17,27 @@ void BrainsComponent::think() {
 void BrainsComponent::pick_and_plan() {
     auto wo = ComponentObject::get_world();
 
-    while (not wish_.desires.empty()) {
-        auto &pair = wish_.desires.back();
-
-        ai::Context ctx = pair.second;
+    while (not wish_.orders.empty()) {
+        ai::Order::Ptr ord = wish_.orders.back();
+        auto ctx = ord->ctx_;
         ctx.actor_ = get_parent();
-        if (wo->conditions_stand_true(pair.first, ctx)) {
+
+        if (wo->conditions_stand_true(ord->desired_, ctx)) {
             // we do not desire anymore that which came true
-            wish_.desires.pop_back();
+            wish_.orders.pop_back();
         } else {
             break;
         }
     }
-    if (wish_.desires.empty()) {
+    if (wish_.orders.empty()) {
         // Idle, no desires. Wait. Loiter. Drink alcohol.
         return;
     }
 
-    auto one_desire = wish_.desires.front();
-    auto &want = one_desire.first;
+    ai::Order::Ptr one_ord = wish_.orders.front();
+    auto &want = one_ord->desired_;
 
-    ai::Context ctx = one_desire.second; // copy
+    ai::Context ctx = one_ord->ctx_; // copy
     ctx.actor_ = get_parent();
 
     auto actions = ai::propose_plan(
@@ -48,14 +48,14 @@ void BrainsComponent::pick_and_plan() {
     // if there is no plan of actions, we don't want it anymore
     if (actions.empty()) {
         // forget this one
-        wish_.desires.erase(wish_.desires.begin());
+        wish_.orders.erase(wish_.orders.begin());
         wish_.current = {};
         return;
     }
 
 //    qDebug() << "brains: have plan!";
-    wish_.current = one_desire;
-    wish_.desires.erase(wish_.desires.begin()); // consumed a plan
+    wish_.current = one_ord;
+    wish_.orders.erase(wish_.orders.begin()); // consumed a plan
 
     // High level action plan only contains actions. Now try and use context
     // to plan actual activities with destination objects and positions
@@ -69,11 +69,11 @@ void BrainsComponent::follow_the_plan()
     }
 
     // if plan is fulfilled
-    auto         wo = ComponentObject::get_world();
-    auto       pair = wish_.current.get_value();
-    ai::Context ctx = pair.second;
-    ctx.actor_      = get_parent();
-    if (wo->conditions_stand_true(pair.first, ctx)) {
+    auto wo             = ComponentObject::get_world();
+    ai::Order::Ptr ord = wish_.current.get_value();
+    ai::Context ctx     = ord->ctx_; // copy
+    ctx.actor_          = get_parent();
+    if (wo->conditions_stand_true(ord->desired_, ctx)) {
         // we do not desire anymore that which came true
 //        qDebug() << "brains: Plan fulfilled, dropping";
         wish_.current = {};
@@ -131,9 +131,9 @@ void BrainsComponent::follow_the_plan()
     }
 }
 
-void BrainsComponent::want(const ai::MetricContextPair &desire) {
-    wish_.desires.clear();
-    wish_.desires.push_back(desire);
+void BrainsComponent::want(ai::Order::Ptr desire) {
+    wish_.orders.clear();
+    wish_.orders.push_back(desire);
 }
 
 

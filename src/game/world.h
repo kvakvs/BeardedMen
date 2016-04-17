@@ -46,10 +46,10 @@ public:
     //
 
     // Check if any orders are available
-    bool have_orders() const { return desires_.empty() == false; }
-    bool add_goal(const ai::MetricContextPair& desired);
+    bool have_orders() const { return orders_.empty() == false; }
+    bool add_goal(ai::Order::Ptr desired);
     // Get a random order. See if it is not completed.
-    Optional<ai::MetricContextPair> get_random_desire(ComponentObject *actor);
+    ai::Order::Ptr get_random_desire(ComponentObject *actor);
     void add_mining_goal(const Vec3i& pos);
 
     //
@@ -79,7 +79,7 @@ private:
 
     // What player desires (goals of sort, without preconditions) - will
     // propagate to workers and they will see how to fulfill master's wish.
-    std::vector<ai::MetricContextPair> desires_;
+    std::vector<ai::Order::Ptr> orders_;
 };
 
 

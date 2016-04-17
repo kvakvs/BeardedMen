@@ -33,11 +33,11 @@ void World::think() {
         if (brains) {
             brains->think();
 
-            if (not desires_.empty()) {
+            if (not orders_.empty()) {
                 auto dsr = get_random_desire(co);
-                if (dsr.has_value()) {
+                if (dsr) {
                     // Now he wants to do the order, unless it's impossible
-                    brains->want(dsr.get_value());
+                    brains->want(dsr);
                 }
             }
         } // if brains
@@ -59,32 +59,32 @@ void World::mine_voxel(const Vec3i &pos) {
     }
 }
 
-bool World::add_goal(const ai::MetricContextPair& desired) {
-    desires_.push_back(desired);
+bool World::add_goal(ai::Order::Ptr desired) {
+    orders_.push_back(desired);
     return true;
 }
 
-Optional<ai::MetricContextPair> World::get_random_desire(ComponentObject *actor) {
+ai::Order::Ptr World::get_random_desire(ComponentObject *actor) {
     // Pick a random order. Check if it is not fulfilled yet. Give out.
-    while (not desires_.empty()) {
+    while (not orders_.empty()) {
         std::uniform_int_distribution<size_t>
-                rand_id(0, desires_.size()-1);
+                rand_id(0, orders_.size()-1);
         size_t oid = rand_id(rand_);
 
-        auto some_desire = desires_[oid];
-        ai::Context ctx(some_desire.second);
+        ai::Order::Ptr some_order = orders_[oid];
+        ai::Context ctx(some_order->ctx_); // copy
         ctx.actor_ = actor;
-        if (conditions_stand_true(some_desire.first, ctx)) {
+        if (conditions_stand_true(some_order->desired_, ctx)) {
             // Desire is fulfilled, we do not share it with actors anymore
             qDebug() << "world: Wish is true, deleting";
-            desires_.erase(desires_.begin() + oid);
-            return {};
+            orders_.erase(orders_.begin() + oid);
+            return nullptr;
         }
 
         //qDebug() << "world: get_random_desire" << some_desire.first;
-        return some_desire;
+        return some_order;
     }
-    return {};
+    return nullptr;
 }
 
 void World::add_mining_goal(const Vec3i &pos)
@@ -95,9 +95,9 @@ void World::add_mining_goal(const Vec3i &pos)
     ai::Context ctx(nullptr);
     ctx.pos_ = pos;
 
-    auto mc_pair = std::make_pair(m, ctx);
+    auto o = std::make_shared<ai::Order>(m, ctx);
 
-    if (add_goal(mc_pair)) {
+    if (add_goal(o)) {
         qDebug() << "Player wishes to mine out a block" << pos;
     }
 }
