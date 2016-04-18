@@ -40,7 +40,7 @@ VoxelType populate::get_perlin_voxel(float perlinVal, int x, int y, int z) {
     // So in top 3-8 layers we build earth surface
     if (y >= perlinVal * 10) {
         // solid
-        BlockId m = (BlockId)((int)(perlinVal * 50.0) % 5 + 1);
+        BlockId m = (BlockId)((int)(perlinVal * 50.0) % 4 + 1);
         voxel.setMaterial(m);
         voxel.setDensity(VoxelType::getMaxDensity());
     } else {

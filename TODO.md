@@ -9,7 +9,7 @@
 - Factions, friendly/loyal/enemy/separatist?
 - Body parts, vital body parts, wounds, scars, skin fat, bleeding. Undeads missing vital organs
    (hit points accumulated damage to kill the thing)
-- Use body parts for activities - hands to carry, legs to move, cat uses teeth to carry mouse
++ Use body parts for activities - hands to carry, legs to move, cat uses teeth to carry mouse
 - Throwing, attacking - may wound/kill
 - Sicknesses (syndromes), immunity, contraction: injected, on contact, inhaled
 - Getting wet, contaminated with liquids

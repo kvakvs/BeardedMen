@@ -53,9 +53,14 @@ bool World::is_mineable(const Vec3i &pos) const {
 
 void World::mine_voxel(const Vec3i &pos) {
     if (is_solid(volume_.getVoxel(pos))) {
-        volume_.setVoxel(pos, VoxelType());
         force_update_terrain_mesh_ = true;
-        // TODO: Produce a drop with mined rock
+
+        if (is_rock(volume_.getVoxel(pos)) && d100_(rand_) < 25) {
+            spawn_object(pos, ObjectId::Boulder);
+        }
+
+        // air
+        volume_.setVoxel(pos, VoxelType());
     } else {
         qDebug() << "can't mine - not solid";
     }

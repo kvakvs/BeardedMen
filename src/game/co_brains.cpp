@@ -81,8 +81,8 @@ void BrainsComponent::follow_the_plan()
 
     Q_ASSERT(not task_.plan.empty());
     auto& step = task_.plan.front();
-    qDebug() << "brains: follow plan" << *get_parent()
-             << " step=" << step.action_;
+//    qDebug() << "brains: follow plan" << *get_parent()
+//             << " step=" << step.action_;
 
     switch (step.action_) {
     case ai::ActionType::None: // no action (this should not be in plan either)

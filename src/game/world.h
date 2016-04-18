@@ -94,6 +94,7 @@ public:
 
 private:
     std::mt19937 rand_;
+    std::uniform_int_distribution<int> d100_ {0, 99};
 
     uint64_t ent_id_ = 0;
     ObjectMap objects_;

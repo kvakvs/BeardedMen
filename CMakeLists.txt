@@ -43,8 +43,8 @@ SET(SRC_FILES
 
     src/tab/t_action.cpp	src/tab/t_action.h
     src/tab/t_metric.cpp	src/tab/t_metric.h
+    src/tab/t_block.h
 
-    src/game/block_id.h
     src/game/component.cpp	src/game/component.h
     src/game/co_body.cpp	src/game/co_body.h
     src/game/co_brains.cpp	src/game/co_brains.h
