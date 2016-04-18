@@ -18,18 +18,6 @@ Vec3i Value::get_pos() const
     return Vec3i(pos_.x, pos_.y, pos_.z);
 }
 
-QDebug operator<<(QDebug d, MetricType mt) {
-    d.nospace();
-    switch (mt) {
-    case MetricType::MeleeRange: d << "MeleeRange"; break;
-    case MetricType::BlockIsNotSolid: d << "BlockIsNotSolid"; break;
-    case MetricType::HaveLeg: d << "HaveLeg"; break;
-    case MetricType::HaveHand: d << "HaveHand"; break;
-    case MetricType::HaveMiningPick: d << "HaveMiningPick"; break;
-    }
-    return d;
-}
-
 QDebug operator<<(QDebug d, const Value &v) {
     d.nospace();
     switch (v.get_type()) {

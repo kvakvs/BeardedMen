@@ -3,19 +3,10 @@
 #include <vector>
 
 #include "ai/goal.h"
+#include "tab/t_action.h"
 
-namespace bm {namespace ai {
-
-enum class ActionType: uint16_t {
-    None,
-    Move,
-    Mine,
-};
-
-// Actions cost for Astar planning
-float get_action_cost(ActionType at);
-
-QDebug operator<< (QDebug d, ActionType at);
+namespace bm {
+namespace ai {
 
 // Defines an action and its effects. Use only ActionType for planning
 // Has preconditions (requires_) and effects (gives_).
@@ -55,4 +46,5 @@ void flesh_out_a_plan(Activities& out_plan,
                       const ActionVec& actions,
                       const Context& ctx);
 
-}} // ns bm::ai
+} // ns bm::ai
+} // ns bm
