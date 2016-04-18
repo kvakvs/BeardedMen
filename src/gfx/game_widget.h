@@ -7,11 +7,12 @@
 #include "PolyVox/Mesh.h"
 namespace pv = PolyVox;
 
-#include <selene.h>
+//#include <selene.h>
 
 #include "gfx/loader.h"
 #include "gfx/qb_file.h"
 #include "util/vec.h"
+#include "util/optional.h"
 #include "world_volume.h"
 
 #include "game/world.h"
@@ -23,7 +24,7 @@ namespace bm {
 enum class KeyFSM: int {
     Default,        // regular keyboard movement and cursor operation
     Orders,
-    Digging,
+    Designations,
 };
 
 class GameWidget : public GLVersion_Widget {
@@ -34,11 +35,6 @@ class GameWidget : public GLVersion_Widget {
 
     GameWidget(QWidget* parent);
 
-    // Returns pointer for temporary use and modification, do not store permanently
-    Model *load_model(ModelId register_as,
-                      const char *file,
-                      ShaderPtr shad,
-                      bool re_scale = true);
     const Model *find_model(ModelId id) const;
 
     // QT override
@@ -52,18 +48,18 @@ class GameWidget : public GLVersion_Widget {
 
   protected:
     // World volume
-    //std::unique_ptr<WorldPager>     vol_;
-    //std::unique_ptr<SlabVolume>     vol_slice_;
     std::unique_ptr<bm::RawVolume>  volume_;
-    std::unique_ptr<World> world_;
-    sel::State  lua_;
+    std::unique_ptr<World>          world_;
+    //sel::State  lua_;
 
     ModelMap models_;
 
-    Vec3i cursor_pos_ = Vec3i(2,0,0);
+    Vec3i           cursor_pos_ = Vec3i(2,0,0);
+    // if M was pressed while giving designations, it contains starting corner
+    Optional<Vec3i> mark_begin_;
 
     // Ground shader and mesh
-    ShaderPtr  terrain_shader_;
+    ShaderPtr              terrain_shader_;
     std::unique_ptr<Model> terrain_;
 
     ShaderPtr  rgb_vox_shader_;
@@ -110,7 +106,7 @@ private:
     void change_keyboard_fsm(KeyFSM id);
     void fsm_keypress_exploremap(QKeyEvent *event);
     void fsm_keypress_orders(QKeyEvent *event);
-    void fsm_keypress_digging(QKeyEvent *event);
+    void fsm_keypress_designations(QKeyEvent *event);
 
     // Given integer cell position make world pos
     static Vec3f pos_for_cell(const Vec3i &i) {
@@ -121,10 +117,20 @@ private:
 
     void render_overlay_xyz();
 
+    // Loads RGB-colored QB file model. Rescales to fit into 1x1x1 cell
+    Model *load_rgb(ModelId reg, const char *name, bool re_scale = true);
+    // Returns pointer for temporary use and modification, do not store permanently
+    Model *load_model(ModelId register_as,
+                      const char *file,
+                      ShaderPtr shad,
+                      bool re_scale = true);
+
     void on_cursor_changed();
     void render_orders();
     void render_orders(const ai::OrderMap &order_map);
     void render_debug_routes();
+    void render_marked_area();
+    bool keypress_navigate_cursor(QKeyEvent *event);
 };
 
 }  // namespace bm

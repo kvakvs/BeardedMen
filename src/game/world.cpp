@@ -101,6 +101,21 @@ ai::Order::Ptr World::get_random_order(ComponentObject *actor) {
     return n;
 }
 
+void World::add_mining_goal(const Optional<Vec3i>& mark_begin,
+                            const Vec3i &pos) {
+    if (not mark_begin.has_value()) {
+        return add_mining_goal(pos);
+    }
+
+    // Issue orders for 1 layer by taking current Y from pos (cursor pos)
+    auto reg = make_region(mark_begin.get_value(), pos);
+    for (int x = reg.getLowerX(); x <= reg.getUpperX(); x++) {
+        for (int z = reg.getLowerZ(); z <= reg.getUpperZ(); z++) {
+            add_mining_goal(Vec3i(x, pos.getY(), z));
+        }
+    }
+}
+
 void World::add_mining_goal(const Vec3i &pos)
 {
     ai::MetricVec m { ai::Metric(ai::MetricType::BlockIsNotSolid,
@@ -108,12 +123,7 @@ void World::add_mining_goal(const Vec3i &pos)
                                  ai::Value(true)) };
     ai::Context ctx(nullptr);
     ctx.pos_ = pos;
-
-    auto o = std::make_shared<ai::Order>(m, ctx);
-
-    if (add_order(o)) {
-        qDebug() << "Player wishes to mine out a block" << pos;
-    }
+    add_order(std::make_shared<ai::Order>(m, ctx));
 }
 
 void World::report_fulfilled(ai::OrderId id) {

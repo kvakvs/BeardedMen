@@ -53,7 +53,12 @@ public:
     void remove_order(ai::OrderId id);
     // Get a random order. See if it is not completed.
     ai::Order::Ptr get_random_order(ComponentObject *actor);
+
+    // Give positional or area mining goal
+    void add_mining_goal(const Optional<Vec3i>& mark_begin,
+                         const Vec3i& pos);
     void add_mining_goal(const Vec3i& pos);
+
     // Report from actors if order is completed
     void report_fulfilled(ai::OrderId id);
     // Report from actors if order is failed

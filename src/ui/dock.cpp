@@ -54,7 +54,7 @@ void CNCDock::SLOT_keyboard_fsm_changed(KeyFSM fsm_state)
     case KeyFSM::Default:
         add_fsm_keys_default();
         break;
-    case KeyFSM::Digging:
+    case KeyFSM::Designations:
         add_fsm_keys_digging();
         break;
     }

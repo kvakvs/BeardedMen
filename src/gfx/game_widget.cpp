@@ -23,20 +23,17 @@ void GameWidget::initialize() {
     //
     // Load models
     //
-    load_model(ModelId::Cursor, "assets/model/cursor.qb", rgb_vox_shader_);
-    load_model(ModelId::CursorRed, "assets/model/cursor_red.qb",
-               rgb_vox_shader_);
+    load_rgb(ModelId::Cursor, "cursor");
     cursor_pos_ = Vec3i(VIEWSZ_X / 2, 4, VIEWSZ_Z / 2);
 
     world_ = std::make_unique<World>(*volume_);
 
-    load_model(ModelId::MarkPick, "assets/model/mark_pick.qb",
-               rgb_vox_shader_, false);
-    load_model(ModelId::MarkRoute, "assets/model/mark_route.qb",
-               rgb_vox_shader_, false);
+    load_rgb(ModelId::MarkPick, "mark_pick", false);
+    load_rgb(ModelId::MarkRoute, "mark_route", false);
+    load_rgb(ModelId::MarkArea, "mark_area", false);
 
     // Spawn 7 bearded men
-    load_model(ModelId::BeardedMan, "assets/model/dorf.qb", rgb_vox_shader_);
+    load_rgb(ModelId::BeardedMan, "dorf");
     const int MANY_BEARDED_MEN = 2;
     for (auto bm = 0; bm < MANY_BEARDED_MEN; ++bm) {
         world_->add(new BeardedMan(world_.get(),
@@ -44,8 +41,8 @@ void GameWidget::initialize() {
                     );
     }
 
-    load_model(ModelId::Wood, "assets/model/wood.qb", rgb_vox_shader_);
-    auto xyz = load_model(ModelId::Xyz, "assets/model/xyz.qb", rgb_vox_shader_);
+    //load_rgb(ModelId::Wood, "wood");
+    auto xyz = load_rgb(ModelId::Xyz, "xyz");
     xyz->mesh_->scale_ *= 2.0f;
     xyz->mesh_->translation_ = QVector3D(-1.0f, -1.0f, -1.0f); // pivot
 
@@ -85,8 +82,16 @@ void GameWidget::update_terrain_model() {
 
 // Returns pointer for temporary use and modification, do not store permanently
 GameWidget::GameWidget(QWidget *parent)
-    : GLVersion_Widget(parent), lua_(true) {
+    : GLVersion_Widget(parent) /*, lua_(true)*/ {
     //lua_.Load("scripts/game.lua");
+}
+
+Model *GameWidget::load_rgb(ModelId reg, const char *name, bool re_scale)
+{
+    std::string path("assets/model/");
+    path += name;
+    path += ".qb";
+    return load_model(reg, path.c_str(), rgb_vox_shader_, re_scale);
 }
 
 Model *GameWidget::load_model(ModelId register_as,
@@ -140,7 +145,9 @@ void GameWidget::render_frame() {
     render_model(cursor->second, pos_for_cell(cursor_pos_), 0.f);
 
     render_orders();
-    render_debug_routes();
+    //render_debug_routes();
+    render_marked_area();
+
     render_overlay_xyz();
 }
 
@@ -159,6 +166,24 @@ void GameWidget::render_orders(const ai::OrderMap& order_map)
         auto& o = o_iter.second;
         auto pos = o->ctx_.pos_;
         render_model(m_pick->second, pos_for_cell(pos + oneup), 0.f);
+    }
+}
+
+void GameWidget::render_marked_area() {
+    if (not mark_begin_.has_value()) {
+        return;
+    }
+
+    auto m_mark = models_.find(ModelId::MarkArea);
+    auto reg = make_region(cursor_pos_, mark_begin_.get_value());
+
+    // Completely ignore Y, assume it is current for cursor depth
+    for (int x = reg.getLowerX(); x <= reg.getUpperX(); x++) {
+        for (int z = reg.getLowerZ(); z <= reg.getUpperZ(); z++) {
+            render_model(m_mark->second,
+                         pos_for_cell(Vec3i(x, cursor_pos_.getY() - 1, z)),
+                         0.f);
+        }
     }
 }
 
@@ -264,16 +289,14 @@ void GameWidget::change_keyboard_fsm(bm::KeyFSM fsm_state)
     case KeyFSM::Orders:
         keyboard_handler_ = &GameWidget::fsm_keypress_orders;
         break;
-    case KeyFSM::Digging:
-        keyboard_handler_ = &GameWidget::fsm_keypress_digging;
+    case KeyFSM::Designations:
+        keyboard_handler_ = &GameWidget::fsm_keypress_designations;
         break;
     }
     emit SIG_keyboard_fsm_changed(fsm_state);
 }
 
-// Normal keyboard mode where you can navigate camera and map, possibly switch
-// to different modes.
-void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
+bool GameWidget::keypress_navigate_cursor(QKeyEvent* event) {
     switch ( event->key() ) {
     case Qt::Key_Right:
         if (cursor_pos_.getX() < WORLDSZ_X - 1) {
@@ -304,7 +327,6 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
             cursor_pos_ += Vec3i(0, -1, 0);
             // this is to emit ui update, camera doesn't really move
             camera_follow_cursor();
-//            on_cursor_changed();
             update_terrain_model();
         }
         break;
@@ -313,16 +335,30 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
             cursor_pos_ += Vec3i(0, 1, 0);
             // this is to emit ui update, camera doesn't really move
             camera_follow_cursor();
-//            on_cursor_changed();
             update_terrain_model();
         }
         break;
+    default:
+        return false;
+    }
+    event->accept();
+    return true;
+}
+
+// Normal keyboard mode where you can navigate camera and map, possibly switch
+// to different modes.
+void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
+    if (keypress_navigate_cursor(event)) {
+        return;
+    }
+    switch ( event->key() ) {
 //    case Qt::Key_O: {
 //        change_keyboard_fsm(KeyFSM::Orders);
 //        break;
 //    }
     case Qt::Key_D: {
-        change_keyboard_fsm(KeyFSM::Digging);
+        change_keyboard_fsm(KeyFSM::Designations);
+        event->accept();
         break;
     }
     case Qt::Key_Period: {
@@ -332,6 +368,7 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
             world_->force_update_terrain_mesh_ = false;
         }
         this->update();
+        event->accept();
     } break;
 
     case Qt::Key_W:
@@ -350,6 +387,7 @@ void GameWidget::fsm_keypress_orders(QKeyEvent *event) {
     switch ( event->key() ) {
     case Qt::Key_Escape:
         change_keyboard_fsm(KeyFSM::Default);
+        event->accept();
         break;
     case Qt::Key_W:
     case Qt::Key_S:
@@ -362,18 +400,35 @@ void GameWidget::fsm_keypress_orders(QKeyEvent *event) {
     }
 }
 
-void GameWidget::fsm_keypress_digging(QKeyEvent *event)
+void GameWidget::fsm_keypress_designations(QKeyEvent *event)
 {
+    if (keypress_navigate_cursor(event)) {
+        return;
+    }
     switch ( event->key() ) {
     case Qt::Key_Escape:
         change_keyboard_fsm(KeyFSM::Default);
+        event->accept();
         break;
+    case Qt::Key_M: {
+        if (mark_begin_.has_value()) {
+            qDebug() << "mark drop";
+            mark_begin_ = {};
+        } else {
+            qDebug() << "mark begin" << cursor_pos_;
+            mark_begin_ = cursor_pos_;
+        }
+        event->accept();
+        break;
+    }
     case Qt::Key_D: {
         // {D}esignations -> {D} mine
         // Records player's wish to have current cell mined out
-        world_->add_mining_goal(cursor_pos_);
+        world_->add_mining_goal(mark_begin_, cursor_pos_);
+        mark_begin_ = {};
         // Order accepted, return to default
         change_keyboard_fsm(KeyFSM::Default);
+        event->accept();
     } break;
 //    case Qt::Key_W:case Qt::Key_S:case Qt::Key_A:case Qt::Key_D:
 //        return GLVersion_Widget::keyPressEvent(event);

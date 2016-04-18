@@ -9,5 +9,4 @@ QDebug operator<<(QDebug d, const Vec3i &v)
     return d;
 }
 
-
 } // namespace bm
