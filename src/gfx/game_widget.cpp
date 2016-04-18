@@ -41,7 +41,11 @@ void GameWidget::initialize() {
                                    cursor_pos_ + Vec3i(bm, -1, bm)) );
     }
 
+    // Inanimate
     load_rgb(ModelId::Wood, "wood");
+    load_rgb(ModelId::Boulder, "boulder");
+
+    // Other
     auto xyz = load_rgb(ModelId::Xyz, "xyz");
     xyz->mesh_->scale_ *= 2.0f;
     xyz->mesh_->translation_ = QVector3D(-1.0f, -1.0f, -1.0f); // pivot
