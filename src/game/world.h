@@ -10,33 +10,30 @@
 #include "util/optional.h"
 #include "world_volume.h"
 #include "game/g_defs.h"
+#include "game/inanimate.h"
 
 namespace bm {
 
 using ObjectMap = std::map<EntityId, AnimateObject *>;
 
-using SpatialObjectMap = spatial::point_multimap<3, Vec3i, AnimateObject *>;
-
-class InanimateObject {
-public:
-    using Ptr = std::shared_ptr<InanimateObject>;
-    InanimateType type_;
-    InanimateObject(InanimateType t): type_(t) {}
-};
-
-using SpatialInanimateMap = spatial::point_multimap<
-                                3, Array3i, InanimateObject::Ptr>;
+using SpatialObjectMap = spatial::point_multimap<3, Array3i, AnimateObject *>;
 
 class World {
 public:
     World(bm::RawVolume& vol): volume_(vol) {
     }
-    void add_component_object(AnimateObject *ent);
+    void add_animate_object(AnimateObject *ent);
     void spawn_inanimate_object(const Vec3i& pos, InanimateType ot);
 
     template <typename EachObjFn>
-    void each_obj(EachObjFn fn) {
+    void each_animate(EachObjFn fn) {
         for (auto pair: objects_) {
+            fn(pair.first, pair.second);
+        }
+    }
+    template <typename EachObjFn>
+    void each_inanimate(EachObjFn fn) {
+        for (auto pair: inanimate_) {
             fn(pair.first, pair.second);
         }
     }

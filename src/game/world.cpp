@@ -7,23 +7,22 @@
 
 namespace bm {
 
-void World::add_component_object(AnimateObject *co) {
+void World::add_animate_object(AnimateObject *co) {
     co->as_entity()->set_id(ent_id_);
     objects_[ent_id_++] = co;
 }
 
 void World::spawn_inanimate_object(const Vec3i &pos, InanimateType ot) {
     inanimate_.insert(
-                std::make_pair(make_array(pos),
-                               std::make_shared<InanimateObject>(ot))
-                );
+        std::make_pair(make_array(pos),
+                       std::make_shared<InanimateObject>(ot)));
 }
 
 void World::think() {
     sim_step_++;
 
     // Here we think for entities (passive things like gravity)
-    each_obj([this](auto /*id*/, auto co) {
+    each_animate([this](auto /*id*/, auto co) {
         auto ent         = co->as_entity();
         auto ent_pos     = ent->get_pos();
         auto block_under = get_under(ent_pos);
@@ -37,7 +36,7 @@ void World::think() {
     });
 
     // Entities think for themselves
-    each_obj([this](auto /*id*/, auto co) {
+    each_animate([this](auto /*id*/, auto co) {
         BrainsComponent* brains = co->as_brains();
         if (brains) {
             brains->think();

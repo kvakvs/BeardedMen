@@ -36,12 +36,12 @@ void GameWidget::initialize() {
     load_rgb(ModelId::BeardedMan, "dorf");
     const int MANY_BEARDED_MEN = 1;
     for (auto bm = 0; bm < MANY_BEARDED_MEN; ++bm) {
-        world_->add_component_object(
+        world_->add_animate_object(
                     new BeardedMan(world_.get(),
                                    cursor_pos_ + Vec3i(bm, -1, bm)) );
     }
 
-    //load_rgb(ModelId::Wood, "wood");
+    load_rgb(ModelId::Wood, "wood");
     auto xyz = load_rgb(ModelId::Xyz, "xyz");
     xyz->mesh_->scale_ *= 2.0f;
     xyz->mesh_->translation_ = QVector3D(-1.0f, -1.0f, -1.0f); // pivot
@@ -125,9 +125,22 @@ const Model *GameWidget::find_model(ModelId id) const
 
 void GameWidget::render_frame() {
     render_model(*terrain_, Vec3f(0.f, 0.f, 0.f), 0.f);
-    //dorf_.render(this, pos_for_cell(dorf_pos_), 0.f);
 
-    world_->each_obj([this](auto /*id*/, auto co) {
+    render_animate_objects();
+    render_inanimate_objects();
+
+    auto cursor = models_.find(ModelId::Cursor);
+    render_model(cursor->second, pos_for_cell(cursor_pos_), 0.f);
+
+    render_orders();
+    //render_debug_routes();
+    render_marked_area();
+
+    render_overlay_xyz();
+}
+
+void GameWidget::render_animate_objects() {
+    world_->each_animate([this](auto /*id*/, auto co) {
         auto ent = co->as_entity();
         if (ent) {
             auto model_id = ent->get_model_id();
@@ -138,17 +151,14 @@ void GameWidget::render_frame() {
             }
         }
     });
+}
 
-    //wood_.render(this, pos_for_cell(dorf_pos_+Vec3i(0,0,2)), 0.f);
-
-    auto cursor = models_.find(ModelId::Cursor);
-    render_model(cursor->second, pos_for_cell(cursor_pos_), 0.f);
-
-    render_orders();
-    //render_debug_routes();
-    render_marked_area();
-
-    render_overlay_xyz();
+void GameWidget::render_inanimate_objects() {
+    world_->each_inanimate([this](auto pos, auto ia) {
+        auto m = this->find_model(ia->model_);
+        Q_ASSERT(m);
+        this->render_model(*m, pos_for_cell(make_vec3i(pos)), 0.0f);
+    });
 }
 
 void GameWidget::render_orders() {

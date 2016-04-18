@@ -51,6 +51,7 @@ SET(SRC_FILES
     src/game/co_brains.cpp	src/game/co_brains.h
     src/game/co_entity.cpp	src/game/co_entity.h
     src/game/co_worker.cpp	src/game/co_worker.h
+    src/game/inanimate.cpp	src/game/inanimate.h
     src/game/obj_bearded_man.cpp src/game/obj_bearded_man.h
     src/game/order.cpp          src/game/order.h
     src/game/settlement.cpp	src/game/settlement.h

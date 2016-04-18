@@ -131,6 +131,8 @@ private:
     void render_debug_routes();
     void render_marked_area();
     bool keypress_navigate_cursor(QKeyEvent *event);
+    void render_animate_objects();
+    void render_inanimate_objects();
 };
 
 }  // namespace bm
