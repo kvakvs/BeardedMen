@@ -43,11 +43,36 @@ bool EntityComponent::move_to(const Vec3i &dst)
 {
     clear_planned_route();
     // TODO: Try first sides closer to the worker
-    return find_and_set_strict_route(dst)
-            || find_and_set_strict_route(dst + Vec3i(1,0,0))
-            || find_and_set_strict_route(dst + Vec3i(-1,0,0))
-            || find_and_set_strict_route(dst + Vec3i(0,0,1))
-            || find_and_set_strict_route(dst + Vec3i(0,0,-1));
+    if (find_and_set_strict_route(dst)) return true;
+    if (find_and_set_strict_route(dst + Vec3i(1,0,0))) return true;
+    if (find_and_set_strict_route(dst + Vec3i(-1,0,0))) return true;
+    if (find_and_set_strict_route(dst + Vec3i(0,0,1))) return true;
+    if (find_and_set_strict_route(dst + Vec3i(0,0,-1))) return true;
+    return false;
+}
+
+bool EntityComponent::move_to(const Vec3i &dst, MovePrecision mp)
+{
+    clear_planned_route();
+    switch (mp) {
+    case MovePrecision::Exact: return find_and_set_strict_route(dst);
+    case MovePrecision::Adjacent:
+        // TODO: Try first sides closer to the worker
+        return find_and_set_strict_route(dst + Vec3i( 1, 0, 0))
+            || find_and_set_strict_route(dst + Vec3i(-1, 0, 0))
+            || find_and_set_strict_route(dst + Vec3i( 0, 0, 1))
+            || find_and_set_strict_route(dst + Vec3i( 0, 0,-1));
+    case MovePrecision::AdjacentDepth:
+        // TODO: Try first sides closer to the worker
+        return find_and_set_strict_route(dst + Vec3i( 1, 0, 0))
+            || find_and_set_strict_route(dst + Vec3i(-1, 0, 0))
+            || find_and_set_strict_route(dst + Vec3i( 0, 0, 1))
+            || find_and_set_strict_route(dst + Vec3i( 0, 0,-1))
+            || find_and_set_strict_route(dst + Vec3i( 1,-1, 0))
+            || find_and_set_strict_route(dst + Vec3i(-1,-1, 0))
+            || find_and_set_strict_route(dst + Vec3i( 0,-1, 1))
+            || find_and_set_strict_route(dst + Vec3i( 0,-1,-1));
+    }
 }
 
 bool EntityComponent::find_and_set_strict_route(const Vec3i& dst)

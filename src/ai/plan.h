@@ -2,6 +2,7 @@
 
 #include "ai/goal.h"
 #include "ai/action.h"
+#include "game/g_defs.h"
 
 namespace bm {
 

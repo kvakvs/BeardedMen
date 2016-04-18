@@ -10,6 +10,7 @@ QDebug operator<<(QDebug d, ActionType at)
     case ActionType::None: d << "None"; break;
     case ActionType::Mine: d << "Mine"; break;
     case ActionType::Move: d << "Move"; break;
+    case ActionType::MoveClose: d << "MoveClose"; break;
     }
     return d;
 }
@@ -19,7 +20,9 @@ float get_action_cost(ActionType at) {
     case ActionType::None: return 0.1f;
     case ActionType::Mine: return 50.0f;
     case ActionType::Move: return 10.0f;
+    case ActionType::MoveClose: return 10.0f;
     }
+    return 1.0f;
 }
 
 } // ns bm::ai

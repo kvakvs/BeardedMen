@@ -8,9 +8,10 @@ namespace ai {
 
 // Desired effects
 enum class MetricType: uint16_t {
-    // Creature is in hand's reach. Position is in the context, passed
-    // separately
+    // Target cell is in hand's reach standing on same depth
     MeleeRange,
+    // Target is in hand's reach and depth is approximate +1/-1
+    MeleeRangeDepth,
     // Block was extracted using tools or blasted in some way. Position is in
     // the context, passed separately
     BlockIsNotSolid,

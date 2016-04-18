@@ -32,6 +32,8 @@ QDebug operator<< (QDebug d, const ActionDef& ad);
 using ActionVec = std::vector<ai::ActionType>;
 using ActionDefVec = std::vector<ai::ActionDef>;
 
+QDebug operator<< (QDebug d, ActionVec av);
+
 // Actual thing to do with specific coords or a target
 class Activity {
 public:

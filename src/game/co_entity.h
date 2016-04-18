@@ -6,6 +6,7 @@
 #include "gfx/model.h"
 #include "model_id.h"
 #include "game/component.h"
+#include "game/g_defs.h"
 
 namespace bm {
 
@@ -55,7 +56,10 @@ public:
 
     // Routing
     const Route& get_route() const { return movement_.planned_route; }
+    // Move to dst or any adjacent
     bool move_to(const Vec3i& pos);
+    // Move to any adjacent but NOT to dst
+    bool move_to(const Vec3i &dst, MovePrecision mp);
     void clear_planned_route() { movement_.planned_route.clear(); }
     bool is_moving() const {
         return movement_.planned_route.empty() == false;

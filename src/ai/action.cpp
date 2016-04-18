@@ -30,4 +30,14 @@ void flesh_out_a_plan(Activities& out_plan,
     }
 }
 
+QDebug operator<<(QDebug d, ActionVec av)
+{
+    d.nospace() << "Actions[";
+    for (auto at: av) {
+        d << at << "; ";
+    }
+    d << "]";
+    return d;
+}
+
 }} // ns bm::ai

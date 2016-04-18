@@ -21,9 +21,18 @@ const ai::ActionDefVec &BeardedMan::ai_get_all_actions() const
             // Gives
             { Mtrc(CT::MeleeRange, V(), V(true)) /* needs pos */
             }));
+
+        bm_actions.push_back(ai::ActionDef( AT::MoveClose,
+            // Requires
+            { Mtrc(CT::HaveLeg, V(), V(true) /* needs subject */)
+            },
+            // Gives
+            { Mtrc(CT::MeleeRangeDepth, V(), V(true)) /* needs pos */
+            }));
+
         bm_actions.push_back(ai::ActionDef( AT::Mine,
             // Requires
-            { Mtrc(CT::MeleeRange, V(), V(true)), // needs arg (pos)
+            { Mtrc(CT::MeleeRangeDepth, V(), V(true)), // needs arg (pos)
               Mtrc(CT::HaveHand, V(), V(true)), /* needs subject */
               Mtrc(CT::HaveMiningPick, V(), V(true) /* needs subject */)
             },

@@ -34,11 +34,10 @@ void GameWidget::initialize() {
 
     // Spawn 7 bearded men
     load_rgb(ModelId::BeardedMan, "dorf");
-    const int MANY_BEARDED_MEN = 2;
+    const int MANY_BEARDED_MEN = 1;
     for (auto bm = 0; bm < MANY_BEARDED_MEN; ++bm) {
         world_->add(new BeardedMan(world_.get(),
-                                   cursor_pos_ + Vec3i(bm, -1, bm))
-                    );
+                                   cursor_pos_ + Vec3i(bm, -1, bm)) );
     }
 
     //load_rgb(ModelId::Wood, "wood");

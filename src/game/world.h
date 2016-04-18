@@ -8,6 +8,7 @@
 #include "ai/goal.h"
 #include "util/optional.h"
 #include "world_volume.h"
+#include "game/g_defs.h"
 
 namespace bm {
 
@@ -60,10 +61,10 @@ public:
     void add_mining_goal(const Vec3i& pos);
 
     // Report from actors if order is completed
-    void report_fulfilled(ai::OrderId id);
+    void report_fulfilled(ai::OrderId id, PlanResult pr);
     // Report from actors if order is failed
-    void report_failed(ai::OrderId id);
-    void report_impossible(ai::OrderId id);
+    void report_failed(ai::OrderId id, PlanResult pr);
+    void report_impossible(ai::OrderId id, PlanResult pr);
 
     // Rendering helpers allow to view some data
     const ai::OrderMap& get_orders() const { return orders_; }
@@ -112,23 +113,5 @@ private:
     // Simulation step (equivalent of time)
     uint64_t sim_step_ = 0;
 };
-
-
-inline int64_t square_distance(const Vec3i& a, const Vec3i& b) {
-    int64_t dx = b.getX() - a.getX();
-    int64_t dy = b.getY() - a.getY();
-    int64_t dz = b.getZ() - a.getZ();
-    return dx*dx + dy*dy + dz*dz;
-}
-
-inline bool adjacent_or_same(const Vec3i& a, const Vec3i& b) {
-    int dx = b.getX() - a.getX();
-    int dy = b.getY() - a.getY();
-    int dz = b.getZ() - a.getZ();
-    return (dy == 0) && (
-                (std::abs(dx) <= 1 && dz == 0)
-                || (std::abs(dz) <= 1 && dx == 0)
-            );
-}
 
 } // ns bm

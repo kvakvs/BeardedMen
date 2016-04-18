@@ -35,7 +35,7 @@ void World::think() {
         if (brains) {
             brains->think();
 
-            if (have_orders()) {
+            if (brains->is_idle() && this->have_orders()) {
                 auto dsr = get_random_order(co);
                 if (dsr) {
                     // Now he wants to do the order, unless it's impossible
@@ -126,20 +126,20 @@ void World::add_mining_goal(const Vec3i &pos)
     add_order(std::make_shared<ai::Order>(m, ctx));
 }
 
-void World::report_fulfilled(ai::OrderId id) {
-    qDebug() << "world: Order" << id << "fulfilled";
+void World::report_fulfilled(ai::OrderId id, PlanResult pr) {
+    qDebug() << "world: Order" << id << "fulfilled:" << pr;
     remove_order(id);
 }
 
-void World::report_failed(ai::OrderId id)
+void World::report_failed(ai::OrderId id, PlanResult pr)
 {
     lower_prio(id);
-    qDebug() << "world: Order" << id << "failed";
+    qDebug() << "world: Order" << id << "failed: " << pr;
 }
 
-void World::report_impossible(ai::OrderId id) {
+void World::report_impossible(ai::OrderId id, PlanResult pr) {
     lower_prio(id);
-    qDebug() << "world: Order" << id << "impossible";
+    qDebug() << "world: Order" << id << "impossible: " << pr;
 }
 
 bool World::conditions_stand_true(const ai::MetricVec &cond,
@@ -177,6 +177,17 @@ ai::Metric World::read_metric(const ai::Metric& metric,
             auto pos = ent->get_pos();
             auto in_melee = adjacent_or_same(pos, ctx.pos_);
             return metric.set_reading(in_melee);
+        } break;
+
+    case ai::MetricType::MeleeRangeDepth: {
+            Q_ASSERT(ctx.actor_);
+            auto ent = ctx.actor_->as_entity();
+            if (not ent) { return ai::Metric(mt); }
+            auto pos = ent->get_pos();
+            auto reach_to_mine = close_enough(pos + Vec3i(0, -1, 0),
+                                              ctx.pos_,
+                                              MovePrecision::AdjacentDepth);
+            return metric.set_reading(reach_to_mine);
         } break;
 
     case ai::MetricType::HaveHand: {
@@ -252,5 +263,19 @@ void World::lower_prio(ai::OrderId id)
 //void World::add_position_order(const Vec3i &pos, JobType jt) {
 //    orders_.insert(std::make_shared<PositionOrder>(pos, jt));
 //}
+
+
+QDebug operator<<(QDebug d, PlanResult pr)
+{
+    d.nospace();
+    switch (pr) {
+    case PlanResult::Success: d << "success"; break;
+    case PlanResult::MoveStuck: d << "stuck"; break;
+    case PlanResult::MoveNoRoute: d << "no route"; break;
+    case PlanResult::Done: d << "plan done"; break;
+    case PlanResult::NoPlan: d << "no plan"; break;
+    }
+    return d;
+}
 
 } // ns bm
