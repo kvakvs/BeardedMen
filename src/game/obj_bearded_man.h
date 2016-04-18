@@ -11,11 +11,11 @@
 namespace bm {
 
 // TODO: evict from this file, make own file
-class BeardedMan: public ComponentObject
+class BeardedMan: public AnimateObject
 {
 public:
     BeardedMan(World *wo, const Vec3i &pos)
-        : ComponentObject(wo),
+        : AnimateObject(wo),
           entity_(this, pos, ModelId::BeardedMan),
           body_(BodyType::BeardedMan),
           brains_(this)

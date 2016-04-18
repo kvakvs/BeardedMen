@@ -9,7 +9,7 @@
 namespace bm {
 
 class World;
-class ComponentObject;
+class AnimateObject;
 
 namespace ai {
 
@@ -127,11 +127,11 @@ QDebug operator<< (QDebug d, const MetricVec &metrics);
 class Context {
 public:
     //const World* world_ = nullptr;
-    const ComponentObject* actor_ = nullptr;
+    const AnimateObject* actor_ = nullptr;
     Vec3i pos_;
 
     Context() {}
-    Context(const ComponentObject *act)
+    Context(const AnimateObject *act)
         : actor_(act) {}
 };
 

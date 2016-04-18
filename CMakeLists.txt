@@ -18,6 +18,7 @@ set(PV_DIR deps/polyvox/include/PolyVox )
 set(LUA_DIR deps/lua-5.3.2 )
 set(ASTAR_DIR deps/astar/cpp )
 set(SELENE_DIR deps/selene/include )
+set(SPATIAL deps/spatial/src )
 
 #Projects source files
 SET(SRC_FILES
@@ -54,7 +55,7 @@ SET(SRC_FILES
     src/game/order.cpp          src/game/order.h
     src/game/settlement.cpp	src/game/settlement.h
     src/game/world.cpp		src/game/world.h
-    
+
     src/ui/main_window.cpp	src/ui/main_window.h
     src/ui/dock.cpp		src/ui/dock.h
 
@@ -129,6 +130,15 @@ SET(SRC_FILES
     ${SELENE_DIR}/selene/Selector.h		${SELENE_DIR}/selene/State.h
     ${SELENE_DIR}/selene/traits.h		${SELENE_DIR}/selene/Tuple.h
     ${SELENE_DIR}/selene/util.h			${SELENE_DIR}/selene.h
+
+    ${SPATIAL}/point_multiset.hpp
+    ${SPATIAL}/box_multiset.hpp
+    ${SPATIAL}/idle_box_multiset.hpp
+    ${SPATIAL}/idle_box_multimap.hpp
+    ${SPATIAL}/point_multimap.hpp
+    ${SPATIAL}/box_multimap.hpp
+    ${SPATIAL}/idle_point_multimap.hpp
+    ${SPATIAL}/idle_point_multiset.hpp
 )
 
 #SET(INC_FILES .......)
@@ -145,7 +155,8 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/${LUA_DIR}
     ${CMAKE_SOURCE_DIR}/deps/selene/include
     ${CMAKE_SOURCE_DIR}/deps/astar/cpp
-    ${OPENGL_INCLUDE_DIR}
+    ${CMAKE_SOURCE_DIR}/${SPATIAL}
+#    ${OPENGL_INCLUDE_DIR}
 #    ${PolyVoxHeaders_SOURCE_DIR}
 )
 

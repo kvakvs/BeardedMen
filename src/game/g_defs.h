@@ -54,4 +54,8 @@ enum class PlanResult {
 };
 QDebug operator<<(QDebug d, PlanResult pr); // defined in world.cpp
 
+enum class InanimateType {
+    Boulder
+};
+
 } // ns bm

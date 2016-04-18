@@ -36,7 +36,8 @@ void GameWidget::initialize() {
     load_rgb(ModelId::BeardedMan, "dorf");
     const int MANY_BEARDED_MEN = 1;
     for (auto bm = 0; bm < MANY_BEARDED_MEN; ++bm) {
-        world_->add(new BeardedMan(world_.get(),
+        world_->add_component_object(
+                    new BeardedMan(world_.get(),
                                    cursor_pos_ + Vec3i(bm, -1, bm)) );
     }
 
@@ -192,7 +193,7 @@ void GameWidget::render_debug_routes()
     Vec3i oneup(0,-1,0);
 
     for (auto o_iter: world_->get_objects()) {
-        const ComponentObject *o = o_iter.second;
+        const AnimateObject *o = o_iter.second;
         auto ent = o->as_entity();
         auto& route = ent->get_route();
         for (auto step: route) {

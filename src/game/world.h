@@ -2,6 +2,7 @@
 
 //#include <set>
 #include <random>
+#include <point_multimap.hpp>
 
 #include "game/co_entity.h"
 #include "game/order.h"
@@ -12,13 +13,26 @@
 
 namespace bm {
 
-using ObjectMap = std::map<EntityId, ComponentObject *>;
+using ObjectMap = std::map<EntityId, AnimateObject *>;
+
+using SpatialObjectMap = spatial::point_multimap<3, Vec3i, AnimateObject *>;
+
+class InanimateObject {
+public:
+    using Ptr = std::shared_ptr<InanimateObject>;
+    InanimateType type_;
+    InanimateObject(InanimateType t): type_(t) {}
+};
+
+using SpatialInanimateMap = spatial::point_multimap<
+                                3, Array3i, InanimateObject::Ptr>;
 
 class World {
 public:
     World(bm::RawVolume& vol): volume_(vol) {
     }
-    void add(ComponentObject *ent);
+    void add_component_object(AnimateObject *ent);
+    void spawn_inanimate_object(const Vec3i& pos, InanimateType ot);
 
     template <typename EachObjFn>
     void each_obj(EachObjFn fn) {
@@ -53,7 +67,7 @@ public:
     bool add_order(ai::Order::Ptr desired);
     void remove_order(ai::OrderId id);
     // Get a random order. See if it is not completed.
-    ai::Order::Ptr get_random_order(ComponentObject *actor);
+    ai::Order::Ptr get_random_order(AnimateObject *actor);
 
     // Give positional or area mining goal
     void add_mining_goal(const Optional<Vec3i>& mark_begin,
@@ -85,7 +99,7 @@ public:
                            const ai::Context& ctx) const;
 
 private:
-    ai::Order::Ptr get_random_order(ComponentObject *actor,
+    ai::Order::Ptr get_random_order(AnimateObject *actor,
                                      ai::OrderMap& registry);
     void lower_prio(ai::OrderId id);
 
@@ -98,6 +112,9 @@ private:
 
     uint64_t ent_id_ = 0;
     ObjectMap objects_;
+    //SpatialObjectMap spatial_objects_;
+    SpatialInanimateMap inanimate_;
+
     // Visible piece of world + some nearby
     bm::VolumeType& volume_;
 

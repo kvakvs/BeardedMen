@@ -7,7 +7,7 @@
 namespace bm {
 
 class World;
-class ComponentObject;
+class AnimateObject;
 
 namespace ai {
 

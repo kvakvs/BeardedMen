@@ -22,14 +22,16 @@ class WorkerComponent;
     }
 
 // Inherit this
-class ComponentObject {
+class AnimateObject {
 public:
+    //using Ptr = std::shared_ptr<AnimateObject>;
+
     AS_COMPONENT(entity, Entity)
     AS_COMPONENT(brains, Brains)
     AS_COMPONENT(body,   Body)
     AS_COMPONENT(worker, Worker)
 
-    ComponentObject(World *wo) {
+    AnimateObject(World *wo) {
         // No other world can get here
         Q_ASSERT(world_ == nullptr || world_ == wo);
         world_ = wo;
@@ -44,6 +46,6 @@ private:
     static World *world_;
 };
 
-QDebug operator<< (QDebug d, const ComponentObject& co);
+QDebug operator<< (QDebug d, const AnimateObject& co);
 
 } // ns bm

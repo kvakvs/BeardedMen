@@ -18,7 +18,7 @@ void EntityComponent::step() {
 
 bool EntityComponent::attempt_move(const Vec3i &new_pos)
 {
-    auto wo = ComponentObject::get_world();
+    auto wo = AnimateObject::get_world();
     if (not is_solid(wo->get_voxel(new_pos))) {
         set_pos(new_pos);
         return true;
@@ -78,7 +78,7 @@ bool EntityComponent::move_to(const Vec3i &dst, MovePrecision mp)
 bool EntityComponent::find_and_set_strict_route(const Vec3i& dst)
 {
     // You are not going into the rock
-    auto wo = ComponentObject::get_world();
+    auto wo = AnimateObject::get_world();
     if (not is_air(wo->get_voxel(dst))) {
             return false;
     }
@@ -130,7 +130,7 @@ void EntityComponent::set_planned_route(const Vec3i &dst, Route &r) {
 Route EntityComponent::find_relaxed_route(const Vec3i &dst)
 {
     Route result;
-    auto vol = ComponentObject::get_world()->get_volume();
+    auto vol = AnimateObject::get_world()->get_volume();
 
     // First find relaxed path over ground ignoring the walls
     pv::AStarPathfinderParams<VolumeType> pfpar(
@@ -152,7 +152,7 @@ Route EntityComponent::find_relaxed_route(const Vec3i &dst)
 Route EntityComponent::find_route(const Vec3i &dst)
 {
     Route result;
-    auto vol = ComponentObject::get_world()->get_volume();
+    auto vol = AnimateObject::get_world()->get_volume();
 
     // First find relaxed path over ground ignoring the walls
     pv::AStarPathfinderParams<VolumeType> pfpar(

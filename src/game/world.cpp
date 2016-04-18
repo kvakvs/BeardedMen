@@ -7,9 +7,16 @@
 
 namespace bm {
 
-void World::add(ComponentObject *co) {
+void World::add_component_object(AnimateObject *co) {
     co->as_entity()->set_id(ent_id_);
     objects_[ent_id_++] = co;
+}
+
+void World::spawn_inanimate_object(const Vec3i &pos, InanimateType ot) {
+    inanimate_.insert(
+                std::make_pair(make_array(pos),
+                               std::make_shared<InanimateObject>(ot))
+                );
 }
 
 void World::think() {
@@ -56,7 +63,7 @@ void World::mine_voxel(const Vec3i &pos) {
         force_update_terrain_mesh_ = true;
 
         if (is_rock(volume_.getVoxel(pos)) && d100_(rand_) < 25) {
-            spawn_object(pos, ObjectId::Boulder);
+            spawn_inanimate_object(pos, InanimateType::Boulder);
         }
 
         // air
@@ -85,7 +92,7 @@ void World::remove_order(ai::OrderId id)
 }
 
 // Order scheduler
-ai::Order::Ptr World::get_random_order(ComponentObject *actor) {
+ai::Order::Ptr World::get_random_order(AnimateObject *actor) {
     if (sim_step_ % VERY_LOW_PRIO_ORDERS_EVERY == 0) {
         ai::Order::Ptr result = get_random_order(actor, orders_verylow_);
         if (result) {
@@ -224,7 +231,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
 }
 
 // TODO: Prefer tasks located closer
-ai::Order::Ptr World::get_random_order(ComponentObject *actor,
+ai::Order::Ptr World::get_random_order(AnimateObject *actor,
                                        ai::OrderMap &registry)
 {
     // Pick a random order. Check if it is not fulfilled yet. Give out.

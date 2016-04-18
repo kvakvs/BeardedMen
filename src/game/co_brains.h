@@ -12,8 +12,8 @@ class World;
 // TODO: evict from this file, make own file
 class BrainsComponent {
 public:
-    BrainsComponent(ComponentObject *p): parent_(p) {}
-    ComponentObject* get_parent() const { return parent_; }
+    BrainsComponent(AnimateObject *p): parent_(p) {}
+    AnimateObject* get_parent() const { return parent_; }
 
     // -- Intelligent --
     void think();
@@ -23,7 +23,7 @@ public:
     bool is_idle() const { return not task_.current; }
 
 private:
-    ComponentObject *parent_;
+    AnimateObject *parent_;
 
     // List of all things we want done, plan how we want it done and list of
     // specific actions

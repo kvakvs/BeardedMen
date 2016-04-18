@@ -21,7 +21,7 @@ QDebug operator<< (QDebug d, const Route& r);
 // This includes both animate and inanimate objects (dropped resources,
 // dead bodies etc)
 class EntityComponent {
-    ComponentObject *parent_;
+    AnimateObject *parent_;
     Vec3i pos_;
     EntityId id_;
     ModelId model_id_;
@@ -33,7 +33,7 @@ class EntityComponent {
     } movement_;
 
 public:
-    EntityComponent(ComponentObject *p, const Vec3i &pos, ModelId mod)
+    EntityComponent(AnimateObject *p, const Vec3i &pos, ModelId mod)
         : parent_(p), pos_(pos), model_id_(mod) {
     }
 
@@ -48,7 +48,7 @@ public:
 
     // Draw me like one of your cubic models
     virtual ModelId get_model_id() { return model_id_; }
-    ComponentObject* get_parent() { return parent_; }
+    AnimateObject* get_parent() { return parent_; }
 
     // If route is planned, do a step. TODO: Respect movement speed
     void step();

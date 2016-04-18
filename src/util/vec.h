@@ -29,4 +29,9 @@ Region make_region(const Vec &a, const Vec &b)
                   std::max(a.getZ(), b.getZ()));
 }
 
+typedef std::array<int, 3> Array3i;
+inline Array3i make_array(const Vec3i& v) {
+    return Array3i {v.getX(), v.getY(), v.getZ()};
+}
+
 } // namespace bm

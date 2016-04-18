@@ -16,7 +16,7 @@ void BrainsComponent::think() {
 }
 
 void BrainsComponent::build_plan() {
-    auto wo = ComponentObject::get_world();
+    auto wo = AnimateObject::get_world();
 
 //    // Drop order if is fulfilled
 //    if (task_.current) {
@@ -67,7 +67,7 @@ void BrainsComponent::follow_the_plan()
     }
 
     // if plan is fulfilled
-    auto wo            = ComponentObject::get_world();
+    auto wo            = AnimateObject::get_world();
     ai::Order::Ptr ord = task_.current;
     ai::Context ctx    = ord->ctx_; // copy
     ctx.actor_         = get_parent();
@@ -114,7 +114,7 @@ void BrainsComponent::plan_step_mine(const Vec3i& dst) {
     // Mining rules: Can reach on same depth, or can reach 1 block down
     if (close_enough(my_pos, dst, MovePrecision::AdjacentDepth))
     {
-        ComponentObject::get_world()->mine_voxel(dst);
+        AnimateObject::get_world()->mine_voxel(dst);
     }
     // Finish step even if mining failed
     finish_plan_step();
@@ -151,7 +151,7 @@ bool BrainsComponent::plan_step_move(const Vec3i& dst, MovePrecision mp) {
 
 void BrainsComponent::finish_plan(PlanResult pr)
 {
-    auto wo            = ComponentObject::get_world();
+    auto wo            = AnimateObject::get_world();
     ai::Order::Ptr ord = task_.current;
     ai::Context ctx    = ord->ctx_; // copy
 

@@ -6,9 +6,9 @@
 
 namespace bm {
 
-World *ComponentObject::world_ = nullptr;
+World *AnimateObject::world_ = nullptr;
 
-QDebug operator<<(QDebug d, const ComponentObject& co)
+QDebug operator<<(QDebug d, const AnimateObject& co)
 {
     d.nospace() << "Obj{";
     auto ent = co.as_entity();

@@ -113,7 +113,7 @@ ActionVec propose_plan(const MetricVec& from_c0,
 
     Q_ASSERT(ctx.actor_);
     AstarGlobalState glob_state { {}, ctx.actor_->ai_get_all_actions() };
-    auto wo = ComponentObject::get_world();
+    auto wo = AnimateObject::get_world();
 
     for (auto& adef: glob_state.available_actions_) {
         //qDebug() << "Each avail action:" << adef;
