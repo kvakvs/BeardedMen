@@ -61,34 +61,35 @@ void CNCDock::SLOT_keyboard_fsm_changed(KeyFSM fsm_state)
 
 }
 
-QString CNCDock::highlight_keys(const char *str0) {
+QString CNCDock::highlight_keys(const QString& str0) {
     return util::re_replace(str0, "\\{(.+)\\}",
         [](auto match) -> QString {
             return QString("<font color='#f66'><u>") + match + "</></font>";
         });
 }
 
-void CNCDock::shortcut_label(const char *str0)
+void CNCDock::shortcut_label(const QString& str0)
 {
     keyframe_.layout->addWidget(new QLabel(highlight_keys(str0)));
 }
 
-void CNCDock::breadcrumbs(const char *crumbs) {
+void CNCDock::breadcrumbs(const QString& crumbs) {
     auto l = new QLabel(QString("<b>") + crumbs + "</b>"
-                        + highlight_keys(" {Esc}↩"));
+                        + highlight_keys(tr(" {Esc}↩")));
     l->setStyleSheet("background: #aaa;padding: 4px;");
     keyframe_.layout->addWidget(l);
 }
 
 void CNCDock::add_fsm_keys_default() {
     //shortcut_label("{B}uilding");
-    shortcut_label("{D}esignations");
-    shortcut_label("{Arrows} move | {+} {-} depth");
+    shortcut_label(tr("{D}esignations"));
+    shortcut_label(tr("{Arrows} move | {+} {-} depth"));
 }
 
 void CNCDock::add_fsm_keys_digging() {
-    breadcrumbs("Designations >");
-    shortcut_label("{D} mine"); //|{H} channel|{R}amp");
+    breadcrumbs(tr("Designations >"));
+    shortcut_label(tr("{D} mine")); //|{H} channel|{R}amp");
+    shortcut_label(tr("{M} mark"));
     //shortcut_label("stairs ({U}p {D}own {J}-both)");
 }
 

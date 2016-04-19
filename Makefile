@@ -22,3 +22,11 @@ vg:
 .PHONY: debug
 debug:
 	gdb _build/BeardedMen
+
+.PHONY: localization-update
+localization-update:
+	lupdate src -ts lang/localization_ru.ts
+
+.PHONY: localization-release
+localization-release:
+	lrelease lang/*.ts

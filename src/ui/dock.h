@@ -39,9 +39,9 @@ public slots:
 private:
     // Process string s, replacing {K} with <font color...<u>K</u></font>
     // and make a QLabel with this. Adds it to keyframe_.layout
-    static QString highlight_keys(const char *str0);
-    void shortcut_label(const char *s);
-    void breadcrumbs(const char *crumbs);
+    static QString highlight_keys(const QString& str0);
+    void shortcut_label(const QString& s);
+    void breadcrumbs(const QString& crumbs);
 
     void add_pos_labels();
 

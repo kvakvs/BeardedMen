@@ -6,7 +6,7 @@
 namespace bm { namespace util {
 
 template <typename EachMatch>
-QString re_replace(const char *str0, const char *regex_str,
+QString re_replace(const QString& str0, const char *regex_str,
                    EachMatch each_match)
 {
     QString str(str0);
