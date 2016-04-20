@@ -132,14 +132,32 @@ SET(SRC_FILES
     ${SELENE_DIR}/selene/traits.h		${SELENE_DIR}/selene/Tuple.h
     ${SELENE_DIR}/selene/util.h			${SELENE_DIR}/selene.h
 
-    ${SPATIAL}/point_multiset.hpp
-    ${SPATIAL}/box_multiset.hpp
-    ${SPATIAL}/idle_box_multiset.hpp
-    ${SPATIAL}/idle_box_multimap.hpp
-    ${SPATIAL}/point_multimap.hpp
-    ${SPATIAL}/box_multimap.hpp
-    ${SPATIAL}/idle_point_multimap.hpp
-    ${SPATIAL}/idle_point_multiset.hpp
+    ${SPATIAL}/spatial.hpp                  ${SPATIAL}/point_multiset.hpp
+    ${SPATIAL}/box_multiset.hpp             ${SPATIAL}/metric.hpp
+    ${SPATIAL}/idle_box_multiset.hpp        ${SPATIAL}/region_iterator.hpp
+    ${SPATIAL}/equal_iterator.hpp           ${SPATIAL}/idle_box_multimap.hpp
+    ${SPATIAL}/exception.hpp                ${SPATIAL}/neighbor_iterator.hpp
+    ${SPATIAL}/point_multimap.hpp           ${SPATIAL}/box_multimap.hpp
+    ${SPATIAL}/mapping_iterator.hpp         ${SPATIAL}/idle_point_multimap.hpp
+    ${SPATIAL}/ordered_iterator.hpp         ${SPATIAL}/function.hpp
+    ${SPATIAL}/idle_point_multiset.hpp      ${SPATIAL}/algorithm.hpp
+    ${SPATIAL}/bits/spatial_equal.hpp       ${SPATIAL}/bits/spatial_assert.hpp
+    ${SPATIAL}/bits/spatial_except.hpp      ${SPATIAL}/bits/spatial_region.hpp
+    ${SPATIAL}/bits/spatial_bidirectional.hpp
+    ${SPATIAL}/bits/spatial_mutate.hpp      ${SPATIAL}/bits/spatial_rank.hpp
+    ${SPATIAL}/bits/spatial_mapping.hpp     ${SPATIAL}/bits/spatial_import_type_traits.hpp
+    ${SPATIAL}/bits/spatial_closed_region.hpp
+    ${SPATIAL}/bits/spatial_kdtree.hpp      ${SPATIAL}/bits/spatial_math.hpp
+    ${SPATIAL}/bits/spatial_overlap_region.hpp ${SPATIAL}/bits/spatial_manhattan_neighbor.hpp
+    ${SPATIAL}/bits/spatial_quadrance_neighbor.hpp ${SPATIAL}/bits/spatial_check_concept.hpp
+    ${SPATIAL}/bits/spatial_neighbor.hpp    ${SPATIAL}/bits/spatial_relaxed_kdtree.hpp
+    ${SPATIAL}/bits/spatial_enclosed_region.hpp ${SPATIAL}/bits/spatial_open_region.hpp
+    ${SPATIAL}/bits/spatial_builtin.hpp     ${SPATIAL}/bits/spatial_node.hpp
+    ${SPATIAL}/bits/spatial_value_compare.hpp ${SPATIAL}/bits/spatial_ordered.hpp
+    ${SPATIAL}/bits/spatial_compress.hpp    ${SPATIAL}/bits/spatial_import_tuple.hpp
+    ${SPATIAL}/bits/spatial_condition.hpp   ${SPATIAL}/bits/spatial_preorder.hpp
+    ${SPATIAL}/bits/spatial_euclidian_neighbor.hpp  ${SPATIAL}/bits/spatial_template_member_swap.hpp
+
 )
 
 #SET(INC_FILES .......)

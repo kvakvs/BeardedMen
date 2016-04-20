@@ -3,6 +3,7 @@
 #include "game/world.h"
 
 #include <cmath>
+#include "region_iterator.hpp"
 
 namespace bm {
 
@@ -44,6 +45,12 @@ void GameWidget::initialize() {
     // Inanimate
     load_rgb(ModelId::Wood, "wood");
     load_rgb(ModelId::Boulder, "boulder");
+    // Throw in some boulders
+//    const int MANY_BOULDERS = 100;
+//    for (auto bb = 0; bb < MANY_BOULDERS; ++bb) {
+//        world_->spawn_inanimate_object(cursor_pos_ + Vec3i(bb - MANY_BOULDERS/2, 0, 0),
+//                                       InanimateType::Boulder);
+//    }
 
     // Other
     auto xyz = load_rgb(ModelId::Xyz, "xyz");
@@ -144,25 +151,45 @@ void GameWidget::render_frame() {
 }
 
 void GameWidget::render_animate_objects() {
-    world_->each_animate([this](auto /*id*/, auto co) {
-        auto ent = co->as_entity();
+    auto& objects = world_->get_animate_objects();
+    auto p0 = util::make_array(cursor_pos_ +
+                               Vec3i(-VIEWSZ_X/2, -1, -VIEWSZ_Z/2));
+    auto p1 = util::make_array(cursor_pos_ +
+                               Vec3i(VIEWSZ_X/2, 1, VIEWSZ_Z/2));
+
+    auto iter = spatial::region_cbegin(objects, p0, p1);
+    auto iter_end = spatial::region_cend(objects, p0, p1);
+    for (; iter != iter_end; ++iter) {
+        auto ao  = iter->second;
+        auto pos = util::make_vec3i(iter->first);
+        auto ent = ao->as_entity();
         if (ent) {
             auto model_id = ent->get_model_id();
             if (model_id != ModelId::NIL) {
                 auto m = this->find_model(model_id);
                 Q_ASSERT(m);
-                this->render_model(*m, pos_for_cell(ent->get_pos()), 0.0f);
+                this->render_model(*m, pos_for_cell(pos), 0.0f);
             }
         }
-    });
+    }
 }
 
 void GameWidget::render_inanimate_objects() {
-    world_->each_inanimate([this](auto pos, auto ia) {
-        auto m = this->find_model(ia->model_);
+    auto& objects = world_->get_inanimate_objects();
+    auto p0 = util::make_array(cursor_pos_ +
+                               Vec3i(-VIEWSZ_X/2, -1, -VIEWSZ_Z/2));
+    auto p1 = util::make_array(cursor_pos_ +
+                               Vec3i(VIEWSZ_X/2, 1, VIEWSZ_Z/2));
+
+    auto iter = spatial::region_cbegin(objects, p0, p1);
+    auto iter_end = spatial::region_cend(objects, p0, p1);
+    for (; iter != iter_end; ++iter) {
+        auto ia = iter->second;
+        auto pos = iter->first;
+        auto m = this->find_model(ia.model_);
         Q_ASSERT(m);
-        this->render_model(*m, pos_for_cell(make_vec3i(pos)), 0.0f);
-    });
+        this->render_model(*m, pos_for_cell(util::make_vec3i(pos)), 0.0f);
+    }
 }
 
 void GameWidget::render_orders() {
@@ -189,7 +216,7 @@ void GameWidget::render_marked_area() {
     }
 
     auto m_mark = models_.find(ModelId::MarkArea);
-    auto reg = make_region(cursor_pos_, mark_begin_.get_value());
+    auto reg = util::make_region(cursor_pos_, mark_begin_.get_value());
 
     // Completely ignore Y, assume it is current for cursor depth
     for (int x = reg.getLowerX(); x <= reg.getUpperX(); x++) {
@@ -206,7 +233,7 @@ void GameWidget::render_debug_routes()
     auto m_flag = models_.find(ModelId::MarkRoute);
     Vec3i oneup(0,-1,0);
 
-    for (auto o_iter: world_->get_objects()) {
+    for (auto o_iter: world_->get_animate_objects()) {
         const AnimateObject *o = o_iter.second;
         auto ent = o->as_entity();
         auto& route = ent->get_route();

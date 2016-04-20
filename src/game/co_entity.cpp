@@ -6,6 +6,11 @@
 
 namespace bm {
 
+void EntityComponent::set_pos(const Vec3i &v) {
+    pos_ = v;
+    AnimateObject::get_world()->animate_position_changed(get_parent(), v);
+}
+
 void EntityComponent::step() {
     if (movement_.planned_route.empty() == false) {
         if (attempt_move(movement_.planned_route.front())) {

@@ -39,7 +39,7 @@ public:
 
     // Each entity has a position in 3d world (cell)
     virtual Vec3i get_pos() const { return pos_; }
-    virtual void set_pos(const Vec3i &v) { pos_ = v; }
+    virtual void set_pos(const Vec3i &v);
 
     // Each entity has ID so that we don't have to use pointers everywhere
     // -- Entity --

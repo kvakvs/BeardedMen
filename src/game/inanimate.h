@@ -9,7 +9,7 @@ namespace bm {
 
 class InanimateObject {
 public:
-    using Ptr = std::shared_ptr<InanimateObject>;
+    //using Ptr = std::shared_ptr<InanimateObject>;
 
     InanimateType type_;
     ModelId       model_;
@@ -18,6 +18,6 @@ public:
 };
 
 using SpatialInanimateMap = spatial::point_multimap<
-                                3, Array3i, InanimateObject::Ptr>;
+                                3, Array3i, InanimateObject>;
 
 } // ns bm

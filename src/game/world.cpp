@@ -8,14 +8,31 @@
 namespace bm {
 
 void World::add_animate_object(AnimateObject *co) {
-    co->as_entity()->set_id(ent_id_);
-    objects_[ent_id_++] = co;
+    auto ent = co->as_entity();
+    ent->set_id(ent_id_++);
+
+    auto pos_array = util::make_array(ent->get_pos());
+    animate_.insert(std::make_pair(pos_array, co));
+}
+
+void World::animate_position_changed(AnimateObject *a, const Vec3i &v) {
+    auto ent = a->as_entity();
+
+    for (auto iter = animate_.find(util::make_array(v));
+         iter != animate_.end(); ++iter) {
+        if (a == iter->second) {
+            animate_.erase(iter);
+
+            auto pos_array = util::make_array(ent->get_pos());
+            animate_.insert(std::make_pair(pos_array, a));
+            return;
+        }
+    }
 }
 
 void World::spawn_inanimate_object(const Vec3i &pos, InanimateType ot) {
     inanimate_.insert(
-        std::make_pair(make_array(pos),
-                       std::make_shared<InanimateObject>(ot)));
+        std::make_pair(util::make_array(pos), InanimateObject(ot)));
 }
 
 void World::think() {
@@ -119,7 +136,7 @@ void World::add_mining_goal(const Optional<Vec3i>& mark_begin,
     }
 
     // Issue orders for 1 layer by taking current Y from pos (cursor pos)
-    auto reg = make_region(mark_begin.get_value(), pos);
+    auto reg = util::make_region(mark_begin.get_value(), pos);
     for (int x = reg.getLowerX(); x <= reg.getUpperX(); x++) {
         for (int z = reg.getLowerZ(); z <= reg.getUpperZ(); z++) {
             add_mining_goal(Vec3i(x, pos.getY(), z));

@@ -14,20 +14,35 @@
 
 namespace bm {
 
-using ObjectMap = std::map<EntityId, AnimateObject *>;
-
-using SpatialObjectMap = spatial::point_multimap<3, Array3i, AnimateObject *>;
+//using AnimateObjectMap = std::map<EntityId, AnimateObject *>;
+using SpatialAnimateMap = spatial::point_multimap<3, Array3i, AnimateObject *>;
 
 class World {
 public:
     World(bm::RawVolume& vol): volume_(vol) {
     }
-    void add_animate_object(AnimateObject *ent);
-    void spawn_inanimate_object(const Vec3i& pos, InanimateType ot);
 
+    //
+    // Animate objects
+    //
+    void add_animate_object(AnimateObject *ent);
+    void animate_position_changed(AnimateObject *a, const Vec3i& v);
+    const SpatialAnimateMap& get_animate_objects() const { return animate_; }
+
+    //
+    // Inanimate objects
+    //
+    void spawn_inanimate_object(const Vec3i& pos, InanimateType ot);
+    const SpatialInanimateMap& get_inanimate_objects() const {
+        return inanimate_;
+    }
+
+    //
+    // Loops
+    //
     template <typename EachObjFn>
     void each_animate(EachObjFn fn) {
-        for (auto pair: objects_) {
+        for (auto pair: animate_) {
             fn(pair.first, pair.second);
         }
     }
@@ -81,7 +96,6 @@ public:
     const ai::OrderMap& get_orders() const { return orders_; }
     const ai::OrderMap& get_orders_low() const { return orders_low_; }
     const ai::OrderMap& get_orders_verylow() const { return orders_verylow_; }
-    const ObjectMap& get_objects() const { return objects_; }
 
     //
     // Sensors and metrics system
@@ -97,7 +111,7 @@ public:
 
 private:
     ai::Order::Ptr get_random_order(AnimateObject *actor,
-                                     ai::OrderMap& registry);
+                                    ai::OrderMap& registry);
     void lower_prio(ai::OrderId id);
 
 public:
@@ -108,8 +122,7 @@ private:
     std::uniform_int_distribution<int> d100_ {0, 99};
 
     uint64_t ent_id_ = 0;
-    ObjectMap objects_;
-    //SpatialObjectMap spatial_objects_;
+    SpatialAnimateMap animate_;
     SpatialInanimateMap inanimate_;
 
     // Visible piece of world + some nearby

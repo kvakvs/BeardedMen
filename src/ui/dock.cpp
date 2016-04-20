@@ -34,7 +34,7 @@ void CNCDock::setup_event_connections(GameWidget *g) {
 
 void CNCDock::SLOT_cursor_changed(const QPoint &p, int depth) {
     // TODO: Move text to dock title
-    QString text("(%1; %2) Depth: %3");
+    QString text = tr("(%1; %2) Depth: %3");
     text = text.arg(p.x()).arg(p.y()).arg(depth);
     this->setWindowTitle(text);
 }
