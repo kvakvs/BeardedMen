@@ -81,6 +81,7 @@ class GameWidget : public GLVersion_Widget {
     };
 
     void render_model(const Model& m, const Vec3f &pos, float rot_y);
+    void render_terrain_model(const Model& m, const Vec3f &pos);
 
     // These two camera control funs make camera always look at cursor
     virtual QVector3D get_camera_focus(QVector3D /*forward*/) override {

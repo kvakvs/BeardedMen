@@ -41,38 +41,38 @@ void MyGLWidget<QOpenGLFunctionsType>::set_camera_transform(QVector3D position, 
 template <typename QOpenGLFunctionsType>
 void MyGLWidget<QOpenGLFunctionsType>::initializeGL()
 {
-	if (!this->initializeOpenGLFunctions())
-	{
-		std::cerr << "Could not initialize OpenGL functions" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+    if (!this->initializeOpenGLFunctions())
+    {
+            std::cerr << "Could not initialize OpenGL functions" << std::endl;
+            exit(EXIT_FAILURE);
+    }
 
-	//Print out some information about the OpenGL implementation.
-	std::cout << "OpenGL Implementation Details:" << std::endl;
-	if (this->glGetString(GL_VENDOR))
-		std::cout << "\tGL_VENDOR: " << this->glGetString(GL_VENDOR) << std::endl;
-	if (this->glGetString(GL_RENDERER))
-		std::cout << "\tGL_RENDERER: " << this->glGetString(GL_RENDERER) << std::endl;
-	if (this->glGetString(GL_VERSION))
-		std::cout << "\tGL_VERSION: " << this->glGetString(GL_VERSION) << std::endl;
-	if (this->glGetString(GL_SHADING_LANGUAGE_VERSION))
-		std::cout << "\tGL_SHADING_LANGUAGE_VERSION: " << this->glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+    //Print out some information about the OpenGL implementation.
+    std::cout << "OpenGL Implementation Details:" << std::endl;
+    if (this->glGetString(GL_VENDOR))
+            std::cout << "\tGL_VENDOR: " << this->glGetString(GL_VENDOR) << std::endl;
+    if (this->glGetString(GL_RENDERER))
+            std::cout << "\tGL_RENDERER: " << this->glGetString(GL_RENDERER) << std::endl;
+    if (this->glGetString(GL_VERSION))
+            std::cout << "\tGL_VERSION: " << this->glGetString(GL_VERSION) << std::endl;
+    if (this->glGetString(GL_SHADING_LANGUAGE_VERSION))
+            std::cout << "\tGL_SHADING_LANGUAGE_VERSION: " << this->glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
-	//Set up the clear colour
-	this->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	this->glClearDepth(1.0f);
+    //Set up the clear colour
+    this->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    this->glClearDepth(1.0f);
 
-	this->glEnable(GL_DEPTH_TEST);
-	this->glDepthMask(GL_TRUE);
-	this->glDepthFunc(GL_LEQUAL);
-	this->glDepthRange(0.0, 1.0);
+    this->glEnable(GL_DEPTH_TEST);
+    this->glDepthMask(GL_TRUE);
+    this->glDepthFunc(GL_LEQUAL);
+    this->glDepthRange(0.0, 1.0);
 
-	initialize();
+    initialize();
 
-	// Start a timer to drive the main rendering loop.
-	QTimer* timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-	timer->start(0);
+    // Start a timer to drive the main rendering loop.
+    QTimer* timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+    timer->start(0);
 
     elapsed_timer_.start();
 }
@@ -97,44 +97,44 @@ void MyGLWidget<QOpenGLFunctionsType>::paintGL()
     // Direction : Spherical coordinates to Cartesian coordinates conversion
     auto cam_forward = get_cam_forward();
 
-	// Right vector
+    // Right vector
     QVector3D cam_right(std::sin(cam_yaw_ - 3.14f / 2.0f), 0,
                         std::cos(cam_yaw_ - 3.14f / 2.0f));
 
-	// Up vector
+    // Up vector
     QVector3D cam_up = get_camera_up(cam_right, cam_forward);
 
-	// Get the elapsed time since last frame and convert to seconds.
+    // Get the elapsed time since last frame and convert to seconds.
     float deltaTime = elapsed_timer_.restart() / 1000.0f;
 
-	// Move forward
+    // Move forward
     if ((pressed_keys_.contains(Qt::Key_Up)) || (pressed_keys_.contains(Qt::Key_W)))
-	{
+    {
         cam_pos_ += cam_forward * deltaTime * cam_move_speed;
-	}
-	// Move backward
+    }
+    // Move backward
     if ((pressed_keys_.contains(Qt::Key_Down)) || (pressed_keys_.contains(Qt::Key_S)))
-	{
+    {
         cam_pos_ -= cam_forward * deltaTime * cam_move_speed;
-	}
-	// Strafe right
+    }
+    // Strafe right
     if ((pressed_keys_.contains(Qt::Key_Right)) || (pressed_keys_.contains(Qt::Key_D)))
-	{
+    {
         cam_pos_ += cam_right * deltaTime * cam_move_speed;
-	}
-	// Strafe left
+    }
+    // Strafe left
     if ((pressed_keys_.contains(Qt::Key_Left)) || (pressed_keys_.contains(Qt::Key_A)))
-	{
+    {
         cam_pos_ -= cam_right * deltaTime * cam_move_speed;
-	}
+    }
 
     view_matrix_.setToIdentity();
 
     auto cam_focus = get_camera_focus(cam_forward);
     view_matrix_.lookAt(
-        cam_pos_,           // Camera is here
-        cam_focus, // and looks here : at the same position, plus "direction"
-        cam_up                  // Head is up (set to 0,-1,0 to look upside-down)
+        cam_pos_,   // Camera is here
+        cam_focus,  // and looks here : at the same position, plus "direction"
+        cam_up      // Head is up (set to 0,-1,0 to look upside-down)
         );
 
     //Clear the screen
@@ -144,8 +144,7 @@ void MyGLWidget<QOpenGLFunctionsType>::paintGL()
 
     // Check for errors.
     GLenum errCode = this->glGetError();
-    if (errCode != GL_NO_ERROR)
-    {
+    if (errCode != GL_NO_ERROR) {
         std::cerr << "OpenGL Error: " << errCode << std::endl;
     }
 }
@@ -153,7 +152,7 @@ void MyGLWidget<QOpenGLFunctionsType>::paintGL()
 template <typename QOpenGLFunctionsType>
 void MyGLWidget<QOpenGLFunctionsType>::mousePressEvent(QMouseEvent* event)
 {
-	// Initialise these variables which will be used when the mouse actually moves.
+    // Initialise these variables which will be used when the mouse actually moves.
     mouse_pos_ = event->pos();
     last_frame_mouse_pos_ = mouse_pos_;
 }
@@ -161,7 +160,7 @@ void MyGLWidget<QOpenGLFunctionsType>::mousePressEvent(QMouseEvent* event)
 template <typename QOpenGLFunctionsType>
 void MyGLWidget<QOpenGLFunctionsType>::mouseMoveEvent(QMouseEvent* event)
 {
-	// Update the x and y rotations based on the mouse movement.
+    // Update the x and y rotations based on the mouse movement.
     mouse_pos_ = event->pos();
     QPoint diff = mouse_pos_ - last_frame_mouse_pos_;
     cam_yaw_ -= diff.x() * cam_rotate_speed_;

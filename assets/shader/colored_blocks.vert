@@ -4,6 +4,7 @@ in vec4 position; // This will be the position of the vertex in model-space
 in vec4 normal; // The normal data may not have been set
 in ivec2 material;
 
+// passed from C++
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;

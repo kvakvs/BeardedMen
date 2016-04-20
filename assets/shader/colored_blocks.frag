@@ -4,6 +4,9 @@ in vec4 worldPosition;
 //in vec3 normalFromVS;
 flat in ivec2 materialFromVS;
 
+// passed from C++
+uniform float focusDepth;
+
 out vec4 outputColor;
 
 void main()
@@ -46,5 +49,9 @@ void main()
         float ambient = 0.3; // Add some ambient
         float lightIntensity = diffuse + ambient; // Compute the final light intensity
 
-        gl_FragColor = surfaceColor * lightIntensity; //Compute final rendered color
+        // Make focusDepth 100% bright and other darker
+        float focusDifference = abs(floor(worldPosition.y) - focusDepth) * 0.2;
+        float focusBrightness = clamp(1.0 - focusDifference, 0.5, 1.0);
+
+        gl_FragColor = surfaceColor * lightIntensity * focusBrightness;
 }

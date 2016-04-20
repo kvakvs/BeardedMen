@@ -135,7 +135,7 @@ const Model *GameWidget::find_model(ModelId id) const
 }
 
 void GameWidget::render_frame() {
-    render_model(*terrain_, Vec3f(0.f, 0.f, 0.f), 0.f);
+    render_terrain_model(*terrain_, Vec3f(0.f, 0.f, 0.f));
 
     render_animate_objects();
     render_inanimate_objects();
@@ -262,6 +262,45 @@ void GameWidget::render_model(const Model& m, const Vec3f &pos, float rot_y)
                        + QVector3D(pos.getX(), pos.getY(), pos.getZ()));
     model_mx.scale(m.mesh_->scale_);
     model_mx.rotate(rot_y + m.mesh_->rotation_y_, 0.f, 1.f, 0.f);
+
+    m.shad_->setUniformValue("modelMatrix", model_mx);
+
+    // Bind the vertex array for the current mesh
+    glBindVertexArray(m.mesh_->vert_array_);
+    // Draw the mesh
+    glDrawElements(GL_TRIANGLES,
+                   m.mesh_->indx_count_,
+                   m.mesh_->indx_type_, 0);
+    // Unbind the vertex array.
+    glBindVertexArray(0);
+
+    // We're done with the shader for this frame.
+    m.shad_->release();
+}
+
+void GameWidget::render_terrain_model(const Model& m, const Vec3f &pos)
+{
+    if (not m.mesh_->is_valid()) {
+        return;
+    }
+
+    m.shad_->bind();
+
+    // These two matrices are constant for all meshes.
+    m.shad_->setUniformValue("viewMatrix", this->get_view_matrix());
+    m.shad_->setUniformValue("projectionMatrix", this->get_projection_matrix());
+
+    // Use focusDepth as max brightness layer and make other layers darker
+    // Assume that mesh always originates at depth 0
+    m.shad_->setUniformValue("focusDepth", -1.0f);
+
+    // Set up the model matrrix based on provided translation and scale.
+    //
+    QMatrix4x4 model_mx;
+    model_mx.translate(m.mesh_->translation_
+                       + QVector3D(pos.getX(), pos.getY(), pos.getZ()));
+    model_mx.scale(m.mesh_->scale_);
+    model_mx.rotate(m.mesh_->rotation_y_, 0.f, 1.f, 0.f);
 
     m.shad_->setUniformValue("modelMatrix", model_mx);
 
