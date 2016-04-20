@@ -155,7 +155,7 @@ void GameWidget::render_animate_objects() {
     auto p0 = util::make_array(cursor_pos_ +
                                Vec3i(-VIEWSZ_X/2, -1, -VIEWSZ_Z/2));
     auto p1 = util::make_array(cursor_pos_ +
-                               Vec3i(VIEWSZ_X/2, 1, VIEWSZ_Z/2));
+                               Vec3i(VIEWSZ_X/2, VIEWSZ_Y, VIEWSZ_Z/2));
 
     auto iter = spatial::region_cbegin(objects, p0, p1);
     auto iter_end = spatial::region_cend(objects, p0, p1);
@@ -179,7 +179,7 @@ void GameWidget::render_inanimate_objects() {
     auto p0 = util::make_array(cursor_pos_ +
                                Vec3i(-VIEWSZ_X/2, -1, -VIEWSZ_Z/2));
     auto p1 = util::make_array(cursor_pos_ +
-                               Vec3i(VIEWSZ_X/2, 1, VIEWSZ_Z/2));
+                               Vec3i(VIEWSZ_X/2, VIEWSZ_Y, VIEWSZ_Z/2));
 
     auto iter = spatial::region_cbegin(objects, p0, p1);
     auto iter_end = spatial::region_cend(objects, p0, p1);
@@ -339,6 +339,16 @@ void GameWidget::change_keyboard_fsm(bm::KeyFSM fsm_state)
 
 bool GameWidget::keypress_navigate_cursor(QKeyEvent* event) {
     switch ( event->key() ) {
+    case Qt::Key_Period: {
+            world_->think();
+            if (world_->force_update_terrain_mesh_) {
+                update_terrain_model();
+                world_->force_update_terrain_mesh_ = false;
+            }
+            this->update();
+            event->accept();
+        } break;
+
     case Qt::Key_Right:
         if (cursor_pos_.getX() < WORLDSZ_X - 1) {
             cursor_pos_ += Vec3i(1, 0, 0);
@@ -402,16 +412,6 @@ void GameWidget::fsm_keypress_exploremap(QKeyEvent *event) {
         event->accept();
         break;
     }
-    case Qt::Key_Period: {
-        world_->think();
-        if (world_->force_update_terrain_mesh_) {
-            update_terrain_model();
-            world_->force_update_terrain_mesh_ = false;
-        }
-        this->update();
-        event->accept();
-    } break;
-
     case Qt::Key_W:
     case Qt::Key_S:
     case Qt::Key_A:

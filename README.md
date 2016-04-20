@@ -46,3 +46,9 @@ So...
     command line field, adjust path as necessary)
 4. Change in Project settings to run from project root directory (there are
     loadable assets).
+
+## Translations
+
+Run `make locatization-update` to update files in `lang/*.ts`, run `linguist` to change
+translations, then run `make localization-release`. Game will load one `lang/*.qm` file
+created by `lrelease`.

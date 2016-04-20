@@ -1,6 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(BeardedMen)
 
+#SET (CMAKE_C_COMPILER   "clang-3.8")
+#SET (CMAKE_CXX_COMPILER "clang++-3.8")
+
 # Qt library
 find_package(Qt5Widgets)
 find_package(Qt5OpenGL)

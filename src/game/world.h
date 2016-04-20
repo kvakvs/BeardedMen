@@ -26,7 +26,9 @@ public:
     // Animate objects
     //
     void add_animate_object(AnimateObject *ent);
-    void animate_position_changed(AnimateObject *a, const Vec3i& v);
+    void animate_position_changed(AnimateObject *a,
+                                  const Vec3i& old,
+                                  const Vec3i& updated);
     const SpatialAnimateMap& get_animate_objects() const { return animate_; }
 
     //
@@ -56,10 +58,9 @@ public:
     void think();
 
     VoxelType get_under(const Vec3i &pos) const {
-        return volume_.getVoxel(pos.getX(), pos.getY()+1, pos.getZ());
+        return volume_.getVoxel(pos + Vec3i(0, 1, 0));
     }
 
-//    void add_position_order(const Vec3i &pos, JobType jt);
     bool is_mineable(const Vec3i &pos) const;
 
     bm::VolumeType* get_volume() { return &volume_; }
@@ -109,11 +110,6 @@ public:
     ai::Metric read_metric(const ai::Metric& metric,
                            const ai::Context& ctx) const;
 
-private:
-    ai::Order::Ptr get_random_order(AnimateObject *actor,
-                                    ai::OrderMap& registry);
-    void lower_prio(ai::OrderId id);
-
 public:
     bool force_update_terrain_mesh_ = false;
 
@@ -140,6 +136,13 @@ private:
 
     // Simulation step (equivalent of time)
     uint64_t sim_step_ = 0;
+
+private:
+    ai::Order::Ptr get_random_order(AnimateObject *actor,
+                                    ai::OrderMap& registry);
+    void lower_prio(ai::OrderId id);
+    void run_animate_entities();
+    void run_animate_brains();
 };
 
 } // ns bm

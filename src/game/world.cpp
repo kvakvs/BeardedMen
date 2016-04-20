@@ -7,24 +7,22 @@
 
 namespace bm {
 
-void World::add_animate_object(AnimateObject *co) {
-    auto ent = co->as_entity();
+void World::add_animate_object(AnimateObject *ao) {
+    auto ent = ao->as_entity();
     ent->set_id(ent_id_++);
 
     auto pos_array = util::make_array(ent->get_pos());
-    animate_.insert(std::make_pair(pos_array, co));
+    animate_.insert(std::make_pair(pos_array, ao));
 }
 
-void World::animate_position_changed(AnimateObject *a, const Vec3i &v) {
-    auto ent = a->as_entity();
-
-    for (auto iter = animate_.find(util::make_array(v));
+void World::animate_position_changed(AnimateObject *a,
+                                     const Vec3i& old,
+                                     const Vec3i& updated) {
+    for (auto iter = animate_.find(util::make_array(old));
          iter != animate_.end(); ++iter) {
         if (a == iter->second) {
             animate_.erase(iter);
-
-            auto pos_array = util::make_array(ent->get_pos());
-            animate_.insert(std::make_pair(pos_array, a));
+            animate_.insert(std::make_pair(util::make_array(updated), a));
             return;
         }
     }
@@ -37,11 +35,18 @@ void World::spawn_inanimate_object(const Vec3i &pos, InanimateType ot) {
 
 void World::think() {
     sim_step_++;
+    run_animate_entities();
+    run_animate_brains();
+}
 
+void World::run_animate_entities() {
     // Here we think for entities (passive things like gravity)
     each_animate([this](auto /*id*/, auto co) {
         auto ent         = co->as_entity();
         auto ent_pos     = ent->get_pos();
+//        if (not is_air(get_voxel(ent_pos))) {
+//            qDebug() << *ent << "stuck in rock";
+//        }
         auto block_under = get_under(ent_pos);
         if (is_air(block_under)) {
             // fall
@@ -51,7 +56,9 @@ void World::think() {
         // if entity has planned route
         ent->step();
     });
+}
 
+void World::run_animate_brains() {
     // Entities think for themselves
     each_animate([this](auto /*id*/, auto co) {
         BrainsComponent* brains = co->as_brains();

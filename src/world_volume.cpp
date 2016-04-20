@@ -38,9 +38,13 @@ VoxelType populate::get_perlin_voxel(float perlinVal, int x, int y, int z) {
     VoxelType voxel;
     // Perlin formula gives values in range 0.3...0.8 approx.
     // So in top 3-8 layers we build earth surface
-    if (y >= perlinVal * 10) {
+    const float MOUNTAIN_AMPL = 16.0f;
+    const float MOUNTAIN_MIN_Y = 1.0f;
+    const float PERLIN_DENSITY = 15.0f; // less density - larger soil structures
+
+    if (y >= perlinVal * MOUNTAIN_AMPL + MOUNTAIN_MIN_Y) {
         // solid
-        BlockId m = (BlockId)((int)(perlinVal * 50.0) % 4 + 1);
+        BlockId m = (BlockId)((int)(perlinVal * PERLIN_DENSITY) % 4 + 1);
         voxel.setMaterial(m);
         voxel.setDensity(VoxelType::getMaxDensity());
     } else {
