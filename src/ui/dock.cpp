@@ -88,7 +88,7 @@ void CNCDock::add_fsm_keys_default() {
 
 void CNCDock::add_fsm_keys_digging() {
     breadcrumbs(tr("Designations >"));
-    shortcut_label(tr("{D} mine")); //|{H} channel|{R}amp");
+    shortcut_label(tr("{D} mine|{R}amp"));
     shortcut_label(tr("{M} mark"));
     //shortcut_label("stairs ({U}p {D}own {J}-both)");
 }

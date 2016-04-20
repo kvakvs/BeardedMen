@@ -44,11 +44,11 @@ VoxelType populate::get_perlin_voxel(float perlinVal, int x, int y, int z) {
 
     if (y >= perlinVal * MOUNTAIN_AMPL + MOUNTAIN_MIN_Y) {
         // solid
-        BlockId m = (BlockId)((int)(perlinVal * PERLIN_DENSITY) % 4 + 1);
+        BlockType m = (BlockType)((int)(perlinVal * PERLIN_DENSITY) % 4 + 1);
         voxel.setMaterial(m);
         voxel.setDensity(VoxelType::getMaxDensity());
     } else {
-        voxel.setMaterial(BlockId::AIR);
+        voxel.setMaterial(BlockType::AIR);
         voxel.setDensity(VoxelType::getMinDensity());
     }
     return voxel;

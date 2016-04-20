@@ -6,7 +6,7 @@ namespace bm {
 
 // TODO: Remember to stop after uint8 is full! And extend data types!
 // TODO: Rewrite class VoxelType and make a proper 0=air and everything else
-enum class BlockId: uint16_t {
+enum class BlockType: uint16_t {
                 // DISCLAIMER: all properties below are TODO
                 //------------------------------------------
     AIR = 0,    // now with density actually value is not used, any cell can

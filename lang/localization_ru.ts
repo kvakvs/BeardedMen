@@ -38,8 +38,8 @@
     </message>
     <message>
         <location filename="../src/ui/dock.cpp" line="91"/>
-        <source>{D} mine</source>
-        <translation>{D} копать</translation>
+        <source>{D} mine|{R}amp</source>
+        <translation>{D} копать|{R} уступ</translation>
     </message>
     <message>
         <location filename="../src/ui/dock.cpp" line="92"/>

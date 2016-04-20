@@ -64,6 +64,38 @@ void GameWidget::initialize() {
     change_keyboard_fsm(KeyFSM::Default);
 }
 
+template <class VxType>
+class MyMarchingCubesController {
+        //: public pv::DefaultMarchingCubesController<VoxelType>
+public:
+    using DensityType = uint8_t;
+    using MaterialType = BlockType;
+
+    MyMarchingCubesController() {
+        thresh_ = DensityType(0);
+    }
+
+    DensityType convertToDensity(VxType voxel) {
+        return voxel.getDensity();
+    }
+    MaterialType convertToMaterial(VxType voxel) {
+        return voxel.getMaterial();
+    }
+    VxType blendMaterials(VxType a, VxType b, float /*weight*/) {
+        auto d = std::max(a.getDensity(), b.getDensity());
+        if (convertToDensity(a) > convertToDensity(b)) {
+            return VoxelType(convertToMaterial(a), d);
+        } else {
+            return VoxelType(convertToMaterial(b), d);
+        }
+    }
+    DensityType getThreshold(void) { return thresh_; }
+    void setThreshold(DensityType t) { thresh_ = t; }
+
+private:
+    DensityType thresh_;
+};
+
 // Extract the surface
 void GameWidget::update_terrain_model() {
     auto org_y = cursor_pos_.getY();
@@ -72,7 +104,9 @@ void GameWidget::update_terrain_model() {
 
     auto raw_mesh = pv::extractCubicMesh(
                 volume_.get(), reg2, TerrainIsQuadNeeded(), true);
-    //auto mesh = pv::extractMarchingCubesMesh(&vol_slice, reg2);
+//    auto raw_mesh = pv::extractMarchingCubesMesh(volume_.get(), reg2,
+//                                    MyMarchingCubesController<VoxelType>());
+
     std::cout << "terrain mesh #vertices: " << raw_mesh.getNoOfVertices()
               << std::endl;
 

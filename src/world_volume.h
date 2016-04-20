@@ -12,9 +12,14 @@ namespace bm {
 //template <typename Type, Type AIR_VALUE>
 class MyVoxelType {
 public:
-    MyVoxelType(): material_(BlockId::AIR) {}
-    MyVoxelType(BlockId m): material_(m) {}
-    MyVoxelType(BlockId m, uint32_t): material_(m) {}
+    using DensityType = uint8_t;
+    using MaterialType = BlockType;
+    using Quantity = uint8_t;
+    static constexpr int QTTY_BITS = 4;
+
+    MyVoxelType(): material_(BlockType::AIR) {}
+    MyVoxelType(BlockType m): material_(m) {}
+    MyVoxelType(BlockType m, uint32_t): material_(m) {}
 
     bool operator==(const MyVoxelType& rhs) const {
         return material_ == rhs.material_;
@@ -24,29 +29,45 @@ public:
         return !(*this == rhs);
     }
 
-    uint32_t getDensity() const { return material_ == BlockId::AIR; }
-    BlockId getMaterial() const { return material_; }
+    uint32_t getDensity() const {
+        return (uint32_t)(
+                    material_ == BlockType::AIR //|| is_ramp_
+                    );
+        // We render ramps as empty blocks and add model to decorate
+    }
+    BlockType getMaterial() const { return material_; }
 
     void setDensity(uint32_t) {}
-    void setMaterial(BlockId m) { material_ = m; }
+    void setMaterial(BlockType m) { material_ = m; }
 
     static uint32_t getMaxDensity() { return 1; }
     static uint32_t getMinDensity() { return 0; }
 
 private:
-    BlockId material_;
+    // 16 bits
+    BlockType material_;
+
+    //--- 8 bits ------
+    // For liquids - How many units of liquid are in this block. And
+    // 2^QTTY_BITS-1 being the max possible amount
+    Quantity qty_;
+    // using 4 bits only so far, so 4 free
+
+    //--- 8 bits ------
+    bool is_ramp_: 1;
+    // 7 bits free
 };
 
 //using VoxelType = pv::MaterialDensityPair88;
-//using VoxelType   = pv::MaterialDensityPair<uint8_t, 8, 8>;
+//using VoxelType   = pv::MaterialDensityPair<uint8_t, 8, 4>;
 using VoxelType   = MyVoxelType;
 using PagedVolume = pv::PagedVolume<VoxelType>;
 using RawVolume   = pv::RawVolume<VoxelType>;
 using VolumeType  = RawVolume;
 
-inline bool is_solid(VoxelType v) { return v.getMaterial() != BlockId::AIR; }
-inline bool is_air(VoxelType v) { return v.getMaterial() == BlockId::AIR; }
-inline bool is_rock(VoxelType v) { return v.getMaterial() == BlockId::Rock; }
+inline bool is_solid(VoxelType v) { return v.getMaterial() != BlockType::AIR; }
+inline bool is_air(VoxelType v) { return v.getMaterial() == BlockType::AIR; }
+inline bool is_rock(VoxelType v) { return v.getMaterial() == BlockType::Rock; }
 
 const int WORLDSZ_X = 256;  // map width
 const int WORLDSZ_Y = 32;   // depth
