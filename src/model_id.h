@@ -15,6 +15,7 @@ enum class ModelId: uint32_t {
 
     BeardedMan,
 
+    Ramp,           // so far all ramps look the same
     Wood,
     Boulder,
 };

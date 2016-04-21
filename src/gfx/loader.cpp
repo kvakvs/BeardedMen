@@ -49,19 +49,19 @@ OpenglMesh::Ptr Loader::create_mesh_from_raw_(
     gl->glGenBuffers(1, &(result->vert_buf_));
     gl->glBindBuffer(GL_ARRAY_BUFFER, result->vert_buf_);
     gl->glBufferData(GL_ARRAY_BUFFER, n_verts * sizeof_vertex,
-                 raw_vertex_data, GL_STATIC_DRAW);
+                     raw_vertex_data, GL_STATIC_DRAW);
 
     // and GL_ELEMENT_ARRAY_BUFFER will contain the indices
     gl->glGenBuffers(1, &(result->indx_buf_));
     gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, result->indx_buf_);
     gl->glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_indices * sizeof_index,
-                raw_index_data, GL_STATIC_DRAW);
+                     raw_index_data, GL_STATIC_DRAW);
 
     // Every surface extractor outputs valid positions for the vertices, so
     // tell OpenGL how these are laid out
     gl->glEnableVertexAttribArray(0);  // Attrib '0' is the vertex positions
     gl->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof_vertex,
-                          offsetof_vertex_pos);
+                              offsetof_vertex_pos);
     // take the first 3 floats from every
     //      sizeof(decltype(vecVertices)::value_type)
 
@@ -73,7 +73,7 @@ OpenglMesh::Ptr Loader::create_mesh_from_raw_(
     // extractor generates normals and can skip uploading them if not.
     gl->glEnableVertexAttribArray(1);  // Attrib '1' is the vertex normals.
     gl->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof_vertex,
-                          offsetof_vertex_normal);
+                              offsetof_vertex_normal);
 
     // Finally a surface extractor will probably output additional data.
     // This is highly application dependant. For this example code we're
@@ -83,7 +83,7 @@ OpenglMesh::Ptr Loader::create_mesh_from_raw_(
     GLint size = (std::min)(sizeof_vertex_data, size_t(4));
     // Can't upload more that 4 components (vec4 is GLSL's biggest type)
     gl->glVertexAttribIPointer(2, size, GL_UNSIGNED_BYTE, sizeof_vertex,
-                           offsetof_vertex_data);
+                               offsetof_vertex_data);
 
     // We're done uploading and can now unbind.
     gl->glBindVertexArray(0);

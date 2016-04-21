@@ -33,7 +33,7 @@ void GameWidget::initialize() {
     load_rgb(ModelId::MarkRoute, "mark_route", false);
     load_rgb(ModelId::MarkArea, "mark_area", false);
 
-    // Spawn 7 bearded men
+    // Spawn more bearded men
     load_rgb(ModelId::BeardedMan, "dorf");
     const int MANY_BEARDED_MEN = 1;
     for (auto bm = 0; bm < MANY_BEARDED_MEN; ++bm) {
@@ -43,14 +43,11 @@ void GameWidget::initialize() {
     }
 
     // Inanimate
+    auto ramp = load_rgb(ModelId::Ramp, "ramp");
+    //ramp->mesh_->translation_ = QVector3D(-.5f, 0, -.5f);
+
     load_rgb(ModelId::Wood, "wood");
     load_rgb(ModelId::Boulder, "boulder");
-    // Throw in some boulders
-//    const int MANY_BOULDERS = 100;
-//    for (auto bb = 0; bb < MANY_BOULDERS; ++bb) {
-//        world_->spawn_inanimate_object(cursor_pos_ + Vec3i(bb - MANY_BOULDERS/2, 0, 0),
-//                                       InanimateType::Boulder);
-//    }
 
     // Other
     auto xyz = load_rgb(ModelId::Xyz, "xyz");
@@ -94,6 +91,22 @@ public:
 
 private:
     DensityType thresh_;
+};
+
+// For cubic extractor
+class TerrainIsQuadNeeded {
+   public:
+    bool operator()(VoxelType back, VoxelType front,
+                    VoxelType& materialToUse) {
+        if (back.getDensity() == VoxelType::getMaxDensity()
+            && front.getDensity() == VoxelType::getMinDensity())
+        {
+            materialToUse = static_cast<VoxelType>(back);
+            return true;
+        } else {
+            return false;
+        }
+    }
 };
 
 // Extract the surface
@@ -169,7 +182,8 @@ const Model *GameWidget::find_model(ModelId id) const
 }
 
 void GameWidget::render_frame() {
-    render_terrain_model(*terrain_, Vec3f(0.f, 0.f, 0.f));
+    render_terrain_model();
+    render_terrain_extra_models(); // stuff like ramps
 
     render_animate_objects();
     render_inanimate_objects();
@@ -184,12 +198,42 @@ void GameWidget::render_frame() {
     render_overlay_xyz();
 }
 
+void GameWidget::render_terrain_extra_models() {
+    auto m_ramp = models_.find(ModelId::Ramp);
+    Vec3i p0, p1;
+    get_visible_region(p0, p1);
+    auto reg = util::make_region(p0, p1);
+
+    for (int x = reg.getLowerX(); x <= reg.getUpperX(); x++) {
+        for (int z = reg.getLowerZ(); z <= reg.getUpperZ(); z++) {
+            for (int y = reg.getLowerY(); y <= reg.getUpperY(); y++) {
+                Vec3i pos(x, y, z);
+                if (world_->get_voxel(pos).is_ramp()) {
+                    render_model(m_ramp->second,
+                                 pos_for_cell(pos),
+                                 0.f);
+                }
+            }
+        }
+    }
+}
+
+void GameWidget::get_visible_region(Vec3i& a, Vec3i& b) {
+    a = cursor_pos_ + Vec3i(-VIEWSZ_X/2, -1, -VIEWSZ_Z/2);
+    b = cursor_pos_ + Vec3i(VIEWSZ_X/2, VIEWSZ_Y, VIEWSZ_Z/2);
+}
+
+void GameWidget::get_visible_region(Array3i& a, Array3i& b) {
+    Vec3i aa, bb;
+    get_visible_region(aa, bb);
+    a = util::make_array(aa);
+    b = util::make_array(bb);
+}
+
 void GameWidget::render_animate_objects() {
     auto& objects = world_->get_animate_objects();
-    auto p0 = util::make_array(cursor_pos_ +
-                               Vec3i(-VIEWSZ_X/2, -1, -VIEWSZ_Z/2));
-    auto p1 = util::make_array(cursor_pos_ +
-                               Vec3i(VIEWSZ_X/2, VIEWSZ_Y, VIEWSZ_Z/2));
+    Array3i p0, p1;
+    get_visible_region(p0, p1);
 
     auto iter = spatial::region_cbegin(objects, p0, p1);
     auto iter_end = spatial::region_cend(objects, p0, p1);
@@ -210,10 +254,8 @@ void GameWidget::render_animate_objects() {
 
 void GameWidget::render_inanimate_objects() {
     auto& objects = world_->get_inanimate_objects();
-    auto p0 = util::make_array(cursor_pos_ +
-                               Vec3i(-VIEWSZ_X/2, -1, -VIEWSZ_Z/2));
-    auto p1 = util::make_array(cursor_pos_ +
-                               Vec3i(VIEWSZ_X/2, VIEWSZ_Y, VIEWSZ_Z/2));
+    Array3i p0, p1;
+    get_visible_region(p0, p1);
 
     auto iter = spatial::region_cbegin(objects, p0, p1);
     auto iter_end = spatial::region_cend(objects, p0, p1);
@@ -235,12 +277,12 @@ void GameWidget::render_orders() {
 void GameWidget::render_orders(const ai::OrderMap& order_map)
 {
     auto m_pick = models_.find(ModelId::MarkPick);
-    Vec3i oneup(0,-1,0);
+    Vec3f offset(0, -0.125f, 0);
 
     for (auto o_iter: order_map) {
         auto& o = o_iter.second;
         auto pos = o->ctx_.pos_;
-        render_model(m_pick->second, pos_for_cell(pos + oneup), 0.f);
+        render_model(m_pick->second, pos_for_cell(pos) + offset, 0.f);
     }
 }
 
@@ -294,8 +336,9 @@ void GameWidget::render_model(const Model& m, const Vec3f &pos, float rot_y)
     QMatrix4x4 model_mx;
     model_mx.translate(m.mesh_->translation_
                        + QVector3D(pos.getX(), pos.getY(), pos.getZ()));
-    model_mx.scale(m.mesh_->scale_);
     model_mx.rotate(rot_y + m.mesh_->rotation_y_, 0.f, 1.f, 0.f);
+    model_mx.scale(m.mesh_->scale_);
+    model_mx.translate(-m.mesh_->translation_);
 
     m.shad_->setUniformValue("modelMatrix", model_mx);
 
@@ -312,8 +355,9 @@ void GameWidget::render_model(const Model& m, const Vec3f &pos, float rot_y)
     m.shad_->release();
 }
 
-void GameWidget::render_terrain_model(const Model& m, const Vec3f &pos)
+void GameWidget::render_terrain_model()
 {
+    const Model& m = *terrain_;
     if (not m.mesh_->is_valid()) {
         return;
     }
@@ -331,10 +375,7 @@ void GameWidget::render_terrain_model(const Model& m, const Vec3f &pos)
     // Set up the model matrrix based on provided translation and scale.
     //
     QMatrix4x4 model_mx;
-    model_mx.translate(m.mesh_->translation_
-                       + QVector3D(pos.getX(), pos.getY(), pos.getZ()));
-    model_mx.scale(m.mesh_->scale_);
-    model_mx.rotate(m.mesh_->rotation_y_, 0.f, 1.f, 0.f);
+    model_mx.translate(QVector3D(0.f, cursor_pos_.getY() - 0.5f, 0.f));
 
     m.shad_->setUniformValue("modelMatrix", model_mx);
 
@@ -377,9 +418,9 @@ void GameWidget::render_overlay_xyz() {
 
 void GameWidget::camera_follow_cursor()
 {
-    QVector3D cam_pos((cursor_pos_.getX() + 5) * CELL_SIZE,
-                      (15.0f - cursor_pos_.getY()) * WALL_HEIGHT, // up
-                      (cursor_pos_.getZ() + 5) * CELL_SIZE);
+    QVector3D cam_pos((cursor_pos_.getX() - 5) * CELL_SIZE,
+                      (cursor_pos_.getY() - 15.0f) * WALL_HEIGHT, // up
+                      (cursor_pos_.getZ() - 5) * CELL_SIZE);
 
     set_camera_transform(cam_pos,
                        -7.0 * M_PI / 18.0, //pitch (minus - look down)
@@ -400,9 +441,9 @@ void GameWidget::change_keyboard_fsm(bm::KeyFSM fsm_state)
     case KeyFSM::Default:
         keyboard_handler_ = &GameWidget::fsm_keypress_exploremap;
         break;
-    case KeyFSM::Orders:
-        keyboard_handler_ = &GameWidget::fsm_keypress_orders;
-        break;
+//    case KeyFSM::Orders:
+//        keyboard_handler_ = &GameWidget::fsm_keypress_orders;
+//        break;
     case KeyFSM::Designations:
         keyboard_handler_ = &GameWidget::fsm_keypress_designations;
         break;
@@ -421,7 +462,14 @@ bool GameWidget::keypress_navigate_cursor(QKeyEvent* event) {
             this->update();
             event->accept();
         } break;
-
+    case Qt::Key_Comma: {
+            auto v = world_->get_voxel(cursor_pos_);
+            v.set_ramp(true);
+            world_->set_voxel(cursor_pos_, v);
+            update_terrain_model();
+            this->update();
+            event->accept();
+        } break;
     case Qt::Key_Right:
         if (cursor_pos_.getX() < WORLDSZ_X - 1) {
             cursor_pos_ += Vec3i(1, 0, 0);
@@ -434,13 +482,13 @@ bool GameWidget::keypress_navigate_cursor(QKeyEvent* event) {
             camera_follow_cursor();
         }
         break;
-    case Qt::Key_Down:
+    case Qt::Key_Up:
         if (cursor_pos_.getZ() < WORLDSZ_Z - 1) {
             cursor_pos_ += Vec3i(0, 0, 1);
             camera_follow_cursor();
         }
         break;
-    case Qt::Key_Up:
+    case Qt::Key_Down:
         if (cursor_pos_.getZ() > 0) {
             cursor_pos_ += Vec3i(0, 0, -1);
             camera_follow_cursor();

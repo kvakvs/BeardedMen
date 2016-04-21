@@ -43,7 +43,7 @@ void main()
 
         // Quick and dirty lighting, obviously a real implementation
         // should pass light properties as shader parameters, etc.
-        vec3 lightDir = vec3(0.33, -0.66, 1.0);
+        vec3 lightDir = vec3(0.33, 0.66, 1.0);
         float diffuse = clamp(dot(lightDir, normal), 0.0, 1.0);
         diffuse *= 0.7; // Dim the diffuse a bit
         float ambient = 0.3; // Add some ambient

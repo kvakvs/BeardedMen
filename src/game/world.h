@@ -70,6 +70,9 @@ public:
     VoxelType get_voxel(const Vec3i& pos) const {
         return volume_.getVoxel(pos);
     }
+    void set_voxel(const Vec3i& pos, VoxelType v) {
+        volume_.setVoxel(pos, v);
+    }
 
     //
     // Orders, planning and AI

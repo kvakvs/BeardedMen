@@ -23,7 +23,7 @@ namespace bm {
 // Currently active keyboard map. Changes to allow access to sub-commands.
 enum class KeyFSM: int {
     Default,        // regular keyboard movement and cursor operation
-    Orders,
+    //Orders,
     Designations,
 };
 
@@ -67,21 +67,8 @@ class GameWidget : public GLVersion_Widget {
     virtual void initialize() override;
     virtual void render_frame() override;
 
-    class TerrainIsQuadNeeded {
-       public:
-        bool operator()(VoxelType back, VoxelType front,
-                        VoxelType& materialToUse) {
-            if (is_solid(back) && is_air(front)) {
-                materialToUse = static_cast<VoxelType>(back);
-                return true;
-            } else {
-                return false;
-            }
-        }
-    };
-
     void render_model(const Model& m, const Vec3f &pos, float rot_y);
-    void render_terrain_model(const Model& m, const Vec3f &pos);
+    void render_terrain_model();
 
     // These two camera control funs make camera always look at cursor
     virtual QVector3D get_camera_focus(QVector3D /*forward*/) override {
@@ -90,7 +77,7 @@ class GameWidget : public GLVersion_Widget {
     }
     virtual QVector3D get_camera_up(QVector3D /*right*/,
                                     QVector3D /*forward*/) override {
-        return QVector3D(0.0f, 1.0f, 0.0f);
+        return QVector3D(0.0f, -1.0f, 0.0f);
     }
 
 private:
@@ -111,9 +98,11 @@ private:
 
     // Given integer cell position make world pos
     static Vec3f pos_for_cell(const Vec3i &i) {
-        return Vec3f((float)i.getX() - CELL_SIZE * 0.5f,
-                     -(float)i.getY() - WALL_HEIGHT * 0.5f,
-                     (float)i.getZ() - CELL_SIZE * 0.5f);
+        // 0.7 comes from 0.5 offset plus ~1/5 adjustment for extra padding
+        // around the model
+        return Vec3f((float)i.getX() - CELL_SIZE * 0.7f,
+                     (float)i.getY() - WALL_HEIGHT * 0.5f - 1.f,
+                     (float)i.getZ() - CELL_SIZE * 0.7f);
     }
 
     void render_overlay_xyz();
@@ -126,14 +115,18 @@ private:
                       ShaderPtr shad,
                       bool re_scale = true);
 
+    bool keypress_navigate_cursor(QKeyEvent *event);
     void on_cursor_changed();
+
     void render_orders();
     void render_orders(const ai::OrderMap &order_map);
     void render_debug_routes();
     void render_marked_area();
-    bool keypress_navigate_cursor(QKeyEvent *event);
     void render_animate_objects();
     void render_inanimate_objects();
+    void render_terrain_extra_models();
+    void get_visible_region(Vec3i &a, Vec3i &b);
+    void get_visible_region(Array3i &a, Array3i &b);
 };
 
 }  // namespace bm

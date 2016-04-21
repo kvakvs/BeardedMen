@@ -36,7 +36,7 @@ public:
 
     float rotation_y_ = 0.f;
     //QVector3D origin_;
-    QVector3D translation_;
+    QVector3D translation_; // origin
     QVector3D scale_;
 
 private:

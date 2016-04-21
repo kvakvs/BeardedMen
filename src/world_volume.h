@@ -17,9 +17,9 @@ public:
     using Quantity = uint8_t;
     static constexpr int QTTY_BITS = 4;
 
-    MyVoxelType(): material_(BlockType::AIR) {}
-    MyVoxelType(BlockType m): material_(m) {}
-    MyVoxelType(BlockType m, uint32_t): material_(m) {}
+    MyVoxelType(): material_(BlockType::AIR), is_ramp_(false) {}
+    MyVoxelType(BlockType m): material_(m), is_ramp_(false) {}
+    MyVoxelType(BlockType m, uint32_t): material_(m), is_ramp_(false) {}
 
     bool operator==(const MyVoxelType& rhs) const {
         return material_ == rhs.material_;
@@ -29,10 +29,17 @@ public:
         return !(*this == rhs);
     }
 
+    bool is_ramp() const { return is_ramp_; }
+    void set_ramp(bool r) {
+        if (r && material_ != BlockType::AIR) {
+            is_ramp_ = r;
+        }
+    }
+
     uint32_t getDensity() const {
-        return (uint32_t)(
-                    material_ == BlockType::AIR //|| is_ramp_
-                    );
+        return (material_ == BlockType::AIR || is_ramp_)
+                ? getMinDensity()
+                : getMaxDensity();
         // We render ramps as empty blocks and add model to decorate
     }
     BlockType getMaterial() const { return material_; }
@@ -40,8 +47,8 @@ public:
     void setDensity(uint32_t) {}
     void setMaterial(BlockType m) { material_ = m; }
 
-    static uint32_t getMaxDensity() { return 1; }
-    static uint32_t getMinDensity() { return 0; }
+    static constexpr uint32_t getMaxDensity() { return 1; }
+    static constexpr uint32_t getMinDensity() { return 0; }
 
 private:
     // 16 bits
