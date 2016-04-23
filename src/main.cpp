@@ -27,11 +27,12 @@ SOFTWARE.
 #include <QTranslator>
 
 #include "ui/main_window.h"
+#include "gfx/gl_version.h"
 
 void setup_opengl_profile() {
     QGLFormat gl_fmt;
-    gl_fmt.setVersion(3, 2);
-    gl_fmt.setProfile(QGLFormat::CoreProfile);
+    gl_fmt.setVersion(bm::GL_MAJOR, bm::GL_MINOR);
+    gl_fmt.setProfile(bm::GL_PROFILE);
     gl_fmt.setSampleBuffers(true);
     QGLFormat::setDefaultFormat(gl_fmt);
 }
