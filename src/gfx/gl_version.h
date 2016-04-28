@@ -1,17 +1,27 @@
 #pragma once
 
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions_3_0>
+
+#define DESIRED_GL 33
+
+#if DESIRED_GL == 33
+#include <QOpenGLFunctions_3_3_Core>
+#endif //33
 
 #include "gfx/ogl_widget.h"
 
 namespace bm {
 
-//constexpr auto GL_PROFILE = QGLFormat::CoreProfile;
+constexpr int GL_MAJOR = DESIRED_GL / 10;
+constexpr int GL_MINOR = DESIRED_GL % 10;
+
+#if DESIRED_GL == 33
+using GLVersion_Funs = QOpenGLFunctions_3_3_Core;
+constexpr auto GL_PROFILE = QGLFormat::CoreProfile;
+#else
 constexpr auto GL_PROFILE = QGLFormat::CompatibilityProfile;
-constexpr int GL_MAJOR = 3;
-constexpr int GL_MINOR = 0;
-using GLVersion_Funs = QOpenGLFunctions_3_0;
+#endif
+
 using GLVersion_Widget = MyGLWidget<GLVersion_Funs>;
 
 } // namespace bm

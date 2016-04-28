@@ -394,7 +394,6 @@ void GameWidget::render_terrain_model()
 
 void GameWidget::render_overlay_xyz() {
     glDisable(GL_DEPTH_TEST);
-    glPushAttrib(GL_VIEWPORT_BIT);
     glViewport(0, 0,
                this->geometry().width() * 0.25f,
                this->geometry().height() * 0.25f);
@@ -412,7 +411,9 @@ void GameWidget::render_overlay_xyz() {
     Q_ASSERT(xyz);
     render_model(*xyz, Vec3f(0.f, 0.f, 0.f), -cam_yaw_);
 
-    glPopAttrib();
+    glViewport(0, 0,
+               this->geometry().width(),
+               this->geometry().height());
     glEnable(GL_DEPTH_TEST);
 }
 
