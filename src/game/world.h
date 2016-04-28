@@ -29,6 +29,10 @@ public:
     void animate_position_changed(AnimateObject *a,
                                   const Vec3i& old,
                                   const Vec3i& updated);
+    // deferred variant that keeps track of old coords and changed objects but
+    // does not modify animate_ yet
+    void animate_position_changed_d(AnimateObject *a,
+                                    const Vec3i& old);
     const SpatialAnimateMap& get_animate_objects() const { return animate_; }
 
     //
@@ -121,7 +125,11 @@ private:
     std::uniform_int_distribution<int> d100_ {0, 99};
 
     uint64_t ent_id_ = 0;
+
     SpatialAnimateMap animate_;
+    // Moved objects after logic run - we update spatial map
+    std::vector<std::pair<AnimateObject*, Vec3i>> animate_moved_;
+
     SpatialInanimateMap inanimate_;
 
     // Visible piece of world + some nearby

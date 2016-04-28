@@ -28,6 +28,11 @@ void World::animate_position_changed(AnimateObject *a,
     }
 }
 
+void World::animate_position_changed_d(AnimateObject *a, const Vec3i &old)
+{
+    animate_moved_.push_back(std::make_pair(a, old));
+}
+
 void World::spawn_inanimate_object(const Vec3i &pos, InanimateType ot) {
     inanimate_.insert(
         std::make_pair(util::make_array(pos), InanimateObject(ot)));
@@ -37,6 +42,12 @@ void World::think() {
     sim_step_++;
     run_animate_entities();
     run_animate_brains();
+
+    // Apply modifications
+    for(auto &p: animate_moved_) {
+        auto ent = p.first->as_entity();
+        animate_position_changed(p.first, p.second, ent->get_pos());
+    }
 }
 
 void World::run_animate_entities() {

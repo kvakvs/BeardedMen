@@ -7,7 +7,7 @@
 namespace bm {
 
 void EntityComponent::set_pos(const Vec3i &v) {
-    AnimateObject::get_world()->animate_position_changed(get_parent(), pos_, v);
+    AnimateObject::get_world()->animate_position_changed_d(get_parent(), pos_);
     pos_ = v;
 }
 
