@@ -12,17 +12,17 @@ void World::add_animate_object(AnimateObject *ao) {
     ent->set_id(ent_id_++);
 
     auto pos_array = util::make_array(ent->get_pos());
-    animate_.insert(std::make_pair(pos_array, ao));
+    objects_.animate_.insert(std::make_pair(pos_array, ao));
 }
 
 void World::animate_position_changed(AnimateObject *a,
                                      const Vec3i& old,
                                      const Vec3i& updated) {
-    for (auto iter = animate_.find(util::make_array(old));
-         iter != animate_.end(); ++iter) {
+    for (auto iter = objects_.animate_.find(util::make_array(old));
+         iter != objects_.animate_.end(); ++iter) {
         if (a == iter->second) {
-            animate_.erase(iter);
-            animate_.insert(std::make_pair(util::make_array(updated), a));
+            objects_.animate_.erase(iter);
+            objects_.animate_.insert(std::make_pair(util::make_array(updated), a));
             return;
         }
     }
@@ -30,11 +30,11 @@ void World::animate_position_changed(AnimateObject *a,
 
 void World::animate_position_changed_d(AnimateObject *a, const Vec3i &old)
 {
-    animate_moved_.push_back(std::make_pair(a, old));
+    objects_.animate_moved_.push_back(std::make_pair(a, old));
 }
 
 void World::spawn_inanimate_object(const Vec3i &pos, InanimateType ot) {
-    inanimate_.insert(
+    objects_.inanimate_.insert(
         std::make_pair(util::make_array(pos), InanimateObject(ot)));
 }
 
@@ -43,8 +43,8 @@ void World::think() {
     run_animate_entities();
     run_animate_brains();
 
-    // Apply modifications
-    for(auto &p: animate_moved_) {
+    // Apply deferred modifications
+    for(auto &p: objects_.animate_moved_) {
         auto ent = p.first->as_entity();
         animate_position_changed(p.first, p.second, ent->get_pos());
     }
@@ -52,15 +52,12 @@ void World::think() {
 
 void World::run_animate_entities() {
     // Here we think for entities (passive things like gravity)
-    each_animate([this](auto /*id*/, auto co) {
-        auto ent         = co->as_entity();
-        auto ent_pos     = ent->get_pos();
-//        if (not is_air(get_voxel(ent_pos))) {
-//            qDebug() << *ent << "stuck in rock";
-//        }
-        auto block_under = get_under(ent_pos);
+    for_each_animate([this](AnimateObject* ao, const Vec3i& pos) {
+        auto ent         = ao->as_entity();
+        auto block_under = get_under(pos);
         if (is_air(block_under)) {
             // fall
+            auto ent_pos(pos); // mutable copy
             ent_pos.setY(ent_pos.getY() + 1);
             ent->set_pos(ent_pos);
         }
@@ -71,13 +68,13 @@ void World::run_animate_entities() {
 
 void World::run_animate_brains() {
     // Entities think for themselves
-    each_animate([this](auto /*id*/, auto co) {
-        BrainsComponent* brains = co->as_brains();
+    for_each_animate([this](AnimateObject* ao, const Vec3i& ) {
+        BrainsComponent* brains = ao->as_brains();
         if (brains) {
             brains->think();
 
             if (brains->is_idle() && this->have_orders()) {
-                auto dsr = get_random_order(co);
+                auto dsr = get_random_order(ao);
                 if (dsr) {
                     // Now he wants to do the order, unless it's impossible
                     brains->want(dsr);

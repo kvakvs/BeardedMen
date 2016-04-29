@@ -126,7 +126,7 @@ private:
     void render_inanimate_objects();
     void render_terrain_extra_models();
     void get_visible_region(Vec3i &a, Vec3i &b);
-    void get_visible_region(Array3i &a, Array3i &b);
+//    void get_visible_region(Array3i &a, Array3i &b);
 };
 
 }  // namespace bm

@@ -3,6 +3,7 @@
 //#include <set>
 #include <random>
 #include <point_multimap.hpp>
+#include "region_iterator.hpp"
 
 #include "game/co_entity.h"
 #include "game/order.h"
@@ -33,29 +34,67 @@ public:
     // does not modify animate_ yet
     void animate_position_changed_d(AnimateObject *a,
                                     const Vec3i& old);
-    const SpatialAnimateMap& get_animate_objects() const { return animate_; }
+    const SpatialAnimateMap& get_animate_objects() const {
+        return objects_.animate_;
+    }
 
     //
     // Inanimate objects
     //
     void spawn_inanimate_object(const Vec3i& pos, InanimateType ot);
     const SpatialInanimateMap& get_inanimate_objects() const {
-        return inanimate_;
+        return objects_.inanimate_;
     }
 
     //
     // Loops
     //
-    template <typename EachObjFn>
-    void each_animate(EachObjFn fn) {
-        for (auto pair: animate_) {
-            fn(pair.first, pair.second);
+//    using EachInanimateFn = void (*)(InanimateObject& ia, const Vec3i& pos);
+//    using EachAnimateFn = void (*)(AnimateObject* ao, const Vec3i& pos);
+
+    template <typename EachAnimateFn>
+    void for_each_animate(EachAnimateFn fn) {
+        for (auto pair: objects_.animate_) {
+            fn(pair.second, util::make_vec3i(pair.first));
         }
     }
-    template <typename EachObjFn>
-    void each_inanimate(EachObjFn fn) {
-        for (auto pair: inanimate_) {
-            fn(pair.first, pair.second);
+
+    template <typename EachInanimateFn>
+    void for_each_inanimate(EachInanimateFn fn) {
+        for (auto pair: objects_.inanimate_) {
+            fn(pair.second, util::make_vec3i(pair.first));
+        }
+    }
+
+    template <typename EachAnimateFn>
+    void for_each_animate_r(const Vec3i& from, const Vec3i& to,
+                            EachAnimateFn fn)
+    {
+        Array3i p0 = util::make_array(from);
+        Array3i p1 = util::make_array(to);
+
+        auto iter = spatial::region_cbegin(objects_.animate_, p0, p1);
+        auto iter_end = spatial::region_cend(objects_.animate_, p0, p1);
+        for (; iter != iter_end; ++iter) {
+            auto ao  = iter->second;
+            auto pos = util::make_vec3i(iter->first);
+            fn(ao, pos);
+        }
+    }
+
+    template <typename EachInanimateFn>
+    void for_each_inanimate_r(const Vec3i& from, const Vec3i& to,
+                            EachInanimateFn fn)
+    {
+        Array3i p0 = util::make_array(from);
+        Array3i p1 = util::make_array(to);
+
+        auto iter = spatial::region_cbegin(objects_.inanimate_, p0, p1);
+        auto iter_end = spatial::region_cend(objects_.inanimate_, p0, p1);
+        for (; iter != iter_end; ++iter) {
+            auto o  = iter->second;
+            auto pos = util::make_vec3i(iter->first);
+            fn(o, pos);
         }
     }
 
@@ -126,11 +165,13 @@ private:
 
     uint64_t ent_id_ = 0;
 
-    SpatialAnimateMap animate_;
-    // Moved objects after logic run - we update spatial map
-    std::vector<std::pair<AnimateObject*, Vec3i>> animate_moved_;
+    struct {
+        SpatialAnimateMap animate_;
+        // Moved objects after logic run - we update spatial map
+        std::vector<std::pair<AnimateObject*, Vec3i>> animate_moved_;
 
-    SpatialInanimateMap inanimate_;
+        SpatialInanimateMap inanimate_;
+    } objects_;
 
     // Visible piece of world + some nearby
     bm::VolumeType& volume_;

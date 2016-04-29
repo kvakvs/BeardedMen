@@ -223,49 +223,41 @@ void GameWidget::get_visible_region(Vec3i& a, Vec3i& b) {
     b = cursor_pos_ + Vec3i(VIEWSZ_X/2, VIEWSZ_Y, VIEWSZ_Z/2);
 }
 
-void GameWidget::get_visible_region(Array3i& a, Array3i& b) {
-    Vec3i aa, bb;
-    get_visible_region(aa, bb);
-    a = util::make_array(aa);
-    b = util::make_array(bb);
-}
+//void GameWidget::get_visible_region(Array3i& a, Array3i& b) {
+//    Vec3i aa, bb;
+//    get_visible_region(aa, bb);
+//    a = util::make_array(aa);
+//    b = util::make_array(bb);
+//}
 
 void GameWidget::render_animate_objects() {
-    auto& objects = world_->get_animate_objects();
-    Array3i p0, p1;
+    Vec3i p0, p1;
     get_visible_region(p0, p1);
 
-    auto iter = spatial::region_cbegin(objects, p0, p1);
-    auto iter_end = spatial::region_cend(objects, p0, p1);
-    for (; iter != iter_end; ++iter) {
-        auto ao  = iter->second;
-        auto pos = util::make_vec3i(iter->first);
-        auto ent = ao->as_entity();
-        if (ent) {
-            auto model_id = ent->get_model_id();
-            if (model_id != ModelId::NIL) {
-                auto m = this->find_model(model_id);
-                Q_ASSERT(m);
-                this->render_model(*m, pos_for_cell(pos), 0.0f);
-            }
-        }
-    }
+    world_->for_each_animate_r(p0, p1,
+        [this](AnimateObject* ao, const Vec3i& pos) {
+            auto ent = ao->as_entity();
+            if (ent) {
+                auto model_id = ent->get_model_id();
+                if (model_id != ModelId::NIL) {
+                    auto m = this->find_model(model_id);
+                    Q_ASSERT(m);
+                    this->render_model(*m, pos_for_cell(pos), 0.0f);
+                } // have model
+            } // ent
+        });
 }
 
 void GameWidget::render_inanimate_objects() {
-    auto& objects = world_->get_inanimate_objects();
-    Array3i p0, p1;
+    Vec3i p0, p1;
     get_visible_region(p0, p1);
 
-    auto iter = spatial::region_cbegin(objects, p0, p1);
-    auto iter_end = spatial::region_cend(objects, p0, p1);
-    for (; iter != iter_end; ++iter) {
-        auto ia = iter->second;
-        auto pos = iter->first;
-        auto m = this->find_model(ia.model_);
-        Q_ASSERT(m);
-        this->render_model(*m, pos_for_cell(util::make_vec3i(pos)), 0.0f);
-    }
+    world_->for_each_inanimate_r(p0, p1,
+        [this](InanimateObject& ia, const Vec3i& pos) {
+            auto m = this->find_model(ia.model_);
+            Q_ASSERT(m);
+            this->render_model(*m, pos_for_cell(pos), 0.0f);
+        });
 }
 
 void GameWidget::render_orders() {
