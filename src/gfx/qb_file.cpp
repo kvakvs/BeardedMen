@@ -46,16 +46,16 @@ void QBFile::read(FILE* f)
         vol->create_voxels();
 
         if (compressed_ == 0) {
-            read_compressed(f, vol);
+            read_non_compressed(f, vol);
         } else {
-            read_uncompressed(f, vol);
+            read_compressed(f, vol);
         }
 
         volumes_.push_back(vol);
     }
 }
 
-void QBFile::read_compressed(FILE *f, QBVolume *vol)
+void QBFile::read_non_compressed(FILE *f, QBVolume *vol)
 {
     uint32_t tmp = 0;
     QBVolume::VoxelType v;
@@ -79,7 +79,7 @@ void QBFile::read_compressed(FILE *f, QBVolume *vol)
     }
 }
 
-void QBFile::read_uncompressed(FILE *f, QBVolume* vol)
+void QBFile::read_compressed(FILE *f, QBVolume* vol)
 {
     uint32_t z = 0;
     QBVolume::VoxelType v;

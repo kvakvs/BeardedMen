@@ -47,6 +47,10 @@ So...
 4. Change in Project settings to run from project root directory (there are
     loadable assets).
 
+NOTE: On Linux with software emulated Mesa GL the game runs VERY slow if your
+machine runs on battery. Use hardware accelerated drivers with GL 3.0 support
+or plug in your power cable!
+
 ## Translations
 
 Run `make locatization-update` to update files in `lang/*.ts`, run `linguist` to change

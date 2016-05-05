@@ -41,7 +41,7 @@ public:
     // Result: creates voxels_
     void create_voxels();
     void set_vox(int x, int y, int z, VoxelType v) {
-        voxels_->setVoxel(x+1, y+1, z+1, v);
+        voxels_->setVoxel(x+1, size_.getY() - y + 1, z+1, v);
     }
     // Return (1,1,1) / size-(2,2,2)
     Vec3f get_downscale() {
@@ -94,8 +94,8 @@ private:
     // read headers
     void read(FILE *f);
     // continue reading if compressed
-    void read_compressed(FILE *f, QBVolume *p);
-    void read_uncompressed(FILE *f, QBVolume *vol);
+    void read_non_compressed(FILE *f, QBVolume *p);
+    void read_compressed(FILE *f, QBVolume *vol);
 };
 
 } // ns

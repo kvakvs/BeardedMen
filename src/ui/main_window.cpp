@@ -1,9 +1,13 @@
 #include "main_window.h"
+#include <QApplication>
+#include <QDesktopWidget>
 
 namespace bm {
 
 GameMainWindow::GameMainWindow(): QMainWindow(nullptr) {
-    setGeometry(0, 0, 800, 450);
+    QRect desktop = QApplication::desktop()->screenGeometry();
+    setGeometry(desktop.width() / 4, desktop.height() / 4,
+                desktop.width() / 2, desktop.height() / 2);
 
     gl_widget_ = new bm::GameWidget(this);
     gl_widget_->setGeometry(geometry());

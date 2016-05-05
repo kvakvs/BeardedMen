@@ -9,12 +9,12 @@ namespace pv = PolyVox;
 
 //#include <selene.h>
 
-#include "gfx/loader.h"
+#include "gfx/mesh_maker.h"
 #include "gfx/qb_file.h"
 #include "util/vec.h"
 #include "util/optional.h"
-#include "world_volume.h"
 
+#include "game/world_volume.h"
 #include "game/world.h"
 #include "game/co_entity.h"
 

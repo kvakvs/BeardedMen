@@ -22,12 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#include "gfx/loader.h"
-#include <QOpenGLFunctions_3_2_Core>
+#include "gfx/mesh_maker.h"
+#include "gfx/gl_version.h"
 
 namespace bm {
+namespace mesh {
+namespace impl {
 
-OpenglMesh::Ptr Loader::create_mesh_from_raw_(
+OpenglMesh::Ptr create_mesh(
         GLVersion_Widget* gl,
         GLsizeiptr n_verts, void *raw_vertex_data, size_t sizeof_vertex,
         GLsizeiptr n_indices, void *raw_index_data, size_t sizeof_index,
@@ -102,7 +104,10 @@ OpenglMesh::Ptr Loader::create_mesh_from_raw_(
     return result;
 }
 
-ShaderPtr Loader::load_shader(const char *name)
+} // ns bm::mesh::impl
+} // ns bm::mesh
+
+ShaderPtr load_shader(const char *name)
 {
     auto shad = QSharedPointer<QGLShaderProgram>(new QGLShaderProgram);
     std::string v_name = std::string(":/shader/") + name + ".vert";
@@ -136,4 +141,4 @@ ShaderPtr Loader::load_shader(const char *name)
     return shad;
 }
 
-} // namespace bm
+} // ns bm

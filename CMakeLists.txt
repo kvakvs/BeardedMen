@@ -28,7 +28,6 @@ SET(SRC_FILES
     src/main.cpp
     src/perlin.cpp
     src/model_id.h
-    src/world_volume.cpp	src/world_volume.h
 
     src/util/optional.h
     src/util/str.h
@@ -36,7 +35,7 @@ SET(SRC_FILES
 
     src/gfx/game_widget.cpp	src/gfx/game_widget.h
     src/gfx/gl_version.h
-    src/gfx/loader.cpp		src/gfx/loader.h
+    src/gfx/mesh_maker.cpp	src/gfx/mesh_maker.h
     src/gfx/model.cpp		src/gfx/model.h
     src/gfx/ogl_widget.h	src/gfx/ogl_widget.inl
     src/gfx/qb_file.cpp		src/gfx/qb_file.h
@@ -59,6 +58,7 @@ SET(SRC_FILES
     src/game/order.cpp          src/game/order.h
     src/game/settlement.cpp	src/game/settlement.h
     src/game/world.cpp		src/game/world.h
+    src/game/world_volume.cpp	src/game/world_volume.h
 
     src/ui/main_window.cpp	src/ui/main_window.h
     src/ui/dock.cpp		src/ui/dock.h

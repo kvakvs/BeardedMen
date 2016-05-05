@@ -4,8 +4,7 @@
 
 #include "game/world.h"
 #include "game/component.h"
-
-#include "world_volume.h"
+#include "game/world_volume.h"
 
 namespace bm {
 namespace ai {

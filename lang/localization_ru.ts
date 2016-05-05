@@ -4,7 +4,7 @@
 <context>
     <name>QApplication</name>
     <message>
-        <location filename="../src/main.cpp" line="58"/>
+        <location filename="../src/main.cpp" line="59"/>
         <source>Bearded men (and a Fortress)</source>
         <translation>Бородатые мужчины (и Крепость)</translation>
     </message>
