@@ -120,4 +120,19 @@ VoxelType get_perlin_voxel(float perlinVal, int x, int y, int z);
 
 } // ns populate
 
+// Allows reading relative positions from a volume
+class VoxelReader {
+private:
+    const VolumeType &vol_;
+    Vec3i pos_;
+
+public:
+    VoxelReader(const VolumeType* vt, const Vec3i& p): vol_(*vt), pos_(p) {}
+    VoxelType read(int dx, int dy, int dz) const {
+        vol_.getVoxel(pos_.getX() + dx,
+                      pos_.getY() + dy,
+                      pos_.getZ() + dz);
+    }
+};
+
 } // namespace bm

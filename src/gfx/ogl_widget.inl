@@ -28,11 +28,12 @@ const QMatrix4x4& MyGLWidget<QOpenGLFunctionsType>::get_projection_matrix() cons
 }
 
 template <typename QOpenGLFunctionsType>
-void MyGLWidget<QOpenGLFunctionsType>::set_camera_transform(QVector3D position, float pitch, float yaw)
+void MyGLWidget<QOpenGLFunctionsType>::set_camera_transform(
+        QVector3D position, float pitch, float yaw)
 {
     cam_pos_ = position;
-    cam_yaw_ = yaw;
-    cam_pitch_ = pitch;
+//    cam_yaw_ = yaw;
+//    cam_pitch_ = pitch;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,13 +51,17 @@ void MyGLWidget<QOpenGLFunctionsType>::initializeGL()
     //Print out some information about the OpenGL implementation.
     std::cout << "OpenGL Implementation Details:" << std::endl;
     if (this->glGetString(GL_VENDOR))
-            std::cout << "\tGL_VENDOR: " << this->glGetString(GL_VENDOR) << std::endl;
+        std::cout << "\tGL_VENDOR: "
+                  << this->glGetString(GL_VENDOR) << std::endl;
     if (this->glGetString(GL_RENDERER))
-            std::cout << "\tGL_RENDERER: " << this->glGetString(GL_RENDERER) << std::endl;
+        std::cout << "\tGL_RENDERER: "
+                  << this->glGetString(GL_RENDERER) << std::endl;
     if (this->glGetString(GL_VERSION))
-            std::cout << "\tGL_VERSION: " << this->glGetString(GL_VERSION) << std::endl;
+        std::cout << "\tGL_VERSION: "
+                  << this->glGetString(GL_VERSION) << std::endl;
     if (this->glGetString(GL_SHADING_LANGUAGE_VERSION))
-            std::cout << "\tGL_SHADING_LANGUAGE_VERSION: " << this->glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+        std::cout << "\tGL_SHADING_LANGUAGE_VERSION: "
+                  << this->glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
     //Set up the clear colour
     this->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -98,8 +103,9 @@ void MyGLWidget<QOpenGLFunctionsType>::paintGL()
     auto cam_forward = get_cam_forward();
 
     // Right vector
-    QVector3D cam_right(std::sin(cam_yaw_ - 3.14f / 2.0f), 0,
-                        std::cos(cam_yaw_ - 3.14f / 2.0f));
+//    QVector3D cam_right(std::sin(cam_yaw_ - 3.14f / 2.0f), 0,
+//                        std::cos(cam_yaw_ - 3.14f / 2.0f));
+    QVector3D cam_right(1.0f, 0.f, 0.f);
 
     // Up vector
     QVector3D cam_up = get_camera_up(cam_right, cam_forward);
@@ -162,9 +168,9 @@ void MyGLWidget<QOpenGLFunctionsType>::mouseMoveEvent(QMouseEvent* event)
 {
     // Update the x and y rotations based on the mouse movement.
     mouse_pos_ = event->pos();
-    QPoint diff = mouse_pos_ - last_frame_mouse_pos_;
-    cam_yaw_ -= diff.x() * cam_rotate_speed_;
-    cam_pitch_ -= diff.y() * cam_rotate_speed_;
+//    QPoint diff = mouse_pos_ - last_frame_mouse_pos_;
+//    cam_yaw_ -= diff.x() * cam_rotate_speed_;
+//    cam_pitch_ -= diff.y() * cam_rotate_speed_;
     last_frame_mouse_pos_ = mouse_pos_;
 }
 

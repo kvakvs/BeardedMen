@@ -58,6 +58,7 @@ OpenglMesh::Ptr create_opengl_mesh_from_raw(
         trans, scale);
 }
 
+OpenglMesh::Ptr create_ramp(GLVersion_Widget* gl, ModelId i);
 
 } // ns bm::mesh
 } // ns bm

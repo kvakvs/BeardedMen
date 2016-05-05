@@ -11,6 +11,8 @@ namespace pv = PolyVox;
 
 #include "gfx/mesh_maker.h"
 #include "gfx/qb_file.h"
+#include "gfx/ramp.h"
+
 #include "util/vec.h"
 #include "util/optional.h"
 
@@ -30,8 +32,8 @@ enum class KeyFSM: int {
 class GameWidget : public GLVersion_Widget {
     Q_OBJECT
   public:
-    static constexpr float WALL_HEIGHT = 1.0f;
     static constexpr float CELL_SIZE = 1.0f;
+    static constexpr float WALL_HEIGHT = CELL_SIZE;
 
     GameWidget(QWidget* parent);
 
@@ -42,11 +44,11 @@ class GameWidget : public GLVersion_Widget {
         (this->*keyboard_handler_)(event);
     }
 
-  signals:
+signals:
     void SIG_cursor_changed(const QPoint &xz, int depth) const;
     void SIG_keyboard_fsm_changed(bm::KeyFSM);
 
-  protected:
+protected:
     // World volume
     std::unique_ptr<bm::RawVolume>  volume_;
     std::unique_ptr<World>          world_;
@@ -64,6 +66,11 @@ class GameWidget : public GLVersion_Widget {
 
     ShaderPtr  rgb_vox_shader_;
 
+    // Ramps are calculated at the same time as terrain is rebuilt. Ramps
+    // are rendered using instancing (or old style - one call per ramp).
+    std::vector<visual::Ramp> ramps_;
+
+protected:
     virtual void initialize() override;
     virtual void render_frame() override;
 
@@ -71,21 +78,19 @@ class GameWidget : public GLVersion_Widget {
     void render_terrain_model();
 
     // These two camera control funs make camera always look at cursor
-    virtual QVector3D get_camera_focus(QVector3D /*forward*/) override {
-        auto cur = pos_for_cell(cursor_pos_);
-        return QVector3D(cur.getX(), cur.getY(), cur.getZ());
-    }
+    virtual QVector3D get_camera_focus(QVector3D /*forward*/) override;
     virtual QVector3D get_camera_up(QVector3D /*right*/,
-                                    QVector3D /*forward*/) override {
-        return QVector3D(0.0f, -1.0f, 0.0f);
-    }
+                                    QVector3D /*forward*/) override;
+    virtual QVector3D get_cam_forward() const override;
 
 private:
     // Reposition camera on cursor
     void camera_follow_cursor();
     // Take a slice of the world with 1 extra voxel around data. Generate new
     // model and update 'terrain_'
+    void update_terrain();
     void update_terrain_model();
+    void update_ramps();
 
     // Change keyboard handler to get different keypress reactions
     typedef void(GameWidget::*KeyboardHandler)(QKeyEvent*);
@@ -95,15 +100,6 @@ private:
     void fsm_keypress_exploremap(QKeyEvent *event);
     void fsm_keypress_orders(QKeyEvent *event);
     void fsm_keypress_designations(QKeyEvent *event);
-
-    // Given integer cell position make world pos
-    static Vec3f pos_for_cell(const Vec3i &i) {
-        // 0.7 comes from 0.5 offset plus ~1/5 adjustment for extra padding
-        // around the model
-        return Vec3f((float)i.getX() - CELL_SIZE * 0.7f,
-                     (float)i.getY() - WALL_HEIGHT * 0.5f - 1.f,
-                     (float)i.getZ() - CELL_SIZE * 0.7f);
-    }
 
     void render_overlay_xyz();
 
@@ -124,9 +120,10 @@ private:
     void render_marked_area();
     void render_animate_objects();
     void render_inanimate_objects();
-    void render_terrain_extra_models();
-    void get_visible_region(Vec3i &a, Vec3i &b);
-//    void get_visible_region(Array3i &a, Array3i &b);
+    void render_ramps();
+    //void get_visible_region(Vec3i &a, Vec3i &b);
+    pv::Region get_visible_region();
+    void create_ramps();
 };
 
 }  // namespace bm

@@ -11,6 +11,8 @@ set(CMAKE_AUTOMOC ON)
 
 #add_subdirectory("vl")
 
+add_definitions(-DBM_DEBUG=1)
+
 if(APPLE)
 #    find_library(GLUT_LIBRARY GLUT)
 #    MARK_AS_ADVANCED (GLUT_LIBRARY)
@@ -29,6 +31,7 @@ SET(SRC_FILES
     src/perlin.cpp
     src/model_id.h
 
+    src/util/error.h
     src/util/optional.h
     src/util/str.h
     src/util/vec.cpp		src/util/vec.h
@@ -39,6 +42,7 @@ SET(SRC_FILES
     src/gfx/model.cpp		src/gfx/model.h
     src/gfx/ogl_widget.h	src/gfx/ogl_widget.inl
     src/gfx/qb_file.cpp		src/gfx/qb_file.h
+    src/gfx/ramp.cpp		src/gfx/ramp.h
 
     src/ai/action.cpp		src/ai/action.h
     src/ai/goal.cpp		src/ai/goal.h

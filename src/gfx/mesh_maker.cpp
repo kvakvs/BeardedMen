@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "gfx/mesh_maker.h"
 #include "gfx/gl_version.h"
+#include "util/error.h"
 
 namespace bm {
 namespace mesh {
@@ -104,7 +105,88 @@ OpenglMesh::Ptr create_mesh(
     return result;
 }
 
-} // ns bm::mesh::impl
+}
+
+/*
+ * Ramps can be of 4 types
+ *  .   #   .   #   #                  #       .
+ * .R# .R# .R# .R# .R. and degenerate #R# and .R. which we assume are dead
+ *  .   .   #   #   #           cases  #       .
+ *
+ * Y=0 is ceiling (upper) level, Y=1 is floor (bottom) level
+ */
+OpenglMesh::Ptr create_ramp(GLVersion_Widget* gl,
+                            ModelId r_case)
+{
+    using Vertex = pv::Vertex<uint32_t>;
+    auto cm = pv::Mesh<Vertex>();
+    Vec3f n {0.f, 0.f, 0.f};
+
+    auto constexpr V = [](float x, float y, float z) {
+        return Vec3f(x-0.5f, y, z-0.5f);
+    };
+
+    switch (r_case) {
+    case ModelId::Ramp_B: {
+        // 000 .
+        //    .R# - ramp has 4 vertices and 2 triangles
+        //     .  101
+        cm.addVertex({V(0.f, 1.f, 0.f), n, 1});
+        cm.addVertex({V(0.f, 1.f, 1.f), n, 1});
+        cm.addVertex({V(1.f, 0.f, 0.f), n, 1});
+        cm.addVertex({V(1.f, 0.f, 1.f), n, 1});
+        cm.addTriangle(0, 1, 2);
+        cm.addTriangle(1, 3, 2);
+    } break;
+    case ModelId::Ramp_AB: {
+        // 000 #
+        //    .R# - ramp has 4 vertices and 2 triangles
+        //     .  101
+        cm.addVertex({V(0.f, 0.f, 0.f), n, 1});
+        cm.addVertex({V(1.f, 0.f, 0.f), n, 1});
+        cm.addVertex({V(1.f, 0.f, 1.f), n, 1});
+        cm.addVertex({V(0.f, 1.f, 1.f), n, 1});
+        cm.addTriangle(0, 1, 3);
+        cm.addTriangle(1, 2, 3);
+    } break;
+    case ModelId::Ramp_ABC: {
+        // 000 #
+        //    .R# - ramp has 5 vertices and 3 triangles
+        //     #  101
+        cm.addVertex({V(0.f, 0.f, 0.f), n, 1});
+        cm.addVertex({V(1.f, 0.f, 0.f), n, 1});
+        cm.addVertex({V(1.f, 0.f, 1.f), n, 1});
+        cm.addVertex({V(0.f, 0.f, 1.f), n, 1});
+        cm.addVertex({V(0.f, 1.f, 0.5f), n, 1});
+        cm.addTriangle(0, 1, 4);
+        cm.addTriangle(1, 2, 4);
+        cm.addTriangle(2, 3, 4);
+    } break;
+    case ModelId::Ramp_AC: {
+        // 000 #
+        //    .R. - ramp has 6 vertices and 4 triangles
+        //     #  101
+        cm.addVertex({V(0.f, 0.f, 0.f), n, 1});
+        cm.addVertex({V(1.f, 0.f, 0.f), n, 1});
+        cm.addVertex({V(0.f, 1.f, 0.5f), n, 1});
+        cm.addVertex({V(1.f, 1.f, 0.5f), n, 1});
+        cm.addVertex({V(0.f, 0.f, 1.f), n, 1});
+        cm.addVertex({V(1.f, 0.f, 1.f), n, 1});
+        cm.addTriangle(0, 1, 2);
+        cm.addTriangle(1, 3, 2);
+        cm.addTriangle(5, 4, 2);
+        cm.addTriangle(5, 2, 3);
+    } break;
+    default:
+        BM_THROW("bad ramp id");
+    }
+
+    cm.removeUnusedVertices();
+    BM_ASSERT(cm.getNoOfVertices() > 0);
+    return create_opengl_mesh_from_raw(gl, cm);
+}
+
+// ns bm::mesh::impl
 } // ns bm::mesh
 
 ShaderPtr load_shader(const char *name)

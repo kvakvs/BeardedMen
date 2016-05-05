@@ -82,6 +82,12 @@ public:
         }
     }
 
+    template <typename EachAnimateFn>
+    void for_each_animate_r(const Region& reg, EachAnimateFn fn)
+    {
+        for_each_animate_r(reg.getLowerCorner(), reg.getUpperCorner(), fn);
+    }
+
     template <typename EachInanimateFn>
     void for_each_inanimate_r(const Vec3i& from, const Vec3i& to,
                             EachInanimateFn fn)
@@ -98,6 +104,12 @@ public:
         }
     }
 
+    template <typename EachInanimateFn>
+    void for_each_inanimate_r(const Region& reg, EachInanimateFn fn)
+    {
+        for_each_inanimate_r(reg.getLowerCorner(), reg.getUpperCorner(), fn);
+    }
+
     void think();
 
     VoxelType get_under(const Vec3i &pos) const {
@@ -110,6 +122,9 @@ public:
     const bm::VolumeType* get_volume() const { return &volume_; }
 
     void mine_voxel(const Vec3i &pos);
+    VoxelType get_voxel(int x, int y, int z) const {
+        return volume_.getVoxel(x, y, z);
+    }
     VoxelType get_voxel(const Vec3i& pos) const {
         return volume_.getVoxel(pos);
     }

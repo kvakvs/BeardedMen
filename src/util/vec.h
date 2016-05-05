@@ -49,5 +49,17 @@ inline Vec3i make_vec3i(const Array3i& a) {
     return Vec3i(a[0], a[1], a[2]);
 }
 
+// Runs function for each cell in region
+template <typename EachCell>
+void each_in_region(const pv::Region& reg, EachCell fn) {
+    for (int y = reg.getLowerY(); y <= reg.getUpperY(); y++) {
+        for (int x = reg.getLowerX(); x <= reg.getUpperX(); x++) {
+            for (int z = reg.getLowerZ(); z <= reg.getUpperZ(); z++) {
+                fn(x, y, z);
+            }
+        }
+    }
+}
+
 } // ns util
 } // ns bm

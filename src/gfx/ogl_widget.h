@@ -84,19 +84,19 @@ protected:
 
     // Camera properties
     QVector3D cam_pos_ = QVector3D(0, 0, -100);
-    float cam_yaw_ = 0.0f;
-    float cam_pitch_ = 0.0f;
+//    float cam_yaw_ = 0.0f;
+//    float cam_pitch_ = 0.0f;
     float cam_fov_ = 60.0f;
 
     QElapsedTimer elapsed_timer_;
 
-    QVector3D get_cam_forward() const {
-        return QVector3D(
-                    std::cos(cam_pitch_) * std::sin(cam_yaw_),
-                    std::sin(cam_pitch_),
-                    std::cos(cam_pitch_) * std::cos(cam_yaw_)
-                    );
-    }
+    virtual QVector3D get_cam_forward() const = 0;
+//        return QVector3D(
+//                    std::cos(cam_pitch_) * std::sin(cam_yaw_),
+//                    std::sin(cam_pitch_),
+//                    std::cos(cam_pitch_) * std::cos(cam_yaw_)
+//                    );
+//    }
 };
 
 #include "ogl_widget.inl"

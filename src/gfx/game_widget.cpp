@@ -1,12 +1,22 @@
 #include "gfx/game_widget.h"
 #include "gfx/mesh_maker.h"
+
 #include "game/obj_bearded_man.h"
 #include "game/world.h"
+
+#include "util/error.h"
 
 #include <cmath>
 #include "region_iterator.hpp"
 
 namespace bm {
+
+// Given integer cell position make world pos
+static inline Vec3f pos_for_cell(const Vec3i &i) {
+    return Vec3f((float)i.getX() - GameWidget::CELL_SIZE * 0.5f,
+                 (float)i.getY() - GameWidget::WALL_HEIGHT * 1.3f,
+                 (float)i.getZ() - GameWidget::CELL_SIZE * 0.5f);
+}
 
 void GameWidget::initialize() {
     terrain_shader_ = bm::load_shader("colored_blocks");
@@ -55,8 +65,10 @@ void GameWidget::initialize() {
     xyz->mesh_->scale_ *= 2.0f;
     xyz->mesh_->translation_ = QVector3D(-1.0f, -1.0f, -1.0f); // pivot
 
+    create_ramps();
+
     camera_follow_cursor();
-    update_terrain_model();
+    update_terrain();
 
     // Keyboard input mode
     change_keyboard_fsm(KeyFSM::Default);
@@ -111,7 +123,13 @@ class TerrainIsQuadNeeded {
 };
 
 // Extract the surface
-void GameWidget::update_terrain_model() {
+void GameWidget::update_terrain() {
+    update_terrain_model();
+    update_ramps();
+}
+
+void GameWidget::update_terrain_model()
+{
     auto org_y = cursor_pos_.getY();
     pv::Region reg2(Vec3i(0, org_y, 0),
                     Vec3i(VIEWSZ_X, org_y + VIEWSZ_Y - 1, VIEWSZ_Z));
@@ -137,7 +155,25 @@ void GameWidget::update_terrain_model() {
     terrain_->mesh_->translation_.setY(-cursor_pos_.getY());
 
     this->update();
-} // upd terrain
+}
+
+void GameWidget::update_ramps()
+{
+    ramps_.clear();
+
+    pv::Region reg = get_visible_region();
+
+    util::each_in_region(reg, [this](int x, int y, int z) {
+        VoxelType vox = world_->get_voxel(x, y, z);
+        if (vox.is_ramp()) {
+            VoxelReader  voxr(world_->get_volume(), Vec3i(x, y, z));
+            // add_ramp will possibly add a ramp, but will ignore degenerate
+            // cases when ramp can't exist
+            // TODO: draw a warning symbol or destroy ramp?
+            visual::Ramp::add_ramp(Vec3f(x, y - WALL_HEIGHT, z), voxr, ramps_);
+        }
+    });
+}
 
 // Returns pointer for temporary use and modification, do not store permanently
 GameWidget::GameWidget(QWidget *parent)
@@ -175,6 +211,17 @@ Model *GameWidget::load_model(ModelId register_as,
     return &(models_[register_as]);
 }
 
+void GameWidget::create_ramps() {
+    for (int r = 0; r < bm::NUM_RAMPS; ++r) {
+        ModelId r_id = (ModelId)((int)ModelId::Ramp_B + r);
+
+        auto m = mesh::create_ramp(this, r_id);
+        BM_ASSERT(m);
+
+        models_[r_id] = Model(m, terrain_shader_);
+    }
+}
+
 const Model *GameWidget::find_model(ModelId id) const
 {
     auto iter = models_.find(id);
@@ -184,13 +231,14 @@ const Model *GameWidget::find_model(ModelId id) const
 
 void GameWidget::render_frame() {
     render_terrain_model();
-    render_terrain_extra_models(); // stuff like ramps
+    render_ramps();
 
     render_animate_objects();
     render_inanimate_objects();
 
-    auto cursor = models_.find(ModelId::Cursor);
-    render_model(cursor->second, pos_for_cell(cursor_pos_), 0.f);
+    auto cursor = find_model(ModelId::Cursor);
+    BM_ASSERT(cursor);
+    render_model(*cursor, pos_for_cell(cursor_pos_), 0.f);
 
     render_orders();
     //render_debug_routes();
@@ -199,7 +247,20 @@ void GameWidget::render_frame() {
     render_overlay_xyz();
 }
 
-void GameWidget::render_terrain_extra_models() {
+void GameWidget::render_ramps() {
+
+//    GLsizei count = 1;
+    for (auto& r: ramps_) {
+        auto modl = find_model(r.model_id);
+        BM_ASSERT(modl);
+        render_model(*modl, r.pos, r.rotation);
+    }
+//    glDrawElementsInstanced(GL_TRIANGLES,
+//                            m->mesh_->indx_count_,
+//                            m->mesh_->indx_type_,
+//                            nullptr,
+//                            count);
+
 /*    auto m_ramp = models_.find(ModelId::Ramp);
     Vec3i p0, p1;
     get_visible_region(p0, p1);
@@ -220,9 +281,10 @@ void GameWidget::render_terrain_extra_models() {
     */
 }
 
-void GameWidget::get_visible_region(Vec3i& a, Vec3i& b) {
-    a = cursor_pos_ + Vec3i(-VIEWSZ_X/2, -1, -VIEWSZ_Z/2);
-    b = cursor_pos_ + Vec3i(VIEWSZ_X/2, VIEWSZ_Y, VIEWSZ_Z/2);
+pv::Region GameWidget::get_visible_region() {
+    auto a = cursor_pos_ + Vec3i(-VIEWSZ_X/2, -1, -VIEWSZ_Z/2);
+    auto b = cursor_pos_ + Vec3i(VIEWSZ_X/2, VIEWSZ_Y, VIEWSZ_Z/2);
+    return pv::Region(a, b);
 }
 
 //void GameWidget::get_visible_region(Array3i& a, Array3i& b) {
@@ -233,10 +295,9 @@ void GameWidget::get_visible_region(Vec3i& a, Vec3i& b) {
 //}
 
 void GameWidget::render_animate_objects() {
-    Vec3i p0, p1;
-    get_visible_region(p0, p1);
+    auto reg = get_visible_region();
 
-    world_->for_each_animate_r(p0, p1,
+    world_->for_each_animate_r(reg,
         [this](AnimateObject* ao, const Vec3i& pos) {
             auto ent = ao->as_entity();
             if (ent) {
@@ -251,10 +312,9 @@ void GameWidget::render_animate_objects() {
 }
 
 void GameWidget::render_inanimate_objects() {
-    Vec3i p0, p1;
-    get_visible_region(p0, p1);
+    auto reg = get_visible_region();
 
-    world_->for_each_inanimate_r(p0, p1,
+    world_->for_each_inanimate_r(reg,
         [this](InanimateObject& ia, const Vec3i& pos) {
             auto m = this->find_model(ia.model_);
             Q_ASSERT(m);
@@ -341,7 +401,8 @@ void GameWidget::render_model(const Model& m, const Vec3f &pos, float rot_y)
     // Draw the mesh
     glDrawElements(GL_TRIANGLES,
                    m.mesh_->indx_count_,
-                   m.mesh_->indx_type_, 0);
+                   m.mesh_->indx_type_,
+                   nullptr);
     // Unbind the vertex array.
     glBindVertexArray(0);
 
@@ -386,6 +447,24 @@ void GameWidget::render_terrain_model()
     m.shad_->release();
 }
 
+QVector3D GameWidget::get_camera_focus(QVector3D) {
+    auto cur = pos_for_cell(cursor_pos_);
+    return QVector3D(cur.getX(), cur.getY(), cur.getZ());
+}
+
+QVector3D GameWidget::get_camera_up(QVector3D, QVector3D) {
+    return QVector3D(0.0f, -1.0f, 0.0f);
+}
+
+QVector3D GameWidget::get_cam_forward() const {
+    auto cur = pos_for_cell(cursor_pos_);
+    auto forw = QVector3D(cur.getX() - cam_pos_.x(),
+                          cur.getY() - cam_pos_.y(),
+                          cur.getZ() - cam_pos_.z());
+    forw.normalize();
+    return forw;
+}
+
 void GameWidget::render_overlay_xyz() {
     glDisable(GL_DEPTH_TEST);
     glViewport(0, 0,
@@ -403,7 +482,7 @@ void GameWidget::render_overlay_xyz() {
 
     auto xyz = find_model(ModelId::Xyz);
     Q_ASSERT(xyz);
-    render_model(*xyz, Vec3f(0.f, 0.f, 0.f), -cam_yaw_);
+    render_model(*xyz, Vec3f(0.f, 0.f, 0.f), 0.f);
 
     glViewport(0, 0,
                this->geometry().width(),
@@ -451,7 +530,7 @@ bool GameWidget::keypress_navigate_cursor(QKeyEvent* event) {
     case Qt::Key_Period: {
             world_->think();
             if (world_->force_update_terrain_mesh_) {
-                update_terrain_model();
+                update_terrain();
                 world_->force_update_terrain_mesh_ = false;
             }
             this->update();
@@ -461,7 +540,7 @@ bool GameWidget::keypress_navigate_cursor(QKeyEvent* event) {
             auto v = world_->get_voxel(cursor_pos_);
             v.set_ramp(true);
             world_->set_voxel(cursor_pos_, v);
-            update_terrain_model();
+            update_terrain();
             this->update();
             event->accept();
         } break;
@@ -494,7 +573,7 @@ bool GameWidget::keypress_navigate_cursor(QKeyEvent* event) {
             cursor_pos_ += Vec3i(0, -1, 0);
             // this is to emit ui update, camera doesn't really move
             camera_follow_cursor();
-            update_terrain_model();
+            update_terrain();
         }
         break;
     case Qt::Key_Plus:
@@ -502,7 +581,7 @@ bool GameWidget::keypress_navigate_cursor(QKeyEvent* event) {
             cursor_pos_ += Vec3i(0, 1, 0);
             // this is to emit ui update, camera doesn't really move
             camera_follow_cursor();
-            update_terrain_model();
+            update_terrain();
         }
         break;
     default:

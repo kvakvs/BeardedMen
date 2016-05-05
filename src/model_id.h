@@ -15,9 +15,15 @@ enum class ModelId: uint32_t {
 
     BeardedMan,
 
-    Ramp,           // so far all ramps look the same
+    Ramp_B,         // Ramps are based on ABCD notation
+    Ramp_AB,        //   A
+    Ramp_AC,        // D x B
+    Ramp_ABC,       //   C
+
     Wood,
     Boulder,
 };
+
+constexpr int NUM_RAMPS = 4;
 
 } // ns bm
