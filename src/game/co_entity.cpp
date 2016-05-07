@@ -24,7 +24,10 @@ void EntityComponent::step() {
 bool EntityComponent::attempt_move(const Vec3i &new_pos)
 {
     auto wo = AnimateObject::get_world();
-    if (not is_solid(wo->get_voxel(new_pos))) {
+    auto new_pos_v = wo->get_voxel(new_pos);
+
+    if (not new_pos_v.is_not_air() || new_pos_v.is_ramp()) {
+        // If can move horizontally or if there is ramp - can stand on it
         set_pos(new_pos);
         return true;
     }
@@ -34,14 +37,17 @@ bool EntityComponent::attempt_move(const Vec3i &new_pos)
 // Relaxed validator which ignores walls for routing
 inline bool voxel_validate_relaxed(const VolumeType* vol,
                                    const Vec3i &p) {
-    return is_solid(vol->getVoxel(p + Vec3i(0,1,0)));
+    return vol->getVoxel(p + Vec3i(0,1,0)).is_not_air();
 }
 
 // Stricter validator which respects walls
 static inline bool voxel_validate_strict(const VolumeType* vol,
                                          const Vec3i &p) {
-    return is_air(vol->getVoxel(p)) &&
-           is_solid(vol->getVoxel(p + Vec3i(0,1,0)));
+    auto v_at    = vol->getVoxel(p);
+    auto v_under = vol->getVoxel(p + Vec3i(0,1,0));
+
+    // Simple standing or standing inside ramp, or above ramp
+    return v_at.is_walkable_into() && v_under.is_walkable_on();
 }
 
 bool EntityComponent::move_to(const Vec3i &dst)
@@ -84,8 +90,10 @@ bool EntityComponent::find_and_set_strict_route(const Vec3i& dst)
 {
     // You are not going into the rock
     auto wo = AnimateObject::get_world();
-    if (not is_air(wo->get_voxel(dst))) {
-            return false;
+    auto dst_v = wo->get_voxel(dst);
+
+    if (not dst_v.is_air() && not dst_v.is_ramp()) {
+        return false;
     }
 
     Route path = find_route(dst);

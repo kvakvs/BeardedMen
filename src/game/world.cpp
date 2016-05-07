@@ -55,7 +55,7 @@ void World::run_animate_entities() {
     for_each_animate([this](AnimateObject* ao, const Vec3i& pos) {
         auto ent         = ao->as_entity();
         auto block_under = get_under(pos);
-        if (is_air(block_under)) {
+        if (block_under.is_air()) {
             // fall
             auto ent_pos(pos); // mutable copy
             ent_pos.setY(ent_pos.getY() + 1);
@@ -86,14 +86,14 @@ void World::run_animate_brains() {
 
 bool World::is_mineable(const Vec3i &pos) const {
     auto vox = volume_.getVoxel(pos);
-    return is_solid(vox);
+    return vox.is_not_air();
 }
 
 void World::mine_voxel(const Vec3i &pos) {
-    if (is_solid(volume_.getVoxel(pos))) {
+    if (volume_.getVoxel(pos).is_not_air()) {
         force_update_terrain_mesh_ = true;
 
-        if (is_rock(volume_.getVoxel(pos)) && d100_(rand_) < 25) {
+        if (volume_.getVoxel(pos).is_rock() && d100_(rand_) < 25) {
             spawn_inanimate_object(pos, InanimateType::Boulder);
         }
 
@@ -256,7 +256,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
     case ai::MetricType::BlockIsNotSolid: {
             // air or liquid will satisfy the condition
             auto vox = get_voxel(metric.arg_.get_pos());
-            return metric.set_reading(not bm::is_solid(vox));
+            return metric.set_reading(vox.is_walkable_into());
         } break;
     }
 }

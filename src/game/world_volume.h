@@ -35,6 +35,11 @@ public:
             is_ramp_ = r;
         }
     }
+    bool is_walkable_on() const { return is_not_air() || is_ramp(); }
+    bool is_walkable_into() const { return is_air() || is_ramp(); }
+    bool is_not_air() const { return getMaterial() != BlockType::AIR; }
+    bool is_air() const { return getMaterial() == BlockType::AIR; }
+    bool is_rock() const { return getMaterial() == BlockType::Rock; }
 
     uint32_t getDensity() const {
         return (material_ == BlockType::AIR || is_ramp_)
@@ -72,9 +77,9 @@ using PagedVolume = pv::PagedVolume<VoxelType>;
 using RawVolume   = pv::RawVolume<VoxelType>;
 using VolumeType  = RawVolume;
 
-inline bool is_solid(VoxelType v) { return v.getMaterial() != BlockType::AIR; }
-inline bool is_air(VoxelType v) { return v.getMaterial() == BlockType::AIR; }
-inline bool is_rock(VoxelType v) { return v.getMaterial() == BlockType::Rock; }
+//inline bool is_solid(VoxelType v) { return v.getMaterial() != BlockType::AIR; }
+//inline bool is_air(VoxelType v) { return v.getMaterial() == BlockType::AIR; }
+//inline bool is_rock(VoxelType v) { return v.getMaterial() == BlockType::Rock; }
 
 const int WORLDSZ_X = 256;  // map width
 const int WORLDSZ_Y = 32;   // depth
