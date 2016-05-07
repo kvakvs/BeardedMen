@@ -5,6 +5,7 @@
 
 #include "tab/t_metric.h"
 #include "util/vec.h"
+#include "model_id.h"
 
 namespace bm {
 
@@ -146,13 +147,16 @@ public:
     OrderId     id_;
     MetricVec   desired_;
     Context     ctx_;
+    struct {
+        ModelId model_id_;
+    } visual_;
 
     using Ptr = std::shared_ptr<Order>;
 
     Order() = delete;               // nocreate
     Order(const Order&) = delete;   // nocopy
-    Order(const MetricVec& m, const Context& c)
-        : desired_(m), ctx_(c) {
+    Order(const MetricVec& m, const Context& c, ModelId vis_m)
+        : desired_(m), ctx_(c), visual_ {vis_m} {
         id_ = last_id_++;
     }
 };

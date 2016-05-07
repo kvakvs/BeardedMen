@@ -43,6 +43,7 @@ void GameWidget::initialize() {
     load_rgb(ModelId::MarkPick, "mark_pick", false);
     load_rgb(ModelId::MarkRoute, "mark_route", false);
     load_rgb(ModelId::MarkArea, "mark_area", false);
+    load_rgb(ModelId::MarkRamp, "mark_ramp", false);
 
     // Spawn more bearded men
     load_rgb(ModelId::BeardedMan, "bearded_man");
@@ -330,13 +331,13 @@ void GameWidget::render_orders() {
 
 void GameWidget::render_orders(const ai::OrderMap& order_map)
 {
-    auto m_pick = models_.find(ModelId::MarkPick);
     Vec3f offset(0, -0.125f, 0);
 
     for (auto o_iter: order_map) {
-        auto& o = o_iter.second;
-        auto pos = o->ctx_.pos_;
-        render_model(m_pick->second, pos_for_cell(pos) + offset, 0.f);
+        auto& o = *o_iter.second;
+        auto pos = o.ctx_.pos_;
+        auto model = find_model(o.visual_.model_id_);
+        render_model(*model, pos_for_cell(pos) + offset, 0.f);
     }
 }
 
@@ -659,8 +660,21 @@ void GameWidget::fsm_keypress_designations(QKeyEvent *event)
     }
     case Qt::Key_D: {
         // {D}esignations -> {D} mine
-        // Records player's wish to have current cell mined out
-        world_->add_mining_goal(mark_begin_, cursor_pos_);
+        // Records player's wish to have some blocks digged
+        world_->add_goal(mark_begin_, cursor_pos_, [this](const Vec3i& pos) {
+            this->world_->add_goal_dig(pos);
+        });
+        mark_begin_ = {};
+        // Order accepted, return to default
+        change_keyboard_fsm(KeyFSM::Default);
+        event->accept();
+    } break;
+    case Qt::Key_R: {
+        // {D}esignations -> {R}amp
+        // Records player's wish to have ramp created
+        world_->add_goal(mark_begin_, cursor_pos_, [this](const Vec3i& pos) {
+            this->world_->add_goal_ramp(pos);
+        });
         mark_begin_ = {};
         // Order accepted, return to default
         change_keyboard_fsm(KeyFSM::Default);

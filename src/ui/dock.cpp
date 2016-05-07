@@ -9,7 +9,7 @@ CNCDock::CNCDock(QMainWindow *w): QDockWidget(w) {
     //this->setStyleSheet("QDockWidget { padding-left: -20px }");
 
     main_.panel = new QWidget(this);
-    main_.panel->setFixedWidth(220);
+    main_.panel->setFixedWidth(250);
     this->setWidget(main_.panel);
     main_.layout = new QFormLayout(main_.panel);
     //main_.layout->setContentsMargins(0, 0, 0, 0);
@@ -88,7 +88,7 @@ void CNCDock::add_fsm_keys_default() {
 
 void CNCDock::add_fsm_keys_digging() {
     breadcrumbs(tr("Designations >"));
-    shortcut_label(tr("{D} mine|{R}amp"));
+    shortcut_label(tr("{D} mine | {R}amp"));
     shortcut_label(tr("{M} mark"));
     //shortcut_label("stairs ({U}p {D}own {J}-both)");
 }

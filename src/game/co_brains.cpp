@@ -92,6 +92,10 @@ void BrainsComponent::follow_the_plan()
             auto dst = step.arg_.get_pos();
             plan_step_mine(dst);
         } break;
+    case ai::ActionType::CreateRamp: {
+            auto dst = step.arg_.get_pos();
+            plan_step_create_ramp(dst);
+        } break;
     case ai::ActionType::Move: {
             auto dst = step.arg_.get_pos();
             if (plan_step_move(dst, MovePrecision::Adjacent)) return;
@@ -112,9 +116,24 @@ void BrainsComponent::plan_step_mine(const Vec3i& dst) {
     auto my_pos = ent->get_pos();
 
     // Mining rules: Can reach on same depth, or can reach 1 block down
-    if (close_enough(my_pos, dst, MovePrecision::AdjacentDepth))
-    {
+    if (close_enough(my_pos, dst, MovePrecision::AdjacentDepth)) {
         AnimateObject::get_world()->mine_voxel(dst);
+    }
+    // Finish step even if mining failed
+    finish_plan_step();
+}
+
+void BrainsComponent::plan_step_create_ramp(const Vec3i& dst) {
+    auto ent = get_parent()->as_entity();
+    auto my_pos = ent->get_pos();
+
+    // Mining rules: Can reach on same depth, or can reach 1 block down
+    if (close_enough(my_pos, dst, MovePrecision::AdjacentDepth)) {
+        auto w = AnimateObject::get_world();
+        auto vox = w->get_voxel(dst);
+        vox.set_ramp(true);
+        w->set_voxel(dst, vox);
+        w->force_update_terrain_mesh_ = true;
     }
     // Finish step even if mining failed
     finish_plan_step();

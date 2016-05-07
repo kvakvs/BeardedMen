@@ -52,6 +52,7 @@ private:
     // different depth (above or below) because mine step checks adjacent cell
     // on the same depth.
     void plan_step_mine(const Vec3i& dst);
+    void plan_step_create_ramp(const Vec3i& dst);
 };
 
 } // namespace bm

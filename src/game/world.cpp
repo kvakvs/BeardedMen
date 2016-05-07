@@ -144,29 +144,40 @@ ai::Order::Ptr World::get_random_order(AnimateObject *actor) {
     return n;
 }
 
-void World::add_mining_goal(const Optional<Vec3i>& mark_begin,
-                            const Vec3i &pos) {
+void World::add_goal(const Optional<Vec3i> &mark_begin, const Vec3i &pos,
+                     std::function<void (const Vec3i &)> add_fn)
+{
     if (not mark_begin.has_value()) {
-        return add_mining_goal(pos);
+        return add_fn(pos);
     }
 
     // Issue orders for 1 layer by taking current Y from pos (cursor pos)
     auto reg = util::make_region(mark_begin.get_value(), pos);
     for (int x = reg.getLowerX(); x <= reg.getUpperX(); x++) {
         for (int z = reg.getLowerZ(); z <= reg.getUpperZ(); z++) {
-            add_mining_goal(Vec3i(x, pos.getY(), z));
+            add_fn(Vec3i(x, pos.getY(), z));
         }
     }
 }
 
-void World::add_mining_goal(const Vec3i &pos)
+void World::add_goal_dig(const Vec3i &pos)
 {
     ai::MetricVec m { ai::Metric(ai::MetricType::BlockIsNotSolid,
                                  ai::Value(pos),
                                  ai::Value(true)) };
     ai::Context ctx(nullptr);
     ctx.pos_ = pos;
-    add_order(std::make_shared<ai::Order>(m, ctx));
+    add_order(std::make_shared<ai::Order>(m, ctx, ModelId::MarkPick));
+}
+
+void World::add_goal_ramp(const Vec3i &pos)
+{
+    ai::MetricVec m { ai::Metric(ai::MetricType::BlockIsRamp,
+                                 ai::Value(pos),
+                                 ai::Value(true)) };
+    ai::Context ctx(nullptr);
+    ctx.pos_ = pos;
+    add_order(std::make_shared<ai::Order>(m, ctx, ModelId::MarkRamp));
 }
 
 void World::report_fulfilled(ai::OrderId id, PlanResult pr) {
@@ -256,7 +267,12 @@ ai::Metric World::read_metric(const ai::Metric& metric,
     case ai::MetricType::BlockIsNotSolid: {
             // air or liquid will satisfy the condition
             auto vox = get_voxel(metric.arg_.get_pos());
-            return metric.set_reading(vox.is_walkable_into());
+            return metric.set_reading(vox.is_air());
+        } break;
+
+    case ai::MetricType::BlockIsRamp: {
+            auto vox = get_voxel(metric.arg_.get_pos());
+            return metric.set_reading(vox.is_ramp());
         } break;
     }
 }

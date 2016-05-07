@@ -14,6 +14,9 @@ vg:
 debug:
 	gdb _build/BeardedMen
 
+.PHONY: localization
+localization: localization-update localization-release
+
 .PHONY: localization-update
 localization-update:
 	lupdate src -ts lang/localization_ru.ts

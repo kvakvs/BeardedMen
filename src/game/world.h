@@ -143,10 +143,13 @@ public:
     // Get a random order. See if it is not completed.
     ai::Order::Ptr get_random_order(AnimateObject *actor);
 
-    // Give positional or area mining goal
-    void add_mining_goal(const Optional<Vec3i>& mark_begin,
-                         const Vec3i& pos);
-    void add_mining_goal(const Vec3i& pos);
+    // Give positional or area mining goal (fun add_fn is called for each
+    // position in selected area, or for single position if no area selection
+    void add_goal(const Optional<Vec3i>& mark_begin,
+                  const Vec3i& pos,
+                  std::function<void(const Vec3i&)> add_fn);
+    void add_goal_dig(const Vec3i& pos);
+    void add_goal_ramp(const Vec3i& pos);
 
     // Report from actors if order is completed
     void report_fulfilled(ai::OrderId id, PlanResult pr);

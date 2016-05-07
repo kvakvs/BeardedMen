@@ -12,6 +12,7 @@ enum class ModelId: uint32_t {
     MarkPick,       // mark areas designated for digging
     MarkRoute,      // debug: red route pin
     MarkArea,       // green X to mark area for commands
+    MarkRamp,
 
     BeardedMan,
 

@@ -11,6 +11,7 @@ enum class ActionType: uint16_t {
     Move,       // move on same depth level
     MoveClose,  // move approximately on depth +1/-1
     Mine,
+    CreateRamp,
 };
 
 // Actions cost for Astar planning

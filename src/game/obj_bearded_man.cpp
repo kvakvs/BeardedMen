@@ -40,6 +40,16 @@ const ai::ActionDefVec &BeardedMan::ai_get_all_actions() const
             { Mtrc(CT::BlockIsNotSolid, V(), V(true) /* needs arg=pos */)
             }));
 
+        bm_actions.push_back(ai::ActionDef( AT::CreateRamp,
+            // Requires
+            { Mtrc(CT::MeleeRangeDepth, V(), V(true)), // needs arg (pos)
+              Mtrc(CT::HaveHand, V(), V(true)), /* needs subject */
+              Mtrc(CT::HaveMiningPick, V(), V(true) /* needs subject */)
+            },
+            // Gives
+            { Mtrc(CT::BlockIsRamp, V(), V(true) /* needs arg=pos */)
+            }));
+
         is_initialized = true;
     }
 
