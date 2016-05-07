@@ -20,10 +20,10 @@ bool Ramp::add_ramp(const Vec3f &p, const VoxelReader &vr,
     auto vC = vr.read(0, 0, 1);
     auto vD = vr.read(-1, 0, 0);
 
-    auto airA = is_air(vA);
-    auto airB = is_air(vB);
-    auto airC = is_air(vC);
-    auto airD = is_air(vD);
+    auto airA = is_air(vA) || vA.is_ramp();
+    auto airB = is_air(vB) || vB.is_ramp();
+    auto airC = is_air(vC) || vC.is_ramp();
+    auto airD = is_air(vD) || vD.is_ramp();
 
     Ramp r {p, ModelId::Ramp_B, 0.f};
 

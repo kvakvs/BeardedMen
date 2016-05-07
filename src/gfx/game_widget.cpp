@@ -492,13 +492,13 @@ void GameWidget::render_overlay_xyz() {
 
 void GameWidget::camera_follow_cursor()
 {
-    QVector3D cam_pos((cursor_pos_.getX() - 5) * CELL_SIZE,
+    QVector3D cam_pos((cursor_pos_.getX() + 3) * CELL_SIZE,
                       (cursor_pos_.getY() - 15.0f) * WALL_HEIGHT, // up
-                      (cursor_pos_.getZ() - 5) * CELL_SIZE);
+                      (cursor_pos_.getZ() + 6) * CELL_SIZE);
 
     set_camera_transform(cam_pos,
-                       -7.0 * M_PI / 18.0, //pitch (minus - look down)
-                       M_PI); // yaw
+                         -7.0 * M_PI / 18.0, //pitch (minus - look down)
+                         M_PI); // yaw
     on_cursor_changed();
 }
 
@@ -538,31 +538,31 @@ bool GameWidget::keypress_navigate_cursor(QKeyEvent* event) {
         } break;
     case Qt::Key_Comma: {
             auto v = world_->get_voxel(cursor_pos_);
-            v.set_ramp(true);
+            v.set_ramp(not v.is_ramp());
             world_->set_voxel(cursor_pos_, v);
             update_terrain();
             this->update();
             event->accept();
         } break;
-    case Qt::Key_Right:
+    case Qt::Key_Left:
         if (cursor_pos_.getX() < WORLDSZ_X - 1) {
             cursor_pos_ += Vec3i(1, 0, 0);
             camera_follow_cursor();
         }
         break;
-    case Qt::Key_Left:
+    case Qt::Key_Right:
         if (cursor_pos_.getX() > 0) {
             cursor_pos_ += Vec3i(-1, 0, 0);
             camera_follow_cursor();
         }
         break;
-    case Qt::Key_Up:
+    case Qt::Key_Down:
         if (cursor_pos_.getZ() < WORLDSZ_Z - 1) {
             cursor_pos_ += Vec3i(0, 0, 1);
             camera_follow_cursor();
         }
         break;
-    case Qt::Key_Down:
+    case Qt::Key_Up:
         if (cursor_pos_.getZ() > 0) {
             cursor_pos_ += Vec3i(0, 0, -1);
             camera_follow_cursor();
