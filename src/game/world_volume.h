@@ -31,8 +31,10 @@ public:
 
     bool is_ramp() const { return is_ramp_; }
     void set_ramp(bool r) {
-        if (r && material_ != BlockType::AIR) {
+        if (is_not_air()) {
             is_ramp_ = r;
+        } else {
+            is_ramp_ = false;
         }
     }
     bool is_walkable_on() const { return is_not_air() || is_ramp(); }

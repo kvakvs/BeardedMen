@@ -46,7 +46,7 @@ static inline bool voxel_validate_strict(const VolumeType* vol,
     auto v_at    = vol->getVoxel(p);
     auto v_under = vol->getVoxel(p + Vec3i(0,1,0));
 
-    // Simple standing or standing inside ramp, or above ramp
+    // Standing on solid; or standing inside ramp; or standing on top of ramp
     return v_at.is_walkable_into() && v_under.is_walkable_on();
 }
 
@@ -106,35 +106,6 @@ bool EntityComponent::find_and_set_strict_route(const Vec3i& dst)
     }
 }
 
-/*
-void EntityComponent::move_to(const Vec3i &dst)
-{
-    clear_planned_route();
-    Route relaxed_path = find_relaxed_route(dst);
-
-    if (relaxed_path.empty()) {
-        // No route, even ignoring walls
-        return;
-    } else {
-        Route strict_path = find_route(dst);
-        if (strict_path.empty()) {
-            if (relaxed_path.size() > 1) {
-                // Try one step back
-                relaxed_path.pop_back();
-                strict_path = find_route(relaxed_path.back());
-                set_planned_route(dst, strict_path);
-                return;
-            }
-            if (strict_path.empty()) {
-                clear_planned_route();
-                return;
-            }
-        }
-        set_planned_route(dst, strict_path);
-    }
-}
-*/
-
 void EntityComponent::set_planned_route(const Vec3i &dst, Route &r) {
     movement_.dst = dst;
     movement_.planned_route = std::move(r);
@@ -171,7 +142,7 @@ Route EntityComponent::find_route(const Vec3i &dst)
     pv::AStarPathfinderParams<VolumeType> pfpar(
                 const_cast<VolumeType*>(vol),
                 get_pos(), dst, & result,
-                1.0 /*bias*/, 50 /*maxlength*/,
+                1.0 /*bias*/, 1000 /*maxlength*/,
                 pv::SixConnected,
                 & voxel_validate_strict);
 
