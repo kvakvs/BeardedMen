@@ -50,7 +50,7 @@ void main()
         float lightIntensity = diffuse + ambient; // Compute the final light intensity
 
         // Make focusDepth 100% bright and other darker
-        float focusDifference = abs(floor(worldPosition.y) - focusDepth) * 0.2;
+        float focusDifference = abs(worldPosition.y - focusDepth) * 0.2;
         float focusBrightness = clamp(1.0 - focusDifference, 0.5, 1.0);
 
         gl_FragColor = surfaceColor * lightIntensity * focusBrightness;

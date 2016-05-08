@@ -45,14 +45,7 @@ void GameWidget::initialize() {
     load_rgb(ModelId::MarkArea, "mark_area", false);
     load_rgb(ModelId::MarkRamp, "mark_ramp", false);
 
-    // Spawn more bearded men
     load_rgb(ModelId::BeardedMan, "bearded_man");
-    const int MANY_BEARDED_MEN = 1;
-    for (auto bm = 0; bm < MANY_BEARDED_MEN; ++bm) {
-        world_->add_animate_object(
-                    new BeardedMan(world_.get(),
-                                   cursor_pos_ + Vec3i(bm, -1, bm)) );
-    }
 
     // Inanimate
 //    auto ramp = load_rgb(ModelId::Ramp, "ramp");
@@ -150,10 +143,12 @@ void GameWidget::update_terrain_model()
     terrain_.release();
     terrain_ = std::make_unique<Model>(
                 mesh::create_opengl_mesh_from_raw(this, decoded_mesh),
-                terrain_shader_);
-    terrain_->mesh_->scale_.setY(-WALL_HEIGHT);
+                terrain_shader_
+                );
+    terrain_->mesh_->scale_ = QVector3D(1,1,1);
     // move terrain slab together with cursor
-    terrain_->mesh_->translation_.setY(-cursor_pos_.getY());
+    terrain_->mesh_->translation_ = QVector3D(
+                0.f, cursor_pos_.getY() - WALL_HEIGHT * .5f, 0.f);
 
     this->update();
 }
@@ -426,12 +421,14 @@ void GameWidget::render_terrain_model()
 
     // Use focusDepth as max brightness layer and make other layers darker
     // Assume that mesh always originates at depth 0
-    m.shad_->setUniformValue("focusDepth", -1.0f);
+    m.shad_->setUniformValue("focusDepth", -0.5f);
 
     // Set up the model matrrix based on provided translation and scale.
     //
     QMatrix4x4 model_mx;
-    model_mx.translate(QVector3D(0.f, cursor_pos_.getY() - 0.5f, 0.f));
+    //model_mx.translate(QVector3D(0.f, cursor_pos_.getY() - 0.5f, 0.f));
+    model_mx.translate(m.mesh_->translation_);
+    model_mx.scale(m.mesh_->scale_);
 
     m.shad_->setUniformValue("modelMatrix", model_mx);
 
@@ -493,7 +490,7 @@ void GameWidget::render_overlay_xyz() {
 
 void GameWidget::camera_follow_cursor()
 {
-    QVector3D cam_pos((cursor_pos_.getX() + 3) * CELL_SIZE,
+    QVector3D cam_pos((cursor_pos_.getX() - 3) * CELL_SIZE,
                       (cursor_pos_.getY() - 15.0f) * WALL_HEIGHT, // up
                       (cursor_pos_.getZ() + 6) * CELL_SIZE);
 
@@ -547,13 +544,13 @@ bool GameWidget::keypress_navigate_cursor(QKeyEvent* event) {
         } break;
     case Qt::Key_Left:
         if (cursor_pos_.getX() < WORLDSZ_X - 1) {
-            cursor_pos_ += Vec3i(1, 0, 0);
+            cursor_pos_ += Vec3i(-1, 0, 0);
             camera_follow_cursor();
         }
         break;
     case Qt::Key_Right:
         if (cursor_pos_.getX() > 0) {
-            cursor_pos_ += Vec3i(-1, 0, 0);
+            cursor_pos_ += Vec3i(1, 0, 0);
             camera_follow_cursor();
         }
         break;

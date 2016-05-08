@@ -1,11 +1,23 @@
 #include "game/world.h"
+
 #include "game/co_worker.h"
 #include "game/co_brains.h"
 #include "game/co_body.h"
+#include "game/obj_bearded_man.h"
 
 #include <QDebug>
 
 namespace bm {
+
+World::World(RawVolume &vol): volume_(vol) {
+    // Spawn more bearded men
+    const int MANY_BEARDED_MEN = 5;
+    for (auto bm = 0; bm < MANY_BEARDED_MEN; ++bm) {
+        add_animate_object(
+                    new BeardedMan(this,
+                                   Vec3i(bm, 3, bm)) );
+    }
+}
 
 void World::add_animate_object(AnimateObject *ao) {
     auto ent = ao->as_entity();

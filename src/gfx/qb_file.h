@@ -40,8 +40,15 @@ public:
     // Call this when size_ is known and it's time to allocate voxels_
     // Result: creates voxels_
     void create_voxels();
+
+    static constexpr bool INVERT_X = false;
+    static constexpr bool INVERT_Y = true;
+    static constexpr bool INVERT_Z = true;
     void set_vox(int x, int y, int z, VoxelType v) {
-        voxels_->setVoxel(x+1, size_.getY() - y + 1, z+1, v);
+        voxels_->setVoxel(1 + INVERT_X ? (size_.getX() - x) : x,
+                          1 + INVERT_Y ? (size_.getY() - y) : y,
+                          1 + INVERT_Z ? (size_.getZ() - z) : z,
+                          v);
     }
     // Return (1,1,1) / size-(2,2,2)
     Vec3f get_downscale() {

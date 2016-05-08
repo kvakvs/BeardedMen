@@ -94,6 +94,7 @@ void MyGLWidget<QOpenGLFunctionsType>::resizeGL(int w, int h)
 
     proj_matrix_.setToIdentity();
     proj_matrix_.perspective(cam_fov_, aspectRatio, zNear, zFar);
+    proj_matrix_.scale(QVector3D(-1,1,1));
 }
 
 template <typename QOpenGLFunctionsType>
@@ -103,8 +104,6 @@ void MyGLWidget<QOpenGLFunctionsType>::paintGL()
     auto cam_forward = get_cam_forward();
 
     // Right vector
-//    QVector3D cam_right(std::sin(cam_yaw_ - 3.14f / 2.0f), 0,
-//                        std::cos(cam_yaw_ - 3.14f / 2.0f));
     QVector3D cam_right(1.0f, 0.f, 0.f);
 
     // Up vector

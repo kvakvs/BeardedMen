@@ -20,8 +20,7 @@ using SpatialAnimateMap = spatial::point_multimap<3, Array3i, AnimateObject *>;
 
 class World {
 public:
-    World(bm::RawVolume& vol): volume_(vol) {
-    }
+    World(bm::RawVolume& vol);
 
     //
     // Animate objects
