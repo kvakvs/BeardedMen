@@ -13,9 +13,7 @@ World::World(RawVolume &vol): volume_(vol) {
     // Spawn more bearded men
     const int MANY_BEARDED_MEN = 5;
     for (auto bm = 0; bm < MANY_BEARDED_MEN; ++bm) {
-        add_animate_object(
-                    new BeardedMan(this,
-                                   Vec3i(bm, 3, bm)) );
+        add_animate_object(new BeardedMan(this, Vec3i(bm, 3, bm)) );
     }
 }
 
@@ -42,7 +40,11 @@ void World::animate_position_changed(AnimateObject *a,
 
 void World::animate_position_changed_d(AnimateObject *a, const Vec3i &old)
 {
-    objects_.animate_moved_.push_back(std::make_pair(a, old));
+    if (objects_.animate_moved_.find(a) != objects_.animate_moved_.end()) {
+        // avoid duplicates
+        return;
+    }
+    objects_.animate_moved_[a] = old;
 }
 
 void World::spawn_inanimate_object(const Vec3i &pos, InanimateType ot) {
@@ -60,22 +62,38 @@ void World::think() {
         auto ent = p.first->as_entity();
         animate_position_changed(p.first, p.second, ent->get_pos());
     }
+    objects_.animate_moved_.clear();
 }
 
 void World::run_animate_entities() {
     // Here we think for entities (passive things like gravity)
-    for_each_animate([this](AnimateObject* ao, const Vec3i& pos) {
+    for_each_animate([this](AnimateObject* ao, const Vec3i& pos0) {
         auto ent         = ao->as_entity();
-        auto block_under = get_under(pos);
-        if (block_under.is_air()) {
-            // fall
-            auto ent_pos(pos); // mutable copy
-            ent_pos.setY(ent_pos.getY() + 1);
-            ent->set_pos(ent_pos);
-        }
+        entity_fall(ent, pos0);
         // if entity has planned route
         ent->step();
     });
+}
+
+void World::entity_fall(EntityComponent* ent, const Vec3i& pos0) {
+    Vec3i entity_pos = pos0;
+    int fall_height = 0;
+    while (entity_pos.getY() < bm::WORLDSZ_Y) {
+        auto block_under = get_under(entity_pos);
+        if (block_under.is_walkable_into()) {
+            Vec3i fall_pos = entity_pos; // mutable copy
+            fall_pos.setY(fall_pos.getY() + 1);
+            ent->set_pos(fall_pos);
+            entity_pos = fall_pos;
+            fall_height++;
+        } else {
+            break;
+        }
+    }
+    // Break legs, or something bad if we fall down too far
+    if (fall_height > 0) {
+        ent->fall(fall_height);
+    }
 }
 
 void World::run_animate_brains() {

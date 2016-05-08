@@ -185,7 +185,7 @@ private:
     struct {
         SpatialAnimateMap animate_;
         // Moved objects after logic run - we update spatial map
-        std::vector<std::pair<AnimateObject*, Vec3i>> animate_moved_;
+        std::unordered_map<AnimateObject*, Vec3i> animate_moved_;
 
         SpatialInanimateMap inanimate_;
     } objects_;
@@ -212,6 +212,9 @@ private:
     void lower_prio(ai::OrderId id);
     void run_animate_entities();
     void run_animate_brains();
+    // As long as entity does not stand on a solid ground - fall. Register fall
+    // distance with the entity itself (in case it wants to take dmg)
+    void entity_fall(EntityComponent *ent, const Vec3i &pos0);
 };
 
 } // ns bm

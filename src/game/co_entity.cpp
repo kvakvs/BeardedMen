@@ -6,6 +6,10 @@
 
 namespace bm {
 
+void EntityComponent::fall(int distance) {
+    qDebug() << *this << " fell " << distance << " blocks down";
+}
+
 void EntityComponent::set_pos(const Vec3i &v) {
     AnimateObject::get_world()->animate_position_changed_d(get_parent(), pos_);
     pos_ = v;

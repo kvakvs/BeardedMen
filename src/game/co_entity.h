@@ -37,6 +37,9 @@ public:
         : parent_(p), pos_(pos), model_id_(mod) {
     }
 
+    // Called by world if entity falls. Break legs or take damage here.
+    virtual void fall(int distance);
+
     // Each entity has a position in 3d world (cell)
     virtual Vec3i get_pos() const { return pos_; }
     virtual void set_pos(const Vec3i &v);

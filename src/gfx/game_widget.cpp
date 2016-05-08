@@ -421,7 +421,7 @@ void GameWidget::render_terrain_model()
 
     // Use focusDepth as max brightness layer and make other layers darker
     // Assume that mesh always originates at depth 0
-    m.shad_->setUniformValue("focusDepth", -0.5f);
+    m.shad_->setUniformValue("focusDepth", 0.f);
 
     // Set up the model matrrix based on provided translation and scale.
     //
