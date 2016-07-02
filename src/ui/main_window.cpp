@@ -19,7 +19,7 @@ GameMainWindow::GameMainWindow(): QMainWindow(nullptr) {
                            //| QDockWidget::DockWidgetFloatable
                            //| QDockWidget::DockWidgetVerticalTitleBar
                            );
-    //dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+                       //dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     cnc_dock_->setup_event_connections(gl_widget_);
     addDockWidget(Qt::RightDockWidgetArea, cnc_dock_);
 
@@ -30,6 +30,14 @@ GameMainWindow::GameMainWindow(): QMainWindow(nullptr) {
         this->setStyleSheet(style);
         file.close();
     }*/
+\
+    // Battle Log
+    log_dock_ = new BattlelogDock(this);
+    log_dock_->setFeatures(QDockWidget::DockWidgetVerticalTitleBar);
+    log_dock_->setAllowedAreas(Qt::BottomDockWidgetArea
+                               | Qt::TopDockWidgetArea);
+    log_dock_->setup_event_connections(gl_widget_);
+    addDockWidget(Qt::BottomDockWidgetArea, log_dock_);
 }
 
 void GameMainWindow::keyPressEvent(QKeyEvent *event) {

@@ -8,9 +8,10 @@
 #include <QFormLayout>
 #include <QStackedLayout>
 
-#include "gfx/game_widget.h"
-
 namespace bm {
+
+class GameWidget;
+enum class KeyFSM: int;
 
 class CNCDock: public QDockWidget {
     Q_OBJECT

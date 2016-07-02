@@ -4,7 +4,8 @@
 #include <QMainWindow>
 
 #include "gfx/game_widget.h"
-#include "ui/dock.h"
+#include "ui/cnc_dock.h"
+#include "ui/log_dock.h"
 
 namespace bm {
 
@@ -18,6 +19,7 @@ public:
 private:
     bm::GameWidget *gl_widget_;
     CNCDock* cnc_dock_;
+    BattlelogDock* log_dock_;
 
     void setup_event_connections() {
     }

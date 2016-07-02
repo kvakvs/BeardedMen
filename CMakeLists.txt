@@ -65,7 +65,8 @@ SET(SRC_FILES
     src/game/world_volume.cpp	src/game/world_volume.h
 
     src/ui/main_window.cpp	src/ui/main_window.h
-    src/ui/dock.cpp		src/ui/dock.h
+    src/ui/cnc_dock.cpp		src/ui/cnc_dock.h
+    src/ui/log_dock.cpp		src/ui/log_dock.h
 
     ${ASTAR_DIR}/stlastar.h		${ASTAR_DIR}/fsa.h
 

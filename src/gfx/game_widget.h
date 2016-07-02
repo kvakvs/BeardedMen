@@ -47,6 +47,7 @@ class GameWidget : public GLVersion_Widget {
 signals:
     void SIG_cursor_changed(const QPoint &xz, int depth) const;
     void SIG_keyboard_fsm_changed(bm::KeyFSM);
+    void SIG_battle_log(const QString& msg);
 
 protected:
     // World volume

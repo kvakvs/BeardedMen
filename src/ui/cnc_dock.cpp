@@ -1,5 +1,6 @@
-#include "dock.h"
+#include "ui/cnc_dock.h"
 #include "util/str.h"
+#include "gfx/game_widget.h"
 
 #define bmKEY(T) "<font color='#66f'><u>" T "</></font>"
 
