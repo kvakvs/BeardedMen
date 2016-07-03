@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QDebug>
+//#include <QDebug>
 #include <stdint.h>
 #include "util/vec.h"
 
@@ -52,7 +52,7 @@ enum class PlanResult {
     Done,           // does not mean succeeded, just done steps
     NoPlan,         // no sequence of actions found
 };
-QDebug operator<<(QDebug d, PlanResult pr); // defined in world.cpp
+//QDebug operator<<(QDebug d, PlanResult pr); // defined in world.cpp
 
 enum class InanimateType {
     Boulder

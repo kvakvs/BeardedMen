@@ -111,7 +111,7 @@ ActionVec propose_plan(const MetricVec& from_c0,
     MetricVec from_c(from_c0);
     MetricVec to_c(to_c0);
 
-    Q_ASSERT(ctx.actor_);
+    BM_ASSERT(ctx.actor_);
     AstarGlobalState glob_state { {}, ctx.actor_->ai_get_all_actions() };
     auto wo = AnimateObject::get_world();
 
@@ -164,7 +164,7 @@ ActionVec propose_plan(const MetricVec& from_c0,
         engine.FreeSolutionNodes();
     } else {
         if (search_state == AstarEngine::SEARCH_STATE_FAILED) {
-            qDebug() << "plan: Did not find a plan";
+            //qDebug() << "plan: Did not find a plan";
         }
     }
 
@@ -190,7 +190,7 @@ Metric impl::get_metric(const MetricVec &v, MetricType mt)
             return mtr;
         }
     }
-    Q_ASSERT(false);
+    BM_ASSERT(false);
 }
 
 bool impl::have_metric(const MetricVec &v, MetricType mt)

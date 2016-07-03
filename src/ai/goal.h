@@ -1,9 +1,11 @@
 #pragma once
-#include <QDebug>
+//#include <QDebug>
 #include <vector>
 #include <initializer_list>
+#include <map>
 
 #include "tab/t_metric.h"
+#include "util/error.h"
 #include "util/vec.h"
 #include "model_id.h"
 
@@ -40,10 +42,10 @@ public:
     }
 };
 
-inline QDebug operator<< (QDebug d, const Pos3i& p) {
+/*inline QDebug operator<< (QDebug d, const Pos3i& p) {
     d.nospace() << "Pos(" << p.x << "," << p.y << "," << p.z << ")";
     return d;
-}
+}*/
 
 class Value {
 public:
@@ -72,7 +74,7 @@ public:
 
     Type get_type() const { return type_; }
     bool get_boolean() const {
-        Q_ASSERT(type_ == Type::Boolean);
+        BM_ASSERT(type_ == Type::Boolean);
         return b_;
     }
 
@@ -88,7 +90,7 @@ public:
     }
 };
 
-QDebug operator<< (QDebug d, const Value& v);
+//QDebug operator<< (QDebug d, const Value& v);
 
 // A value which is desired by some plan, or which is currently present.
 class Metric {
@@ -111,18 +113,18 @@ public:
     }
 
     bool operator== (const Metric& other) const {
-        Q_ASSERT(type_ == other.type_);
-        Q_ASSERT(arg_ == other.arg_);
+        BM_ASSERT(type_ == other.type_);
+        BM_ASSERT(arg_ == other.arg_);
         return reading_ == other.reading_;
     }
 };
 
-QDebug operator<< (QDebug d, const Metric &m);
+//QDebug operator<< (QDebug d, const Metric &m);
 
 // TODO: a fixed-position array or a bitmap+metricvec combination maybe?
 using MetricVec = std::vector<Metric>;
 
-QDebug operator<< (QDebug d, const MetricVec &metrics);
+//QDebug operator<< (QDebug d, const MetricVec &metrics);
 
 // Context for metric (who is acting)
 class Context {

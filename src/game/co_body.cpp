@@ -1,5 +1,5 @@
 #include "game/co_body.h"
-#include <QDebug>
+//#include <QDebug>
 
 namespace bm {
 
@@ -19,7 +19,7 @@ BodyComponent::BodyComponent(BodyType bt)
         parts_.push_back(Part {PartType::Foot, false, 20});
         return;
     }
-    Q_ASSERT(false);
+    BM_ASSERT(false);
 }
 
 } // ns bm

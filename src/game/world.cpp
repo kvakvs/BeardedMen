@@ -5,7 +5,7 @@
 #include "game/co_body.h"
 #include "game/obj_bearded_man.h"
 
-#include <QDebug>
+//#include <QDebug>
 
 namespace bm {
 
@@ -130,7 +130,7 @@ void World::mine_voxel(const Vec3i &pos) {
         // air
         volume_.setVoxel(pos, VoxelType());
     } else {
-        qDebug() << "can't mine - not solid";
+//        qDebug() << "can't mine - not solid";
     }
 }
 
@@ -211,19 +211,19 @@ void World::add_goal_ramp(const Vec3i &pos)
 }
 
 void World::report_fulfilled(ai::OrderId id, PlanResult pr) {
-    qDebug() << "world: Order" << id << "fulfilled:" << pr;
+//    qDebug() << "world: Order" << id << "fulfilled:" << pr;
     remove_order(id);
 }
 
 void World::report_failed(ai::OrderId id, PlanResult pr)
 {
     lower_prio(id);
-    qDebug() << "world: Order" << id << "failed: " << pr;
+//    qDebug() << "world: Order" << id << "failed: " << pr;
 }
 
 void World::report_impossible(ai::OrderId id, PlanResult pr) {
     lower_prio(id);
-    qDebug() << "world: Order" << id << "impossible: " << pr;
+//    qDebug() << "world: Order" << id << "impossible: " << pr;
 }
 
 bool World::conditions_stand_true(const ai::MetricVec &cond,
@@ -255,7 +255,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
 
     switch (mt) {
     case ai::MetricType::MeleeRange: {
-            Q_ASSERT(ctx.actor_);
+            BM_ASSERT(ctx.actor_);
             auto ent = ctx.actor_->as_entity();
             if (not ent) { return ai::Metric(mt); }
             auto pos = ent->get_pos();
@@ -264,7 +264,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
         } break;
 
     case ai::MetricType::MeleeRangeDepth: {
-            Q_ASSERT(ctx.actor_);
+            BM_ASSERT(ctx.actor_);
             auto ent = ctx.actor_->as_entity();
             if (not ent) { return ai::Metric(mt); }
             auto pos = ent->get_pos();
@@ -275,7 +275,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
         } break;
 
     case ai::MetricType::HaveHand: {
-            Q_ASSERT(ctx.actor_);
+            BM_ASSERT(ctx.actor_);
             auto bo = ctx.actor_->as_body();
             if (not bo) { return ai::Metric(mt); }
             auto has_hand = bo->has_body_part(BodyComponent::PartType::Hand);
@@ -283,7 +283,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
         } break;
 
     case ai::MetricType::HaveLeg: {
-            Q_ASSERT(ctx.actor_);
+            BM_ASSERT(ctx.actor_);
             auto bo = ctx.actor_->as_body();
             if (not bo) { return ai::Metric(mt); }
             auto has_leg = bo->has_body_part(BodyComponent::PartType::Leg);
@@ -323,7 +323,7 @@ ai::Order::Ptr World::get_random_order(AnimateObject *actor,
         ctx.actor_ = actor;
         if (conditions_stand_true(rnd_order->desired_, ctx)) {
             // Desire is fulfilled, we do not share it with actors anymore
-            qDebug() << "world: Order conditions stand true, deleting";
+//            qDebug() << "world: Order conditions stand true, deleting";
             registry.erase(iter);
             continue;
         }
@@ -353,8 +353,7 @@ void World::lower_prio(ai::OrderId id)
 //    orders_.insert(std::make_shared<PositionOrder>(pos, jt));
 //}
 
-
-QDebug operator<<(QDebug d, PlanResult pr)
+/*QDebug operator<<(QDebug d, PlanResult pr)
 {
     d.nospace();
     switch (pr) {
@@ -365,6 +364,6 @@ QDebug operator<<(QDebug d, PlanResult pr)
     case PlanResult::NoPlan: d << "no plan"; break;
     }
     return d;
-}
+}*/
 
 } // ns bm

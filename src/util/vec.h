@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QDebug>
+//#include <QDebug>
 #include <algorithm>
 
 #include <PolyVox/Vector.h>
@@ -24,7 +24,7 @@ inline bool operator< (const Vec3i& a, const Vec3i& b) {
                         ))));
 }
 
-QDebug operator<< (QDebug d, const Vec3i &v);
+//QDebug operator<< (QDebug d, const Vec3i &v);
 
 using Region = pv::Region;
 using Array3i = std::array<int, 3>;

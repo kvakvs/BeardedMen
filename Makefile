@@ -1,3 +1,6 @@
+run:
+	_build/Debug/BeardedMen
+
 all: deps
 
 .PHONY: deps

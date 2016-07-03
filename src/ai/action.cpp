@@ -13,12 +13,12 @@ void ActionDef::copy_readings(MetricVec &state) const {
     }
 }
 
-QDebug operator<<(QDebug d, const ActionDef &ad)
+/*QDebug operator<<(QDebug d, const ActionDef &ad)
 {
     d.nospace() << "ADef{act=" << ad.action_ << ", req=" << ad.requires_;
     d << "}";
     return d;
-}
+}*/
 
 void flesh_out_a_plan(Activities& out_plan,
                       const ActionVec &actions,
@@ -30,7 +30,7 @@ void flesh_out_a_plan(Activities& out_plan,
     }
 }
 
-QDebug operator<<(QDebug d, ActionVec av)
+/*QDebug operator<<(QDebug d, ActionVec av)
 {
     d.nospace() << "Actions[";
     for (auto at: av) {
@@ -38,6 +38,6 @@ QDebug operator<<(QDebug d, ActionVec av)
     }
     d << "]";
     return d;
-}
+}*/
 
 }} // ns bm::ai

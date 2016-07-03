@@ -3,7 +3,7 @@
 namespace bm {
 namespace ai {
 
-QDebug operator<<(QDebug d, MetricType mt) {
+/*QDebug operator<<(QDebug d, MetricType mt) {
     d.nospace();
     switch (mt) {
     case MetricType::MeleeRange: d << "MeleeRange"; break;
@@ -14,7 +14,7 @@ QDebug operator<<(QDebug d, MetricType mt) {
     case MetricType::HaveMiningPick: d << "HaveMiningPick"; break;
     }
     return d;
-}
+}*/
 
 } // ns bm::ai
 } // ns bm

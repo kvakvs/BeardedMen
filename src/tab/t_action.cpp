@@ -3,7 +3,7 @@
 namespace bm {
 namespace ai {
 
-QDebug operator<<(QDebug d, ActionType at)
+/*QDebug operator<<(QDebug d, ActionType at)
 {
     d.nospace();
     switch (at) {
@@ -14,7 +14,7 @@ QDebug operator<<(QDebug d, ActionType at)
     case ActionType::CreateRamp: d << "CreateRamp"; break;
     }
     return d;
-}
+}*/
 
 float get_action_cost(ActionType at) {
     switch (at) {

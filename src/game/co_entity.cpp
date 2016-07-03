@@ -7,7 +7,7 @@
 namespace bm {
 
 void EntityComponent::fall(int distance) {
-    qDebug() << *this << " fell " << distance << " blocks down";
+    //qDebug() << *this << " fell " << distance << " blocks down";
 }
 
 void EntityComponent::set_pos(const Vec3i &v) {
@@ -159,15 +159,15 @@ Route EntityComponent::find_route(const Vec3i &dst)
     }
 }
 
-QDebug operator<<(QDebug d, const EntityComponent &ent)
+/*QDebug operator<<(QDebug d, const EntityComponent &ent)
 {
     d.nospace() << "Ent{";
     d << ent.get_id() << ";" << ent.get_pos();
     d << "}";
     return d;
-}
+}*/
 
-QDebug operator<<(QDebug d, const Route &r)
+/*QDebug operator<<(QDebug d, const Route &r)
 {
     d.nospace() << "Route[";
     for (auto step: r) {
@@ -175,6 +175,6 @@ QDebug operator<<(QDebug d, const Route &r)
     }
     d << "]";
     return d;
-}
+}*/
 
 } // ns bm

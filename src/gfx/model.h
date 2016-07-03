@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QGLShaderProgram>
+//#include <QGLShaderProgram>
 
 #include <string>
 #include <map>
@@ -9,6 +9,7 @@
 #include "gfx/gl_version.h"
 #include "model_id.h"
 
+#if 0
 namespace bm {
 
 // This structure holds all the data required to render one of our meshes
@@ -70,3 +71,4 @@ public:
 using ModelMap = std::map<ModelId, Model>;
 
 } // namespace bm
+#endif //0

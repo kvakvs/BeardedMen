@@ -5,3 +5,5 @@ CMakeLists.txt.user
 
 # Does this maybe belong in git?
 lang/*.qm
+
+*.log

@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include <QOpenGLWidget>
 
 #define DESIRED_GL 33
@@ -26,3 +27,4 @@ using GLVersion_Widget = MyGLWidget<GLVersion_Funs>;
 
 } // namespace bm
 
+*/

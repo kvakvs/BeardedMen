@@ -33,7 +33,7 @@ public:
 
     AnimateObject(World *wo) {
         // No other world can get here
-        Q_ASSERT(world_ == nullptr || world_ == wo);
+        BM_ASSERT(world_ == nullptr || world_ == wo);
         world_ = wo;
     }
     static World* get_world() { return world_; }
@@ -46,6 +46,6 @@ private:
     static World *world_;
 };
 
-QDebug operator<< (QDebug d, const AnimateObject& co);
+//QDebug operator<< (QDebug d, const AnimateObject& co);
 
 } // ns bm

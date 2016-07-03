@@ -1,12 +1,13 @@
 #pragma once
 
+#include <list>
 #include <stdint.h>
 
-#include "util/vec.h"
-#include "gfx/model.h"
-#include "model_id.h"
 #include "game/component.h"
 #include "game/g_defs.h"
+#include "gfx/model.h"
+#include "model_id.h"
+#include "util/vec.h"
 
 namespace bm {
 
@@ -14,7 +15,7 @@ class World;
 using EntityId = uint64_t;
 using Route = std::list<Vec3i>;
 
-QDebug operator<< (QDebug d, const Route& r);
+//QDebug operator<< (QDebug d, const Route& r);
 
 // Entity is anything which has a position in the world and is visible in
 // some way (has model or a sprite etc).
@@ -79,6 +80,6 @@ private:
     bool find_and_set_strict_route(const Vec3i &dst);
 };
 
-QDebug operator<< (QDebug d, const EntityComponent& ent);
+//QDebug operator<< (QDebug d, const EntityComponent& ent);
 
 } // namespace bm

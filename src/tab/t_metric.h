@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include <QDebug>
+//#include <QDebug>
 
 namespace bm {
 namespace ai {
@@ -23,7 +23,7 @@ enum class MetricType: uint16_t {
     HaveMiningPick, // Creature has a tool
 };
 
-QDebug operator<< (QDebug d, MetricType mt);
+//QDebug operator<< (QDebug d, MetricType mt);
 
 } // ns bm::ai
 } // ns bm

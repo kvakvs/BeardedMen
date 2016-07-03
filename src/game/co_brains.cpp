@@ -55,9 +55,9 @@ void BrainsComponent::build_plan() {
     // to plan actual activities with destination objects and positions
     ai::flesh_out_a_plan(/*out*/ task_.plan, actions, ctx);
 
-    qDebug() << "brains: have plan!" << actions
-             << " steps=" << task_.plan.size()
-             << " planid=" << task_.current->id_;
+//    qDebug() << "brains: have plan!" << actions
+//             << " steps=" << task_.plan.size()
+//             << " planid=" << task_.current->id_;
 }
 
 void BrainsComponent::follow_the_plan()
@@ -79,7 +79,7 @@ void BrainsComponent::follow_the_plan()
         return;
     }
 
-    Q_ASSERT(not task_.plan.empty());
+    BM_ASSERT(not task_.plan.empty());
     auto& step = task_.plan.front();
 //    qDebug() << "brains: follow plan" << *get_parent()
 //             << " step=" << step.action_;
@@ -144,10 +144,10 @@ bool BrainsComponent::plan_step_move(const Vec3i& dst, MovePrecision mp) {
 
     if (not close_enough(ent->get_move_destination(), dst, mp))
     {
-        qDebug() << "move_to" << dst;
+//        qDebug() << "move_to" << dst;
         if (not ent->move_to(dst, mp)) {
             // no route
-            qDebug() << "no route" << ent->get_pos() << "to" << dst;
+//            qDebug() << "no route" << ent->get_pos() << "to" << dst;
             finish_plan(PlanResult::MoveNoRoute);
             return true;
         }
@@ -156,7 +156,7 @@ bool BrainsComponent::plan_step_move(const Vec3i& dst, MovePrecision mp) {
     // Move finished
     auto close = close_enough(ent->get_pos(), dst, mp);
     if (close) {
-        qDebug() << "plan: move finished";
+//        qDebug() << "plan: move finished";
         finish_plan_step();
         return false;
     }

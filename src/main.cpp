@@ -1,71 +1,135 @@
-/*******************************************************************************
-The MIT License (MIT)
+#include "main.h"
 
-Copyright (c) 2015 David Williams and Matthew Williams
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT)
+#else
+int main(int argc, char **argv)
+#endif
+{
+    auto root = std::make_unique<Ogre::Root>();
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    // configure resource paths
+    //-----------------------------------------------------
+    // Load resource paths from config file
+    // File format is:
+    //  [ResourceGroupName]
+    //  ArchiveType=Path
+    //  .. repeat
+    // For example:
+    //  [General]
+    //  FileSystem=media/
+    //  Zip=packages/level1.zip
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+    Ogre::ConfigFile cf;
+    cf.load("resources.cfg");
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*******************************************************************************/
+    // Go through all sections & settings in the file
+    auto seci = cf.getSectionIterator();
 
-#include <QApplication>
-#include <QGLFormat>
-#include <QTranslator>
-
-#include "ui/main_window.h"
-#include "gfx/gl_version.h"
-
-void setup_opengl_profile() {
-    QGLFormat gl_fmt;
-    gl_fmt.setVersion(bm::GL_MAJOR, bm::GL_MINOR);
-    gl_fmt.setProfile(bm::GL_PROFILE);
-    gl_fmt.setSampleBuffers(true);
-    QGLFormat::setDefaultFormat(gl_fmt);
-}
-
-std::unique_ptr<QTranslator> setup_translator(QApplication& app) {
-    auto translator = std::make_unique<QTranslator>();
-    // look up e.g. :/translations/myapp_de.qm
-//    if (translator.load(QLocale(QLocale::Russian, QLocale::AnyCountry),
-//                        QLatin1String("localization"),
-//                        QLatin1String("_"),
-//                        QLatin1String(":/lang")))
-    if (translator->load(QString("lang/localization_ru.qm")))
+    Ogre::String secName, typeName, archName;
+    while (seci.hasMoreElements())
     {
-        app.installTranslator(translator.get());
+        secName = seci.peekNextKey();
+        auto settings = seci.getNext();
+        for (auto i: *settings) {
+            typeName = i.first;
+            archName = i.second;
+            Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+                    archName, typeName, secName);
+        }
     }
-    return translator;
-}
+    //-----------------------------------------------------
+    // 3 Configures the application and creates the window
+    //-----------------------------------------------------
+    if (!root->showConfigDialog()) {
+        return false; // Exit the application on cancel
+    }
 
-int main(int argc, char* argv[]) {
-    // Create and show the Qt OpenGL window
-    QApplication app(argc, argv);
-    auto tr = setup_translator(app);
+    auto window = root->initialise(true, "Simple Ogre App");
 
-    auto bmaf = QApplication::tr("Bearded men (and a Fortress)");
-    app.setApplicationDisplayName(bmaf);
-    app.setApplicationName(bmaf);
+    Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
-    setup_opengl_profile();
+    //-----------------------------------------------------
+    // 4 Create the SceneManager
+    //
+    //        ST_GENERIC = octree
+    //        ST_EXTERIOR_CLOSE = simple terrain
+    //        ST_EXTERIOR_FAR = nature terrain (depreciated)
+    //        ST_EXTERIOR_REAL_FAR = paging landscape
+    //        ST_INTERIOR = Quake3 BSP
+    //----------------------------------------------------- 
+    Ogre::SceneManager* sceneMgr = root->createSceneManager(Ogre::ST_GENERIC);
 
-    auto main_wnd  = new bm::GameMainWindow();
-    main_wnd->setWindowTitle(bmaf);
-    main_wnd->show();
+    //----------------------------------------------------- 
+    // 5 Create the camera 
+    //----------------------------------------------------- 
+    Ogre::Camera* camera = sceneMgr->createCamera("SimpleCamera");
 
-    // Run the message pump.
-    return app.exec();
+    //----------------------------------------------------- 
+    // 6 Create one viewport, entire window 
+    //----------------------------------------------------- 
+    Ogre::Viewport* viewPort = window->addViewport(camera);
+
+    //---------------------------------------------------- 
+    // 7 add OIS input handling 
+    //----------------------------------------------------
+    OIS::ParamList pl;
+    size_t windowHnd = 0;
+    std::ostringstream windowHndStr;
+
+    //tell OIS about the Ogre window
+    window->getCustomAttribute("WINDOW", &windowHnd);
+    windowHndStr << windowHnd;
+    pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
+
+    //setup the manager, keyboard and mouse to handle input
+    auto inputManager = OIS::InputManager::createInputSystem(pl);
+    auto keyboard = static_cast<OIS::Keyboard*>(
+            inputManager->createInputObject(OIS::OISKeyboard, true));
+    auto mouse = static_cast<OIS::Mouse*>(
+            inputManager->createInputObject(OIS::OISMouse, true));
+
+    //tell OIS about the window's dimensions
+    unsigned int width, height, depth;
+    int top, left;
+    window->getMetrics(width, height, depth, left, top);
+    const OIS::MouseState &ms = mouse->getMouseState();
+    ms.width = width;
+    ms.height = height;
+
+    // everything is set up, now we listen for input and frames (replaces while loops)
+    //key events
+    auto keyListener = std::make_unique<bm::SimpleKeyListener>();
+    keyboard->setEventCallback(keyListener.get());
+    //mouse events
+    auto mouseListener = std::make_unique<bm::SimpleMouseListener>();
+    mouse->setEventCallback(mouseListener.get());
+    //render events
+    auto frameListener = std::make_unique<bm::SimpleFrameListener>(keyboard, mouse);
+    root->addFrameListener(frameListener.get());
+
+    //----------------------------------------------------
+    // 8 start rendering 
+    //----------------------------------------------------
+    // blocks until a frame listener returns false. eg from pressing escape
+    // in this example
+    root->startRendering();
+
+    //----------------------------------------------------
+    // 9 clean 
+    //----------------------------------------------------
+    //OIS
+    inputManager->destroyInputObject(mouse); mouse = 0;
+    inputManager->destroyInputObject(keyboard); keyboard = 0;
+    OIS::InputManager::destroyInputSystem(inputManager); inputManager = 0;
+    //listeners
+//    delete frameListener;
+//    delete mouseListener;
+//    delete keyListener;
+//    //Ogre
+//    delete root;
+
+    return 0;
 }

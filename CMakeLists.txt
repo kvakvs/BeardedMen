@@ -4,12 +4,14 @@ PROJECT(BeardedMen)
 #SET (CMAKE_C_COMPILER   "clang-3.8")
 #SET (CMAKE_CXX_COMPILER "clang++-3.8")
 
-# Qt library
-find_package(Qt5Widgets)
-find_package(Qt5OpenGL)
-set(CMAKE_AUTOMOC ON)
-
 #add_subdirectory("vl")
+set(OGRE_DIR "/usr/local/include/OGRE")
+set(OIS_DIR "/usr/include/OIS")
+include_directories(
+        ${OGRE_DIR}/
+        ${OGRE_DIR}/Overlay/
+        ${OIS_DIR}
+        )
 
 add_definitions(-DBM_DEBUG=1)
 
@@ -36,13 +38,13 @@ SET(SRC_FILES
     src/util/str.h
     src/util/vec.cpp		src/util/vec.h
 
-    src/gfx/game_widget.cpp	src/gfx/game_widget.h
-    src/gfx/gl_version.h
-    src/gfx/mesh_maker.cpp	src/gfx/mesh_maker.h
-    src/gfx/model.cpp		src/gfx/model.h
-    src/gfx/ogl_widget.h	src/gfx/ogl_widget.inl
-    src/gfx/qb_file.cpp		src/gfx/qb_file.h
-    src/gfx/ramp.cpp		src/gfx/ramp.h
+#    src/gfx/game_widget.cpp	src/gfx/game_widget.h
+#    src/gfx/gl_version.h
+#    src/gfx/mesh_maker.cpp	src/gfx/mesh_maker.h
+#    src/gfx/model.cpp		src/gfx/model.h
+#    src/gfx/ogl_widget.h	src/gfx/ogl_widget.inl
+#    src/gfx/qb_file.cpp		src/gfx/qb_file.h
+#    src/gfx/ramp.cpp		src/gfx/ramp.h
 
     src/ai/action.cpp		src/ai/action.h
     src/ai/goal.cpp		src/ai/goal.h
@@ -64,9 +66,9 @@ SET(SRC_FILES
     src/game/world.cpp		src/game/world.h
     src/game/world_volume.cpp	src/game/world_volume.h
 
-    src/ui/main_window.cpp	src/ui/main_window.h
-    src/ui/cnc_dock.cpp		src/ui/cnc_dock.h
-    src/ui/log_dock.cpp		src/ui/log_dock.h
+#    src/ui/main_window.cpp	src/ui/main_window.h
+#    src/ui/cnc_dock.cpp		src/ui/cnc_dock.h
+#    src/ui/log_dock.cpp		src/ui/log_dock.h
 
     ${ASTAR_DIR}/stlastar.h		${ASTAR_DIR}/fsa.h
 
@@ -103,28 +105,26 @@ SET(SRC_FILES
     ${PV_DIR}/Impl/RandomUnitVectors.h		${PV_DIR}/Impl/RandomVectors.h
     ${PV_DIR}/Impl/Timer.h			${PV_DIR}/Impl/Utility.h
 
-    #${LUA_DIR}/lua.c
-    #${LUA_DIR}/luac.c
-    ${LUA_DIR}/lapi.c	${LUA_DIR}/ldebug.c	${LUA_DIR}/llex.h
-    ${LUA_DIR}/lparser.h	${LUA_DIR}/lapi.h
-    ${LUA_DIR}/ldebug.h	${LUA_DIR}/llimits.h	${LUA_DIR}/lprefix.h
-    ${LUA_DIR}/lua.h     ${LUA_DIR}/lauxlib.c	${LUA_DIR}/ldo.c
-    ${LUA_DIR}/lmathlib.c  ${LUA_DIR}/lstate.c
-    ${LUA_DIR}/lauxlib.h	${LUA_DIR}/ldo.h		${LUA_DIR}/lmem.c
-    ${LUA_DIR}/lstate.h	${LUA_DIR}/luaconf.h     ${LUA_DIR}/lbaselib.c
-    ${LUA_DIR}/ldump.c	${LUA_DIR}/lmem.h        ${LUA_DIR}/lstring.c
-    ${LUA_DIR}/lualib.h  ${LUA_DIR}/lbitlib.c	${LUA_DIR}/lfunc.c
-    ${LUA_DIR}/loadlib.c ${LUA_DIR}/lstring.h	${LUA_DIR}/lundump.c
-    ${LUA_DIR}/lcode.c	${LUA_DIR}/lfunc.h	${LUA_DIR}/lobject.c
-    ${LUA_DIR}/lstrlib.c	${LUA_DIR}/lundump.h     ${LUA_DIR}/lcode.h
-    ${LUA_DIR}/lgc.c	${LUA_DIR}/lobject.h     ${LUA_DIR}/ltable.c
-    ${LUA_DIR}/lutf8lib.c ${LUA_DIR}/lcorolib.c	${LUA_DIR}/lgc.h
-    ${LUA_DIR}/lopcodes.c ${LUA_DIR}/ltable.h	${LUA_DIR}/lvm.c
-    ${LUA_DIR}/lctype.c	${LUA_DIR}/linit.c	${LUA_DIR}/lopcodes.h
-    ${LUA_DIR}/ltablib.c	${LUA_DIR}/lvm.h         ${LUA_DIR}/lctype.h
-    ${LUA_DIR}/liolib.c	${LUA_DIR}/loslib.c      ${LUA_DIR}/ltm.c
-    ${LUA_DIR}/lzio.c    ${LUA_DIR}/ldblib.c	${LUA_DIR}/llex.c
-    ${LUA_DIR}/lparser.c ${LUA_DIR}/ltm.h		${LUA_DIR}/lzio.h
+#    ${LUA_DIR}/lapi.c	${LUA_DIR}/ldebug.c	${LUA_DIR}/llex.h
+#    ${LUA_DIR}/lparser.h	${LUA_DIR}/lapi.h
+#    ${LUA_DIR}/ldebug.h	${LUA_DIR}/llimits.h	${LUA_DIR}/lprefix.h
+#    ${LUA_DIR}/lua.h     ${LUA_DIR}/lauxlib.c	${LUA_DIR}/ldo.c
+#    ${LUA_DIR}/lmathlib.c  ${LUA_DIR}/lstate.c
+#    ${LUA_DIR}/lauxlib.h	${LUA_DIR}/ldo.h		${LUA_DIR}/lmem.c
+#    ${LUA_DIR}/lstate.h	${LUA_DIR}/luaconf.h     ${LUA_DIR}/lbaselib.c
+#    ${LUA_DIR}/ldump.c	${LUA_DIR}/lmem.h        ${LUA_DIR}/lstring.c
+#    ${LUA_DIR}/lualib.h  ${LUA_DIR}/lbitlib.c	${LUA_DIR}/lfunc.c
+#    ${LUA_DIR}/loadlib.c ${LUA_DIR}/lstring.h	${LUA_DIR}/lundump.c
+#    ${LUA_DIR}/lcode.c	${LUA_DIR}/lfunc.h	${LUA_DIR}/lobject.c
+#    ${LUA_DIR}/lstrlib.c	${LUA_DIR}/lundump.h     ${LUA_DIR}/lcode.h
+#    ${LUA_DIR}/lgc.c	${LUA_DIR}/lobject.h     ${LUA_DIR}/ltable.c
+#    ${LUA_DIR}/lutf8lib.c ${LUA_DIR}/lcorolib.c	${LUA_DIR}/lgc.h
+#    ${LUA_DIR}/lopcodes.c ${LUA_DIR}/ltable.h	${LUA_DIR}/lvm.c
+#    ${LUA_DIR}/lctype.c	${LUA_DIR}/linit.c	${LUA_DIR}/lopcodes.h
+#    ${LUA_DIR}/ltablib.c	${LUA_DIR}/lvm.h         ${LUA_DIR}/lctype.h
+#    ${LUA_DIR}/liolib.c	${LUA_DIR}/loslib.c      ${LUA_DIR}/ltm.c
+#    ${LUA_DIR}/lzio.c    ${LUA_DIR}/ldblib.c	${LUA_DIR}/llex.c
+#    ${LUA_DIR}/lparser.c ${LUA_DIR}/ltm.h		${LUA_DIR}/lzio.h
 
     ${SELENE_DIR}/selene/BaseFun.h		${SELENE_DIR}/selene/Class.h
     ${SELENE_DIR}/selene/ClassFun.h		${SELENE_DIR}/selene/Ctor.h
@@ -187,14 +187,6 @@ INCLUDE_DIRECTORIES(
 #    ${PolyVoxHeaders_SOURCE_DIR}
 )
 
-#This will include the shader files inside the compiled binary
-QT5_ADD_RESOURCES(
-    COMMON_RESOURCES_RCC
-    assets/pa.qrc)
-
-# Put the resources in a seperate folder in Visual Studio
-SOURCE_GROUP("Resources" FILES src/pa.qrc ${COMMON_RESOURCES_RCC})
-
 #Build
 ADD_EXECUTABLE(BeardedMen ${SRC_FILES} ${COMMON_RESOURCES_RCC})
 IF(MSVC)
@@ -203,9 +195,7 @@ IF(MSVC)
 	    COMPILE_FLAGS "/W4 /wd4127")
 ENDIF(MSVC)
 TARGET_LINK_LIBRARIES(BeardedMen
-    Qt5::OpenGL
-    # ${GLUT_LIBRARY}
-)
+        OgreMain OgreOverlay boost_system OIS)
 #SET_PROPERTY(TARGET BeardedMen PROPERTY FOLDER "Examples")
 
 #Install - Only install the example in Windows
