@@ -65,7 +65,7 @@ void GameWidget::initialize() {
     update_terrain();
 
     // Keyboard input mode
-    change_keyboard_fsm(KeyFSM::Default);
+    change_fsm(KeyFSM::Default);
 
     emit SIG_battle_log("Game started");
     emit SIG_battle_log("Hello");

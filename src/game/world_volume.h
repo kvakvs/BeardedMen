@@ -136,9 +136,9 @@ private:
 public:
     VoxelReader(const VolumeType* vt, const Vec3i& p): vol_(*vt), pos_(p) {}
     VoxelType read(int dx, int dy, int dz) const {
-        vol_.getVoxel(pos_.getX() + dx,
-                      pos_.getY() + dy,
-                      pos_.getZ() + dz);
+        return vol_.getVoxel(pos_.getX() + dx,
+                             pos_.getY() + dy,
+                             pos_.getZ() + dz);
     }
 };
 
