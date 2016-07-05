@@ -2,7 +2,7 @@
 
 namespace bm {
 
-void BeardedOgre::setup_visible_mouse(OIS::ParamList &pl) {
+void Game::setup_visible_mouse(OIS::ParamList &pl) {
 #if defined OIS_WIN32_PLATFORM
     pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
     pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
@@ -16,18 +16,9 @@ void BeardedOgre::setup_visible_mouse(OIS::ParamList &pl) {
 #endif
 }
 
-}
-
-void setup_visible_mouse(OIS::ParamList &multimap);
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
-INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT)
-#else
-int main(int argc, char **argv)
-#endif
+bool bm::Game::init()
 {
-    auto root = std::make_unique<Ogre::Root>();
+    root_ = std::make_unique<Ogre::Root>();
 
     // configure resource paths
     //-----------------------------------------------------
@@ -41,11 +32,11 @@ int main(int argc, char **argv)
     //  FileSystem=media/
     //  Zip=packages/level1.zip
 
-    Ogre::ConfigFile cf;
-    cf.load("resources.cfg");
+    cf_.load("resources.cfg");
+    res_group_ = &Ogre::ResourceGroupManager::getSingleton();
 
     // Go through all sections & settings in the file
-    auto seci = cf.getSectionIterator();
+    auto seci = cf_.getSectionIterator();
 
     Ogre::String secName, typeName, archName;
     while (seci.hasMoreElements()) {
@@ -54,21 +45,20 @@ int main(int argc, char **argv)
         for (auto i: *settings) {
             typeName = i.first;
             archName = i.second;
-            Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                    archName, typeName, secName);
+            res_group_->addResourceLocation(archName, typeName, secName);
         }
     }
 
     //-----------------------------------------------------
-    // 3 Configures the application and creates the window
+    // 3 Configures the application and creates the window_
     //-----------------------------------------------------
-    if (!root->showConfigDialog()) {
+    if (!root_->showConfigDialog()) {
         return false; // Exit the application on cancel
     }
 
-    auto window = root->initialise(true, "Bearded Men");
+    window_ = root_->initialise(true, "Bearded Men");
 
-    Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+    res_group_->initialiseAllResourceGroups();
 
     //-----------------------------------------------------
     // 4 Create the SceneManager
@@ -78,77 +68,92 @@ int main(int argc, char **argv)
     //        ST_EXTERIOR_FAR = nature terrain (depreciated)
     //        ST_EXTERIOR_REAL_FAR = paging landscape
     //        ST_INTERIOR = Quake3 BSP
-    //----------------------------------------------------- 
-    Ogre::SceneManager* sceneMgr = root->createSceneManager(Ogre::ST_GENERIC);
+    //-----------------------------------------------------
+    scene_mgr_ = root_->createSceneManager(Ogre::ST_GENERIC);
 
-    //----------------------------------------------------- 
-    // 5 Create the camera 
-    //----------------------------------------------------- 
-    Ogre::Camera* camera = sceneMgr->createCamera("SimpleCamera");
+    //-----------------------------------------------------
+    // 5 Create the cam_
+    //-----------------------------------------------------
+    cam_ = scene_mgr_->createCamera("SimpleCamera");
 
-    //----------------------------------------------------- 
-    // 6 Create one viewport, entire window 
-    //----------------------------------------------------- 
-    Ogre::Viewport* viewPort = window->addViewport(camera);
+    //-----------------------------------------------------
+    // 6 Create one viewport, entire window_
+    //-----------------------------------------------------
+    viewport_ = window_->addViewport(cam_);
 
-    //---------------------------------------------------- 
-    // 7 add OIS input handling 
+    //----------------------------------------------------
+    // 7 add OIS input handling
     //----------------------------------------------------
     OIS::ParamList pl;
     size_t windowHnd = 0;
     std::ostringstream windowHndStr;
 
-    //tell OIS about the Ogre window
-    window->getCustomAttribute("WINDOW", &windowHnd);
+    //tell OIS about the Ogre window_
+    window_->getCustomAttribute("WINDOW", &windowHnd);
     windowHndStr << windowHnd;
     pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
-    bm::BeardedOgre::setup_visible_mouse(pl);
+    setup_visible_mouse(pl);
 
-    //setup the manager, keyboard and mouse to handle input
-    auto inputManager = OIS::InputManager::createInputSystem(pl);
-    auto keyboard = static_cast<OIS::Keyboard*>(
-            inputManager->createInputObject(OIS::OISKeyboard, true));
-    auto mouse = static_cast<OIS::Mouse*>(
-            inputManager->createInputObject(OIS::OISMouse, true));
+    //setup the manager, keyboard_ and mouse_ to handle input
+    input_mgr_ = OIS::InputManager::createInputSystem(pl);
+    keyboard_ = static_cast<OIS::Keyboard*>(
+            input_mgr_->createInputObject(OIS::OISKeyboard, true));
+    mouse_ = static_cast<OIS::Mouse*>(
+            input_mgr_->createInputObject(OIS::OISMouse, true));
 
-    //tell OIS about the window's dimensions
+    //tell OIS about the window_'s dimensions
     unsigned int width, height, depth;
     int top, left;
-    window->getMetrics(width, height, depth, left, top);
+    window_->getMetrics(width, height, depth, left, top);
 
-    const OIS::MouseState &ms = mouse->getMouseState();
+    const OIS::MouseState &ms = mouse_->getMouseState();
     ms.width = width;
     ms.height = height;
 
     // everything is set up, now we listen for input and frames (replaces while loops)
     //key events
-    auto game_listener = std::make_unique<bm::BeardedOgre>(keyboard, mouse);
-    keyboard->setEventCallback(game_listener.get());
-    mouse->setEventCallback(game_listener.get());
-    root->addFrameListener(game_listener.get());
-    Ogre::WindowEventUtilities::addWindowEventListener(
-            window, game_listener.get());
+    keyboard_->setEventCallback(this);
+    mouse_->setEventCallback(this);
+    root_->addFrameListener(this);
+    Ogre::WindowEventUtilities::addWindowEventListener(window_, this);
+    return true;
+}
 
+void Game::run() {
     //----------------------------------------------------
-    // 8 start rendering 
+    // 8 start rendering
     //----------------------------------------------------
     // blocks until a frame listener returns false. eg from pressing escape
     // in this example
-    root->startRendering();
+    root_->startRendering();
+}
 
+Game::~Game() {
     //----------------------------------------------------
-    // 9 clean 
+    // 9 clean
     //----------------------------------------------------
     //OIS
-    inputManager->destroyInputObject(mouse); mouse = 0;
-    inputManager->destroyInputObject(keyboard); keyboard = 0;
-    OIS::InputManager::destroyInputSystem(inputManager); inputManager = 0;
-    //listeners
-//    delete frameListener;
-//    delete mouseListener;
-//    delete keyListener;
-//    //Ogre
-//    delete root;
+    input_mgr_->destroyInputObject(mouse_);
+    mouse_ = nullptr;
+    input_mgr_->destroyInputObject(keyboard_);
+    keyboard_ = nullptr;
+    OIS::InputManager::destroyInputSystem(input_mgr_);
+    input_mgr_ = nullptr;
+}
 
-    return 0;
+} // ns bm
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT)
+#else
+int main(int argc, char **argv)
+#endif
+{
+    auto game = std::make_unique<bm::Game>();
+    if (not game->init()) {
+        return 1;
+    }
+    game->run();
 }

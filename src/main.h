@@ -9,17 +9,33 @@
 
 namespace bm {
 
-class BeardedOgre: public Ogre::FrameListener,
-                   public Ogre::WindowEventListener,
-                   public OIS::KeyListener,
-                   public OIS::MouseListener
+class Game: public Ogre::FrameListener,
+            public Ogre::WindowEventListener,
+            public OIS::KeyListener,
+            public OIS::MouseListener
 {
-public:
-    BeardedOgre(OIS::Keyboard *keyboard, OIS::Mouse *mouse) {
-        keyboard_ = keyboard;
-        mouse_ = mouse;
-    }
+    std::unique_ptr<Ogre::Root> root_;
+    Ogre::ConfigFile cf_;
+    Ogre::RenderWindow *window_;
+    Ogre::ResourceGroupManager *res_group_;
+    Ogre::SceneManager* scene_mgr_;
+    Ogre::Camera* cam_;
+    Ogre::Viewport* viewport_;
 
+    bool closing_ = false;
+
+    OIS::InputManager *input_mgr_;
+    OIS::Keyboard *keyboard_;
+    OIS::Mouse *mouse_;
+
+public:
+    // Entry point
+    Game() {}
+    bool init();
+    void run();
+    virtual ~Game();
+
+public:
     // This gets called before the next frame is beeing rendered.
     virtual bool frameStarted(const Ogre::FrameEvent &evt) override {
         //update the input devices
@@ -63,11 +79,8 @@ public:
     //virtual void windowMoved(Ogre::RenderWindow *rw) override { return true; }
     //virtual void windowResized(Ogre::RenderWindow *rw) override { return true; }
 
+protected:
     static void setup_visible_mouse(OIS::ParamList &pl);
-private:
-    bool closing_ = false;
-    OIS::Keyboard *keyboard_;
-    OIS::Mouse *mouse_;
 };
 
 } // ns bm
