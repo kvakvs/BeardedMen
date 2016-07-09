@@ -20,26 +20,16 @@ void Game::setup_visible_mouse(OIS::ParamList &pl) {
 bool bm::Game::init()
 {
     return init_ogre()
-        && init_scene()
-        && init_view()
-        && init_input()
-        && init_terrain_chunk();
+           && init_materials()
+           && init_scene()
+           && init_view()
+           && init_input()
+           && init_terrain_chunk()
+           && init_models();
 }
 
-bool bm::Game::init_ogre() {
+    bool bm::Game::init_ogre() {
     root_ = std::make_unique<Ogre::Root>();
-
-    // configure resource paths
-    //-----------------------------------------------------
-    // Load resource paths from config file
-    // File format is:
-    //  [ResourceGroupName]
-    //  ArchiveType=Path
-    //  .. repeat
-    // For example:
-    //  [General]
-    //  FileSystem=media/
-    //  Zip=packages/level1.zip
 
     cf_.load("resources.cfg");
     res_group_ = &Ogre::ResourceGroupManager::getSingleton();
@@ -58,9 +48,6 @@ bool bm::Game::init_ogre() {
         }
     }
 
-    //-----------------------------------------------------
-    // 3 Configures the application and creates the window_
-    //-----------------------------------------------------
     if (!root_->showConfigDialog()) {
         return false; // Exit the application on cancel
     }
@@ -69,64 +56,58 @@ bool bm::Game::init_ogre() {
 
     res_group_->initialiseAllResourceGroups();
 
-    //-----------------------------------------------------
-    // 4 Create the SceneManager
-    //
-    //        ST_GENERIC = octree
-    //        ST_EXTERIOR_CLOSE = simple terrain
-    //        ST_EXTERIOR_FAR = nature terrain (depreciated)
-    //        ST_EXTERIOR_REAL_FAR = paging landscape
-    //        ST_INTERIOR = Quake3 BSP
-    //-----------------------------------------------------
-    scene_mgr_ = root_->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
-
     return true;
 }
 
 void Game::run() {
-    //----------------------------------------------------
-    // 8 start rendering
-    //----------------------------------------------------
     // blocks until a frame listener returns false. eg from pressing escape
     // in this example
     root_->startRendering();
 }
 
 Game::~Game() {
-    //----------------------------------------------------
-    // 9 clean
-    //----------------------------------------------------
-    //OIS
     input_mgr_->destroyInputObject(mouse_);
     mouse_ = nullptr;
     input_mgr_->destroyInputObject(keyboard_);
     keyboard_ = nullptr;
     OIS::InputManager::destroyInputSystem(input_mgr_);
     input_mgr_ = nullptr;
+    root_.release();
 }
 
 bool Game::init_scene() {
+    scene_mgr_ = root_->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
     scene_mgr_->setAmbientLight(Ogre::ColourValue(.5f, .5f, .5f));
-    auto r = scene_mgr_->getRootSceneNode();
-    sn_world_node_ = r->createChildSceneNode();
+    //auto r = scene_mgr_->getRootSceneNode();
+    //sn_world_node_ = r->createChildSceneNode();
 
-    return true;
-}
-
-bool Game::init_terrain_chunk() {
-    if ( world_ != NULL ) {
-        sn_world_node_->detachObject(world_);
-        scene_mgr_->destroyManualObject(world_);
-    }
-    world_ = scene_mgr_->createManualObject("Terrain");
-    sn_world_node_->attachObject(world_);
+    Ogre::Light* l = scene_mgr_->createLight("sun");
+    l->setType(Ogre::Light::LT_DIRECTIONAL);
+    l->setDirection(-Ogre::Vector3::UNIT_Y);
 
     return true;
 }
 
 bool Game::init_view() {
-    cam_ = scene_mgr_->createCamera("SimpleCamera");
+    cam_ = scene_mgr_->createCamera("camera");
     viewport_ = window_->addViewport(cam_);
+
+    cam_->setNearClipDistance(0.5f);
+    cam_->setFarClipDistance(1000.f);
+    cam_->setPosition(0.f, 0.f, 0.f);
+    cam_->lookAt(20.f, 0.f, 0.f);
+
+    return true;
+}
+
+bool Game::init_terrain_chunk() {
+//    if ( world_ != NULL ) {
+//        sn_world_node_->detachObject(world_);
+//        scene_mgr_->destroyManualObject(world_);
+//    }
+    //world_ = scene_mgr_->createManualObject("Terrain");
+    //sn_world_node_->attachObject(world_);
+
     return true;
 }
 
@@ -183,9 +164,13 @@ bool Game::init_materials() {
 }
 
 bool Game::init_models() {
-    auto m1 = create_model_from_qb("bearded_man", false);
-    "boulder";
-    "mark_pick";
+    auto m1 = create_model_from_qb(scene_mgr_, "bearded_man", false);
+    auto m1o = scene_mgr_->getRootSceneNode()->createChildSceneNode("bmnode");
+    m1o->attachObject(m1);
+    m1o->setPosition(20.f, 0.f, 0.f);
+
+//    "boulder";
+//    "mark_pick";
     return true;
 }
 
@@ -205,4 +190,5 @@ int main(int argc, char **argv)
         return 1;
     }
     game->run();
+    return 0;
 }

@@ -20,7 +20,7 @@ class Game: public Ogre::FrameListener,
     Ogre::ResourceGroupManager *res_group_ = nullptr;
     Ogre::SceneManager* scene_mgr_ = nullptr;
     Ogre::Camera* cam_ = nullptr;
-    Ogre::Viewport* viewport_;
+    Ogre::Viewport* viewport_ = nullptr;
 
     bool closing_ = false;
 

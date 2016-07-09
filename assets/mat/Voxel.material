@@ -1,4 +1,4 @@
-material General/Voxel
+material Voxel
 {
    technique
    {

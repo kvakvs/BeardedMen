@@ -21,29 +21,41 @@ namespace bm {
 namespace mesh {
 
 template <typename MeshType>
-uniq::ManualObject create_mesh_from_pv(Ogre::SceneManager *scenem,
-                                       const char *name,
-                                       const MeshType &pvmesh)
+Ogre::ManualObject *create_mesh_from_pv(Ogre::SceneManager *scenem,
+                                        const char *name,
+                                        const MeshType &pvmesh)
 {
-    uniq::ManualObject m(scenem->createManualObject(name));
+    Ogre::ManualObject *m = scenem->createManualObject(name);
     m->estimateVertexCount(pvmesh.getNoOfVertices());
     m->estimateIndexCount(pvmesh.getNoOfIndices());
 
     m->begin("Voxel", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-    uint v = 0;
     uint vcount = pvmesh.getNoOfVertices();
+    Ogre::ColourValue col;
+
     for (uint v = 0; v < vcount; ++v) {
         auto vertex = pvmesh.getVertex(v);
-        m->position(vertex.position.x, vertex.position.y, vertex.position.z);
-        m->normal(vertex.normal.x, vertex.normal.y, vertex.normal.z);
-        m->colour(1.f, 1.f, 1.f, 1.f);
+
+        // begin new vertex
+        m->position(vertex.position.getX(),
+                    vertex.position.getY(),
+                    vertex.position.getZ());
+        m->normal(vertex.normal.getX(),
+                  vertex.normal.getY(),
+                  vertex.normal.getZ());
+        col.setAsBGRA(vertex.data.getMaterial() << 8 | vertex.data.getDensity());
+        m->colour(col);
     }
 
-    uint t = 0;
     uint tcount = pvmesh.getNoOfIndices();
-    m->triangle()
+    for (uint t = 0; t < tcount; t += 3) {
+        m->triangle(pvmesh.getIndex(t),
+                    pvmesh.getIndex(t + 1),
+                    pvmesh.getIndex(t + 2));
+    }
     m->end();
 
+    printf("> created qb %u vert %u tris\n", vcount, tcount);
     return m;
 }
 

@@ -15,7 +15,7 @@ vg:
 
 .PHONY: debug
 debug:
-	gdb _build/BeardedMen
+	gdb _build/Debug/BeardedMen
 
 .PHONY: localization
 localization: localization-update localization-release

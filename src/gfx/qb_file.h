@@ -25,10 +25,9 @@ public:
     Vec3i size_;
     Vec3i pos_;
 
-    // RGBA basically
+    // BGRA basically with A = density
     using VoxelType = pv::MaterialDensityPair<uint32_t, 24, 8>;
     using VoxVolume = pv::RawVolume<VoxelType>;
-    //std::unique_ptr<uint32_t[]> m_pColour;
     std::unique_ptr<VoxVolume> voxels_;
 
     int bone_idx_;
@@ -45,8 +44,8 @@ public:
     void create_voxels();
 
     static constexpr bool INVERT_X = false;
-    static constexpr bool INVERT_Y = true;
-    static constexpr bool INVERT_Z = true;
+    static constexpr bool INVERT_Y = false;
+    static constexpr bool INVERT_Z = false;
     void set_vox(int x, int y, int z, VoxelType v) {
         voxels_->setVoxel(1 + (INVERT_X ? (size_.getX() - x) : x),
                           1 + (INVERT_Y ? (size_.getY() - y) : y),
@@ -108,11 +107,16 @@ private:
     void read_compressed(FILE *f, QBVolume *vol);
 };
 
-uniq::ManualObject create_model_from_qb(Ogre::SceneManager *scenem,
-                                        const char *file,
-                                        bool re_scale = false)
+inline Ogre::ManualObject *
+create_model_from_qb(Ogre::SceneManager *scenem,
+                     const char *file,
+                     bool re_scale = false)
 {
-    auto qb_model = std::make_unique<QBFile>(file);
+    std::string path = "assets/model/";
+    path += file;
+    path += ".qb";
+
+    auto qb_model = std::make_unique<QBFile>(path.c_str());
     auto raw_mesh = qb_model->get_mesh_for_volume(0);
     qb_model->free_voxels_for_volume(0);
 
