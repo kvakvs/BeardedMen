@@ -47,6 +47,7 @@ public:
 private:
     bool init_ogre();
     bool init_scene();
+    bool init_materials();
     bool init_models();
     bool init_view();
     bool init_input();

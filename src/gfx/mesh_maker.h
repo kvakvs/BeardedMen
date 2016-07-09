@@ -28,7 +28,22 @@ uniq::ManualObject create_mesh_from_pv(Ogre::SceneManager *scenem,
     uniq::ManualObject m(scenem->createManualObject(name));
     m->estimateVertexCount(pvmesh.getNoOfVertices());
     m->estimateIndexCount(pvmesh.getNoOfIndices());
-    m->begin("colored_cubes", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+
+    m->begin("Voxel", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+    uint v = 0;
+    uint vcount = pvmesh.getNoOfVertices();
+    for (uint v = 0; v < vcount; ++v) {
+        auto vertex = pvmesh.getVertex(v);
+        m->position(vertex.position.x, vertex.position.y, vertex.position.z);
+        m->normal(vertex.normal.x, vertex.normal.y, vertex.normal.z);
+        m->colour(1.f, 1.f, 1.f, 1.f);
+    }
+
+    uint t = 0;
+    uint tcount = pvmesh.getNoOfIndices();
+    m->triangle()
+    m->end();
+
     return m;
 }
 

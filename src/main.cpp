@@ -1,4 +1,5 @@
 #include "main.h"
+#include "gfx/qb_file.h"
 
 namespace bm {
 
@@ -46,14 +47,14 @@ bool bm::Game::init_ogre() {
     // Go through all sections & settings in the file
     auto seci = cf_.getSectionIterator();
 
-    Ogre::String secName, typeName, archName;
+    Ogre::String section_n, type_n, path_name;
     while (seci.hasMoreElements()) {
-        secName = seci.peekNextKey();
+        section_n = seci.peekNextKey();
         auto settings = seci.getNext();
         for (auto i: *settings) {
-            typeName = i.first;
-            archName = i.second;
-            res_group_->addResourceLocation(archName, typeName, secName);
+            type_n = i.first;
+            path_name = i.second;
+            res_group_->addResourceLocation(path_name, type_n, section_n);
         }
     }
 
@@ -169,11 +170,23 @@ bool Game::init_input() {
     return true;
 }
 
+bool Game::init_materials() {
+//    auto resm = Ogre::ResourceGroupManager::getSingleton();
+//    auto matm = Ogre::MaterialManager::getSingleton();
+//
+//    auto material_name = "assets/mat/Voxel";
+//    auto ds = resm.openResource(material_name, "General", false);
+//    matm.parseScript(ds, "General");
+//    auto material = matm.load("Robot","General");
+
+    return true;
+}
+
 bool Game::init_models() {
-    auto m1 = mesh::create_mesh_from_pv("bearded_man");
+    auto m1 = create_model_from_qb("bearded_man", false);
     "boulder";
     "mark_pick";
-    return false;
+    return true;
 }
 
 

@@ -108,20 +108,20 @@ private:
     void read_compressed(FILE *f, QBVolume *vol);
 };
 
-uniq::ManualObject create_model_from_qb(const char *file, bool re_scale)
+uniq::ManualObject create_model_from_qb(Ogre::SceneManager *scenem,
+                                        const char *file,
+                                        bool re_scale = false)
 {
     auto qb_model = std::make_unique<QBFile>(file);
     auto raw_mesh = qb_model->get_mesh_for_volume(0);
     qb_model->free_voxels_for_volume(0);
 
-    return mesh::create_manual_object_from_raw(
-            raw_mesh,
-            Vec3f(0.f, 0.f, 0.f),
-            // Rescale to fit in 1x1x1 cube or use typical 1/8=0.125
-            // shrink for 8x8x8 model
-            re_scale ? qb_model->get_downscale(0)
-                     : Vec3f(.125f, .125f, .125f)
-    );
+    return mesh::create_mesh_from_pv(scenem, file, raw_mesh);
+
+    // Rescale to fit in 1x1x1 cube or use typical 1/8=0.125
+    // shrink for 8x8x8 model
+//    re_scale ? qb_model->get_downscale(0)
+//             : Vec3f(.125f, .125f, .125f)
 }
 
 
