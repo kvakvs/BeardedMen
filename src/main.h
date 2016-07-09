@@ -16,17 +16,26 @@ class Game: public Ogre::FrameListener,
 {
     std::unique_ptr<Ogre::Root> root_;
     Ogre::ConfigFile cf_;
-    Ogre::RenderWindow *window_;
-    Ogre::ResourceGroupManager *res_group_;
-    Ogre::SceneManager* scene_mgr_;
-    Ogre::Camera* cam_;
+    Ogre::RenderWindow *window_ = nullptr;
+    Ogre::ResourceGroupManager *res_group_ = nullptr;
+    Ogre::SceneManager* scene_mgr_ = nullptr;
+    Ogre::Camera* cam_ = nullptr;
     Ogre::Viewport* viewport_;
 
     bool closing_ = false;
 
-    OIS::InputManager *input_mgr_;
-    OIS::Keyboard *keyboard_;
-    OIS::Mouse *mouse_;
+    //
+    // IO
+    //
+    OIS::InputManager *input_mgr_ = nullptr;
+    OIS::Keyboard *keyboard_ = nullptr;
+    OIS::Mouse *mouse_ = nullptr;
+
+    //
+    // World and stuff
+    //
+    Ogre::SceneNode *sn_world_node_ = nullptr;
+    Ogre::ManualObject *world_ = nullptr;
 
 public:
     // Entry point
@@ -34,6 +43,14 @@ public:
     bool init();
     void run();
     virtual ~Game();
+
+private:
+    bool init_ogre();
+    bool init_scene();
+    bool init_models();
+    bool init_view();
+    bool init_input();
+    bool init_terrain_chunk();
 
 public:
     // This gets called before the next frame is beeing rendered.

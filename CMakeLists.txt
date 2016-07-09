@@ -30,13 +30,13 @@ set(SPATIAL deps/spatial/src )
 #Projects source files
 SET(SRC_FILES
     src/main.cpp
-    src/perlin.cpp
-    src/model_id.h
 
     src/util/error.h
     src/util/optional.h
     src/util/str.h
-    src/util/vec.cpp		src/util/vec.h
+#    src/util/vec.cpp		src/util/vec.h
+	src/util/types.h
+	src/util/perlin.cpp src/util/perlin.h
 
 #    src/gfx/game_widget.cpp	src/gfx/game_widget.h
 #    src/gfx/gl_version.h
@@ -164,9 +164,7 @@ SET(SRC_FILES
     ${SPATIAL}/bits/spatial_value_compare.hpp ${SPATIAL}/bits/spatial_ordered.hpp
     ${SPATIAL}/bits/spatial_compress.hpp    ${SPATIAL}/bits/spatial_import_tuple.hpp
     ${SPATIAL}/bits/spatial_condition.hpp   ${SPATIAL}/bits/spatial_preorder.hpp
-    ${SPATIAL}/bits/spatial_euclidian_neighbor.hpp  ${SPATIAL}/bits/spatial_template_member_swap.hpp
-
-)
+    ${SPATIAL}/bits/spatial_euclidian_neighbor.hpp  ${SPATIAL}/bits/spatial_template_member_swap.hpp)
 
 #SET(INC_FILES .......)
 

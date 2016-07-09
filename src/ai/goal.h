@@ -7,7 +7,7 @@
 #include "tab/t_metric.h"
 #include "util/error.h"
 #include "util/vec.h"
-#include "model_id.h"
+#include "util/types.h"
 
 namespace bm {
 

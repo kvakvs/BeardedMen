@@ -197,7 +197,7 @@ void World::add_goal_dig(const Vec3i &pos)
                                  ai::Value(true)) };
     ai::Context ctx(nullptr);
     ctx.pos_ = pos;
-    add_order(std::make_shared<ai::Order>(m, ctx, ModelId::MarkPick));
+    add_order(std::make_shared<ai::Order>(m, ctx, ModelId("mark_pick")));
 }
 
 void World::add_goal_ramp(const Vec3i &pos)
@@ -207,7 +207,7 @@ void World::add_goal_ramp(const Vec3i &pos)
                                  ai::Value(true)) };
     ai::Context ctx(nullptr);
     ctx.pos_ = pos;
-    add_order(std::make_shared<ai::Order>(m, ctx, ModelId::MarkRamp));
+    add_order(std::make_shared<ai::Order>(m, ctx, ModelId("mark_ramp")));
 }
 
 void World::report_fulfilled(ai::OrderId id, PlanResult pr) {
@@ -261,7 +261,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
             auto pos = ent->get_pos();
             auto in_melee = adjacent_or_same(pos, ctx.pos_);
             return metric.set_reading(in_melee);
-        } break;
+        }
 
     case ai::MetricType::MeleeRangeDepth: {
             BM_ASSERT(ctx.actor_);
@@ -272,7 +272,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
                                               ctx.pos_,
                                               MovePrecision::AdjacentDepth);
             return metric.set_reading(reach_to_mine);
-        } break;
+        }
 
     case ai::MetricType::HaveHand: {
             BM_ASSERT(ctx.actor_);
@@ -280,7 +280,7 @@ ai::Metric World::read_metric(const ai::Metric& metric,
             if (not bo) { return ai::Metric(mt); }
             auto has_hand = bo->has_body_part(BodyComponent::PartType::Hand);
             return metric.set_reading(has_hand);
-        } break;
+        }
 
     case ai::MetricType::HaveLeg: {
             BM_ASSERT(ctx.actor_);
@@ -288,22 +288,22 @@ ai::Metric World::read_metric(const ai::Metric& metric,
             if (not bo) { return ai::Metric(mt); }
             auto has_leg = bo->has_body_part(BodyComponent::PartType::Leg);
             return metric.set_reading(has_leg);
-        } break;
+        }
 
     case ai::MetricType::HaveMiningPick: {
             return metric.set_reading(true);
-        } break;
+        }
 
     case ai::MetricType::BlockIsNotSolid: {
             // air or liquid will satisfy the condition
             auto vox = get_voxel(metric.arg_.get_pos());
             return metric.set_reading(vox.is_air());
-        } break;
+        }
 
     case ai::MetricType::BlockIsRamp: {
             auto vox = get_voxel(metric.arg_.get_pos());
             return metric.set_reading(vox.is_ramp());
-        } break;
+        }
     }
 }
 

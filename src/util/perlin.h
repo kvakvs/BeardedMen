@@ -1,7 +1,6 @@
 // Code from http://www.flipcode.com/archives/Perlin_Noise_Class.shtml
 // This is only in PolyVox for the purpose of the examples. It was not written
-// by
-// the PolyVox authors and cannot be assumed to be under the same license as
+// by the PolyVox authors and cannot be assumed to be under the same license as
 // PolyVox.
 
 #pragma once

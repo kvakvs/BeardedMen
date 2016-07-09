@@ -1,5 +1,5 @@
-#include "world_volume.h"
-#include "perlin.h"
+#include "game/world_volume.h"
+#include "util/perlin.h"
 
 namespace bm {
 

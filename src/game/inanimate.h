@@ -3,7 +3,7 @@
 #include "point_multimap.hpp"
 
 #include "game/g_defs.h"
-#include "model_id.h"
+#include "util/types.h"
 
 namespace bm {
 

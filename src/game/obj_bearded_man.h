@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model_id.h"
+#include "util/types.h"
 
 #include "game/component.h"
 #include "game/co_body.h"
@@ -16,7 +16,7 @@ class BeardedMan: public AnimateObject
 public:
     BeardedMan(World *wo, const Vec3i &pos)
         : AnimateObject(wo),
-          entity_(this, pos, ModelId::BeardedMan),
+          entity_(this, pos, ModelId("bearded_man")),
           body_(BodyType::BeardedMan),
           brains_(this)
     {

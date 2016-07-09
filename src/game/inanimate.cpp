@@ -4,7 +4,7 @@ namespace bm {
 
 InanimateObject::InanimateObject(InanimateType t): type_(t) {
     switch (t) {
-    case InanimateType::Boulder: model_ = ModelId::Boulder; break;
+    case InanimateType::Boulder: model_ = ModelId("boulder"); break;
     }
 }
 

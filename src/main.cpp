@@ -18,6 +18,14 @@ void Game::setup_visible_mouse(OIS::ParamList &pl) {
 
 bool bm::Game::init()
 {
+    return init_ogre()
+        && init_scene()
+        && init_view()
+        && init_input()
+        && init_terrain_chunk();
+}
+
+bool bm::Game::init_ogre() {
     root_ = std::make_unique<Ogre::Root>();
 
     // configure resource paths
@@ -69,18 +77,59 @@ bool bm::Game::init()
     //        ST_EXTERIOR_REAL_FAR = paging landscape
     //        ST_INTERIOR = Quake3 BSP
     //-----------------------------------------------------
-    scene_mgr_ = root_->createSceneManager(Ogre::ST_GENERIC);
+    scene_mgr_ = root_->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
 
-    //-----------------------------------------------------
-    // 5 Create the cam_
-    //-----------------------------------------------------
+    return true;
+}
+
+void Game::run() {
+    //----------------------------------------------------
+    // 8 start rendering
+    //----------------------------------------------------
+    // blocks until a frame listener returns false. eg from pressing escape
+    // in this example
+    root_->startRendering();
+}
+
+Game::~Game() {
+    //----------------------------------------------------
+    // 9 clean
+    //----------------------------------------------------
+    //OIS
+    input_mgr_->destroyInputObject(mouse_);
+    mouse_ = nullptr;
+    input_mgr_->destroyInputObject(keyboard_);
+    keyboard_ = nullptr;
+    OIS::InputManager::destroyInputSystem(input_mgr_);
+    input_mgr_ = nullptr;
+}
+
+bool Game::init_scene() {
+    scene_mgr_->setAmbientLight(Ogre::ColourValue(.5f, .5f, .5f));
+    auto r = scene_mgr_->getRootSceneNode();
+    sn_world_node_ = r->createChildSceneNode();
+
+    return true;
+}
+
+bool Game::init_terrain_chunk() {
+    if ( world_ != NULL ) {
+        sn_world_node_->detachObject(world_);
+        scene_mgr_->destroyManualObject(world_);
+    }
+    world_ = scene_mgr_->createManualObject("Terrain");
+    sn_world_node_->attachObject(world_);
+
+    return true;
+}
+
+bool Game::init_view() {
     cam_ = scene_mgr_->createCamera("SimpleCamera");
-
-    //-----------------------------------------------------
-    // 6 Create one viewport, entire window_
-    //-----------------------------------------------------
     viewport_ = window_->addViewport(cam_);
+    return true;
+}
 
+bool Game::init_input() {
     //----------------------------------------------------
     // 7 add OIS input handling
     //----------------------------------------------------
@@ -116,30 +165,17 @@ bool bm::Game::init()
     mouse_->setEventCallback(this);
     root_->addFrameListener(this);
     Ogre::WindowEventUtilities::addWindowEventListener(window_, this);
+
     return true;
 }
 
-void Game::run() {
-    //----------------------------------------------------
-    // 8 start rendering
-    //----------------------------------------------------
-    // blocks until a frame listener returns false. eg from pressing escape
-    // in this example
-    root_->startRendering();
+bool Game::init_models() {
+    "bearded_man";
+    "boulder";
+    "mark_pick";
+    return false;
 }
 
-Game::~Game() {
-    //----------------------------------------------------
-    // 9 clean
-    //----------------------------------------------------
-    //OIS
-    input_mgr_->destroyInputObject(mouse_);
-    mouse_ = nullptr;
-    input_mgr_->destroyInputObject(keyboard_);
-    keyboard_ = nullptr;
-    OIS::InputManager::destroyInputSystem(input_mgr_);
-    input_mgr_ = nullptr;
-}
 
 } // ns bm
 

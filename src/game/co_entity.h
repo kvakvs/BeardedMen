@@ -5,8 +5,8 @@
 
 #include "game/component.h"
 #include "game/g_defs.h"
-#include "gfx/model.h"
-#include "model_id.h"
+//#include "gfx/model.h"
+#include "util/types.h"
 #include "util/vec.h"
 
 namespace bm {
