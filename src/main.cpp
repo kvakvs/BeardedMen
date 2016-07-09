@@ -170,7 +170,7 @@ bool Game::init_input() {
 }
 
 bool Game::init_models() {
-    "bearded_man";
+    auto m1 = mesh::create_mesh_from_pv("bearded_man");
     "boulder";
     "mark_pick";
     return false;
